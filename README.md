@@ -19,6 +19,10 @@ This library provides an implementation of
 
 the entire sequence of observations. This process is also called smoothing.
 
+# Roadmap and Current Status
+
+**Working in progress.**
+
 # Requirements
 
 * .NET Standard 2.0 or .NET Standard 4.6.1

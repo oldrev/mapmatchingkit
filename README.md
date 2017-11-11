@@ -2,7 +2,7 @@
 
 Sandwych.MapMatchingKit is a GPS map-matching solution for .NET platform.
 
-This solution is porting from GraphHopper which developed in Java.
+This solution is porting from the GraphHopper's "map-matching" project which developed in Java.
 
 ## Sandwych.MapMatchingKit
 

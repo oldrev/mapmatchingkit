@@ -1,6 +1,6 @@
 # Overview
 
-Sandwych.MapMatchingKit is a GPS map-matching solution for .NET standard 2.0.
+Sandwych.MapMatchingKit is a GPS map-matching solution for .NET platform.
 
 This solution is porting from GraphHopper which developed in Java.
 
@@ -10,7 +10,7 @@ The map-matching library.
 
 ## Sandwych.Hmm
 
-A general purpose utility library implements Hidden Markov Models (HMM) for time-inhomogeneous Markov processes for .NET Standard 2.0.
+A general purpose utility library implements Hidden Markov Models (HMM) for time-inhomogeneous Markov processes for .NET.
 
 This library provides an implementation of
 
@@ -18,6 +18,10 @@ This library provides an implementation of
 * The forward-backward algorithm, which computes the probability of all state candidates given
 
 the entire sequence of observations. This process is also called smoothing.
+
+# Requirements
+
+* .NET Standard 2.0 or .NET Standard 4.6.1
 
 # Applications
 
@@ -32,10 +36,6 @@ Besides map matching, the hmm-lib can also be used for other applications.
 
 This library is licensed under the
 [Apache 2.0 license](http://www.apache.org/licenses/LICENSE-2.0.html).
-
-# Dependencies
-
-Except for testing, there are no dependencies to other libraries.
 
 # Contribute
 Contributions are welcome! For bug reports, please create an issue. 

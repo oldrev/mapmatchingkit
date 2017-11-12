@@ -24,7 +24,7 @@ namespace Sandwych.Hmm
     /// <summary>
     /// Implementation utilities.
     /// </summary>
-    public static class Utils
+    public static class HmmUtils
     {
 
         public static int InitialHashMapCapacity(int maxElements)

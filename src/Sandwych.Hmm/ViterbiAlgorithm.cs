@@ -100,8 +100,8 @@ namespace Sandwych.Hmm
 
             public ForwardStepResult(int numberStates)
             {
-                _newMessage = new Dictionary<TState, double>(Utils.InitialHashMapCapacity(numberStates));
-                _newExtendedStates = new Dictionary<TState, ExtendedState>(Utils.InitialHashMapCapacity(numberStates));
+                _newMessage = new Dictionary<TState, double>(HmmUtils.InitialHashMapCapacity(numberStates));
+                _newExtendedStates = new Dictionary<TState, ExtendedState>(HmmUtils.InitialHashMapCapacity(numberStates));
             }
         }
 
@@ -215,7 +215,7 @@ namespace Sandwych.Hmm
             if (_forwardBackward != null)
             {
                 _forwardBackward.StartWithInitialStateProbabilities(initialStates,
-                        Utils.LogToNonLogProbabilities(initialLogProbabilities));
+                        HmmUtils.LogToNonLogProbabilities(initialLogProbabilities));
             }
         }
 
@@ -241,7 +241,7 @@ namespace Sandwych.Hmm
             if (_forwardBackward != null)
             {
                 _forwardBackward.StartWithInitialObservation(observation, candidates,
-                        Utils.LogToNonLogProbabilities(emissionLogProbabilities));
+                        HmmUtils.LogToNonLogProbabilities(emissionLogProbabilities));
             }
         }
 
@@ -301,8 +301,8 @@ namespace Sandwych.Hmm
             if (_forwardBackward != null)
             {
                 _forwardBackward.NextStep(observation, candidates,
-                        Utils.LogToNonLogProbabilities(emissionLogProbabilities),
-                        Utils.LogToNonLogProbabilities(transitionLogProbabilities));
+                        HmmUtils.LogToNonLogProbabilities(emissionLogProbabilities),
+                        HmmUtils.LogToNonLogProbabilities(transitionLogProbabilities));
             }
         }
 

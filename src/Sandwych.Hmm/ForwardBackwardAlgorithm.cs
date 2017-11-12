@@ -284,7 +284,7 @@ namespace Sandwych.Hmm
             {
                 var probability = forwardProbabilities[state] * backwardProbabilities[state];
                 //assert Utils.probabilityInRange(probability, DELTA);
-                Debug.Assert(Utils.ProbabilityInRange(probability, Delta));
+                Debug.Assert(HmmUtils.ProbabilityInRange(probability, Delta));
                 result[state] = probability;
             }
             //assert sumsToOne(result.values());

@@ -11,7 +11,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Sandwych.Hmm\Sandwych.Hmm.csproj" />
+    <ProjectReference Include="..\..\src\Sandwych.Hmm\Sandwych.Hmm.csproj" />
   </ItemGroup>
 
 </Project>

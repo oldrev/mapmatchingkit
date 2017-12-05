@@ -5,9 +5,13 @@
     <TargetFramework>netcoreapp2.0</TargetFramework>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <LangVersion>latest</LangVersion>
+  </PropertyGroup>
+
   <ItemGroup>
     <PackageReference Include="Accord.Statistics" Version="3.8.0" />
-    <PackageReference Include="BenchmarkDotNet" Version="0.10.10" />
+    <PackageReference Include="BenchmarkDotNet" Version="0.10.11" />
   </ItemGroup>
 
   <ItemGroup>

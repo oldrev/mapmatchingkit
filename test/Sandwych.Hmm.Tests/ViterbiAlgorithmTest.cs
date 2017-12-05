@@ -81,7 +81,7 @@ namespace Sandwych.Hmm.Tests
                     transitionLogProbabilities, transitionDescriptors);
 
             var result =
-                     viterbi.computeMostLikelySequence();
+                     viterbi.ComputeMostLikelySequence();
 
             // Check most likely sequence
             Assert.Equal(4, result.Count);
@@ -170,7 +170,7 @@ namespace Sandwych.Hmm.Tests
         public void TestEmptySequence()
         {
             var viterbi = new ViterbiAlgorithm<Rain, Umbrella, Descriptor>();
-            var result = viterbi.computeMostLikelySequence();
+            var result = viterbi.ComputeMostLikelySequence();
 
             //Assert.Equal(Arrays.asList(), result);
             Assert.False(viterbi.IsBroken());
@@ -319,7 +319,7 @@ namespace Sandwych.Hmm.Tests
             viterbi.NextStep(Umbrella.T, candidates, emissionLogProbabilitiesForUmbrella,
                     transitionLogProbabilities);
 
-            var result = viterbi.computeMostLikelySequence();
+            var result = viterbi.ComputeMostLikelySequence();
 
             // Check most likely sequence
             Assert.Equal(4, result.Count);

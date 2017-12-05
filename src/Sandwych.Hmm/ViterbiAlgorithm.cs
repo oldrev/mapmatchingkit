@@ -145,7 +145,7 @@ namespace Sandwych.Hmm
          */
         public ViterbiAlgorithm<TState, TObservation, TDescriptor> SetKeepMessageHistory(bool keepMessageHistory)
         {
-            if (processingStarted())
+            if (ProcessingStarted())
             {
                 throw new InvalidOperationException("Processing has already started.");
             }
@@ -170,7 +170,7 @@ namespace Sandwych.Hmm
          */
         public ViterbiAlgorithm<TState, TObservation, TDescriptor> SetComputeSmoothingProbabilities(bool computeSmoothingProbabilities)
         {
-            if (processingStarted())
+            if (this.ProcessingStarted())
             {
                 throw new InvalidOperationException("Processing has already started.");
             }
@@ -190,7 +190,7 @@ namespace Sandwych.Hmm
          * Returns whether {@link #startWithInitialObservation(Object, Collection, Map)}
          * or {@link #startWithInitialStateProbabilities(Collection, Map)} has already been called.
          */
-        public bool processingStarted()
+        public bool ProcessingStarted()
         {
             return _message != null;
         }
@@ -208,9 +208,9 @@ namespace Sandwych.Hmm
          * {@link #startWithInitialObservation(Object, Collection, Map)}
          * has already been called
          */
-        public void startWithInitialStateProbabilities(IEnumerable<TState> initialStates, IReadOnlyDictionary<TState, double> initialLogProbabilities)
+        public void StartWithInitialStateProbabilities(IEnumerable<TState> initialStates, IReadOnlyDictionary<TState, double> initialLogProbabilities)
         {
-            InitializeStateProbabilities(default(TObservation), initialStates, initialLogProbabilities);
+            this.InitializeStateProbabilities(default(TObservation), initialStates, initialLogProbabilities);
 
             if (_forwardBackward != null)
             {
@@ -236,7 +236,7 @@ namespace Sandwych.Hmm
         public void StartWithInitialObservation(TObservation observation, IEnumerable<TState> candidates,
                 IReadOnlyDictionary<TState, double> emissionLogProbabilities)
         {
-            InitializeStateProbabilities(observation, candidates, emissionLogProbabilities);
+            this.InitializeStateProbabilities(observation, candidates, emissionLogProbabilities);
 
             if (_forwardBackward != null)
             {
@@ -269,7 +269,7 @@ namespace Sandwych.Hmm
                 IReadOnlyDictionary<Transition<TState>, double> transitionLogProbabilities,
                 IReadOnlyDictionary<Transition<TState>, TDescriptor> transitionDescriptors)
         {
-            if (!processingStarted())
+            if (!this.ProcessingStarted())
             {
                 throw new InvalidOperationException(
                         "startWithInitialStateProbabilities() or startWithInitialObservation() "
@@ -281,7 +281,7 @@ namespace Sandwych.Hmm
             }
 
             // Forward step
-            var forwardStepResult = ForwardStep(observation, _prevCandidates,
+            var forwardStepResult = this.ForwardStep(observation, _prevCandidates,
                     candidates, _message, emissionLogProbabilities, transitionLogProbabilities,
                     transitionDescriptors);
             _isBroken = HmmBreak(forwardStepResult._newMessage);
@@ -313,8 +313,8 @@ namespace Sandwych.Hmm
                 IReadOnlyDictionary<TState, double> emissionLogProbabilities,
                 IReadOnlyDictionary<Transition<TState>, double> transitionLogProbabilities)
         {
-            NextStep(observation, candidates, emissionLogProbabilities, transitionLogProbabilities,
-                    new Dictionary<Transition<TState>, TDescriptor>());
+            this.NextStep(observation, candidates, emissionLogProbabilities, transitionLogProbabilities,
+                     new Dictionary<Transition<TState>, TDescriptor>());
         }
 
         /**
@@ -326,7 +326,7 @@ namespace Sandwych.Hmm
          * with respect to s_1, ..., s_T, where s_t is a state candidate at time step t,
          * o_t is the observation at time step t and T is the number of time steps.
          */
-        public IReadOnlyList<SequenceState<TState, TObservation, TDescriptor>> computeMostLikelySequence()
+        public IReadOnlyList<SequenceState<TState, TObservation, TDescriptor>> ComputeMostLikelySequence()
         {
             if (_message == null)
             {
@@ -336,7 +336,7 @@ namespace Sandwych.Hmm
             }
             else
             {
-                return RetrieveMostLikelySequence();
+                return this.RetrieveMostLikelySequence();
             }
         }
 
@@ -411,7 +411,7 @@ namespace Sandwych.Hmm
         private void InitializeStateProbabilities(TObservation observation, IEnumerable<TState> candidates,
                 IReadOnlyDictionary<TState, double> initialLogProbabilities)
         {
-            if (processingStarted())
+            if (ProcessingStarted())
             {
                 throw new InvalidOperationException("Initial probabilities have already been set.");
             }
@@ -545,7 +545,7 @@ namespace Sandwych.Hmm
             // Otherwise an HMM break would have occurred and message would be null.
             Debug.Assert(_message.Count != 0);
 
-            var lastState = GetMostLikelyState();
+            var lastState = this.GetMostLikelyState();
 
             // Retrieve most likely state sequence in reverse order
             var result = new List<SequenceState<TState, TObservation, TDescriptor>>();
@@ -563,7 +563,7 @@ namespace Sandwych.Hmm
             }
             while (es != null)
             {
-                double smoothingProbability = double.NaN;
+                var smoothingProbability = double.NaN;
                 if (_forwardBackward != null)
                 {
                     // Number of time steps is the same for Viterbi and ForwardBackward algorithm.

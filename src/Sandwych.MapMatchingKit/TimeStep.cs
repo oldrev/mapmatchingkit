@@ -29,9 +29,7 @@ namespace Sandwych.MapMatchingKit
     /// <typeparam name="TState">road position type, which corresponds to the HMM state.</typeparam>
     /// <typeparam name="TObservation">location measurement type, which corresponds to the HMM observation.</typeparam>
     /// <typeparam name="TRoadPath">road path object</typeparam>
-    public class TimeStep<TState, TObservation, TRoadPath>
-        where TState : struct
-        where TObservation : struct
+    public readonly struct TimeStep<TState, TObservation, TRoadPath>
     {
 
         private readonly TObservation _observation;

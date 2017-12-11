@@ -27,11 +27,11 @@ namespace Sandwych.MapMatchingKit.Util
     /// noise and sparseness." Proceedings of the 17th ACM SIGSPATIAL International
     /// Conference on Advances in Geographic Information Systems. ACM, 2009.
     /// </summary>
-    public struct HmmProbabilities
+    public readonly struct HmmProbabilities
     {
 
-        private readonly double sigma;
-        private readonly double beta;
+        private readonly double _sigma;
+        private readonly double _beta;
 
         /**
          * @param sigma standard deviation of the normal distribution [m] used for
@@ -41,8 +41,8 @@ namespace Sandwych.MapMatchingKit.Util
          */
         public HmmProbabilities(double sigma, double beta)
         {
-            this.sigma = sigma;
-            this.beta = beta;
+            _sigma = sigma;
+            _beta = beta;
         }
 
         /**
@@ -53,7 +53,7 @@ namespace Sandwych.MapMatchingKit.Util
          */
         public double EmissionLogProbability(double distance)
         {
-            return Distributions.LogNormalDistribution(sigma, distance);
+            return Distributions.LogNormalDistribution(_sigma, distance);
         }
 
         /**
@@ -70,7 +70,7 @@ namespace Sandwych.MapMatchingKit.Util
             // Transition metric taken from Newson & Krumm.
             var transitionMetric = Math.Abs(linearDistance - routeLength);
 
-            return Distributions.LogExponentialDistribution(beta, transitionMetric);
+            return Distributions.LogExponentialDistribution(_beta, transitionMetric);
         }
 
     }

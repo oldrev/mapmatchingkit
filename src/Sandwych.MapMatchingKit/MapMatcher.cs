@@ -19,6 +19,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using NetTopologySuite.Operation.Distance;
 using Sandwych.Hmm;
 using Sandwych.MapMatchingKit.Util;
 
@@ -42,7 +43,7 @@ namespace Sandwych.MapMatchingKit
      * @author Stefan Holder
      * @author kodonnell
      */
-    public class MapMatcher<Path>
+    public class MapMatcher<TRoadPath>
     {
         private double measurementErrorSigma = 0;
         private double transitionProbabilityBeta = 0;
@@ -54,19 +55,20 @@ namespace Sandwych.MapMatchingKit
         /// <param name="originalGpxEntriesCount"></param>
         /// <param name="queryGraph"></param>
         /// <returns></returns>
-        private IReadOnlyList<SequenceState<MatcherState, GpsEntry, Path>> ComputeViterbiSequence(
-                IEnumerable<TimeStep<MatcherState, GpsEntry, Path>> timeSteps, int originalGpxEntriesCount)
+        private IReadOnlyList<SequenceState<MatcherCandidate, GpsEntry, TRoadPath>> ComputeViterbiSequence(
+                in IEnumerable<TimeStep<MatcherCandidate, GpsEntry, TRoadPath>> timeSteps, in int originalGpxEntriesCount)
         {
-            HmmProbabilities probabilities = new HmmProbabilities(measurementErrorSigma, transitionProbabilityBeta);
-            var viterbi = new ViterbiAlgorithm<MatcherState, GpsEntry, Path>();
+            var probabilities = new HmmProbabilities(measurementErrorSigma, transitionProbabilityBeta);
+            var viterbi = new ViterbiAlgorithm<MatcherCandidate, GpsEntry, TRoadPath>();
 
             int timeStepCounter = 0;
-            TimeStep<MatcherState, GpsEntry, Path> prevTimeStep = null;
+            TimeStep<MatcherCandidate, GpsEntry, TRoadPath> prevTimeStep = default;
+            bool hasPrevTimeStep = false;
             foreach (var timeStep in timeSteps)
             {
                 this.ComputeEmissionProbabilities(timeStep, probabilities);
 
-                if (prevTimeStep == null)
+                if (!hasPrevTimeStep)
                 {
                     viterbi.StartWithInitialObservation(timeStep.Observation, timeStep.Candidates, timeStep.EmissionLogProbabilities);
                 }
@@ -80,10 +82,10 @@ namespace Sandwych.MapMatchingKit
                 if (viterbi.IsBroken())
                 {
                     var likelyReasonStr = "";
-                    if (prevTimeStep != null)
+                    if (!hasPrevTimeStep)
                     {
-                        GpsEntry prevGPXE = prevTimeStep.Observation;
-                        GpsEntry gpxe = timeStep.Observation;
+                        var prevGPXE = prevTimeStep.Observation;
+                        var gpxe = timeStep.Observation;
                         double dist = 500.0; //distanceCalc.calcDist(prevGPXE.lat, prevGPXE.lon, gpxe.lat, gpxe.lon);
                         if (dist > 2000)
                         {
@@ -102,15 +104,16 @@ namespace Sandwych.MapMatchingKit
         }
 
 
-        private void ComputeTransitionProbabilities(TimeStep<MatcherState, GpsEntry, Path> prevTimeStep,
-                                            TimeStep<MatcherState, GpsEntry, Path> timeStep,
-                                            HmmProbabilities probabilities)
+        private void ComputeTransitionProbabilities(in TimeStep<MatcherCandidate, GpsEntry, TRoadPath> prevTimeStep,
+                                            in TimeStep<MatcherCandidate, GpsEntry, TRoadPath> timeStep,
+                                            in HmmProbabilities probabilities)
         {
-            double linearDistance = 0.1;// distanceCalc.calcDist(prevTimeStep.observation.lat,
-                                        //prevTimeStep.observation.lon, timeStep.observation.lat, timeStep.observation.lon);
+            double linearDistance = DistanceOp.Distance(prevTimeStep.Observation.Point, timeStep.Observation.Point);
+            // distanceCalc.calcDist(prevTimeStep.observation.lat,
+            //prevTimeStep.observation.lon, timeStep.observation.lat, timeStep.observation.lon);
 
             // time difference in seconds
-            double timeDiff = (timeStep.Observation.Time - prevTimeStep.Observation.Time).TotalSeconds;  // / 1000.0;
+            TimeSpan timeDiff = timeStep.Observation.Time - prevTimeStep.Observation.Time;  // / 1000.0;
 
             foreach (var from in prevTimeStep.Candidates)
             {
@@ -168,7 +171,7 @@ namespace Sandwych.MapMatchingKit
         }
 
 
-        private void ComputeEmissionProbabilities(TimeStep<MatcherState, GpsEntry, Path> timeStep, in HmmProbabilities probabilities)
+        private void ComputeEmissionProbabilities(in TimeStep<MatcherCandidate, GpsEntry, TRoadPath> timeStep, in HmmProbabilities probabilities)
         {
             foreach (var candidate in timeStep.Candidates)
             {

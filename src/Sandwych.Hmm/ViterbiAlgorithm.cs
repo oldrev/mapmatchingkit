@@ -60,35 +60,7 @@ namespace Sandwych.Hmm
     public sealed class ViterbiAlgorithm<TState, TObservation, TDescriptor>
     {
 
-        /// <summary>
-        /// Stores addition information for each candidate.
-        /// </summary>
-        private class ExtendedState
-        {
-
-            public readonly TState _state;
-
-            /// <summary>
-            /// * Back pointer to previous state candidate in the most likely sequence.
-            /// * Back pointers are chained using plain references.
-            /// * This allows garbage collection of unreachable back pointers.
-            /// </summary>
-            public readonly ExtendedState _backPointer;
-
-            public readonly TObservation _observation;
-
-            public readonly TDescriptor _transitionDescriptor;
-
-            public ExtendedState(TState state, ExtendedState backPointer, TObservation observation, TDescriptor transitionDescriptor)
-            {
-                this._state = state;
-                this._backPointer = backPointer;
-                this._observation = observation;
-                this._transitionDescriptor = transitionDescriptor;
-            }
-        }
-
-        private struct ForwardStepResult
+        private readonly struct ForwardStepResult
         {
             public readonly IDictionary<TState, double> _newMessage;
 
@@ -96,19 +68,19 @@ namespace Sandwych.Hmm
              * Includes back pointers to previous state candidates for retrieving the most likely
              * sequence after the forward pass.
              */
-            public readonly IDictionary<TState, ExtendedState> _newExtendedStates;
+            public readonly IDictionary<TState, Candidate<TState, TObservation, TDescriptor>> _newExtendedStates;
 
             public ForwardStepResult(int numberStates)
             {
                 _newMessage = new Dictionary<TState, double>(HmmUtils.InitialHashMapCapacity(numberStates));
-                _newExtendedStates = new Dictionary<TState, ExtendedState>(HmmUtils.InitialHashMapCapacity(numberStates));
+                _newExtendedStates = new Dictionary<TState, Candidate<TState, TObservation, TDescriptor>>(HmmUtils.InitialHashMapCapacity(numberStates));
             }
         }
 
         /// <summary>
         /// Allows to retrieve the most likely sequence using back pointers.
         /// </summary>
-        private IDictionary<TState, ExtendedState> _lastExtendedStates;
+        private IDictionary<TState, Candidate<TState, TObservation, TDescriptor>> _lastExtendedStates;
 
         private IEnumerable<TState> _prevCandidates;
 
@@ -233,8 +205,8 @@ namespace Sandwych.Hmm
          * @throws IllegalStateException if this method or
          * {@link #startWithInitialStateProbabilities(Collection, Map)}} has already been called
          */
-        public void StartWithInitialObservation(TObservation observation, IEnumerable<TState> candidates,
-                IReadOnlyDictionary<TState, double> emissionLogProbabilities)
+        public void StartWithInitialObservation(in TObservation observation, in IEnumerable<TState> candidates,
+                in IReadOnlyDictionary<TState, double> emissionLogProbabilities)
         {
             this.InitializeStateProbabilities(observation, candidates, emissionLogProbabilities);
 
@@ -264,10 +236,10 @@ namespace Sandwych.Hmm
          * {@link #startWithInitialObservation(Object, Collection, Map)}
          * has not been called before or if this method is called after an HMM break has occurred
          */
-        public void NextStep(TObservation observation, IEnumerable<TState> candidates,
-                IReadOnlyDictionary<TState, double> emissionLogProbabilities,
-                IReadOnlyDictionary<Transition<TState>, double> transitionLogProbabilities,
-                IReadOnlyDictionary<Transition<TState>, TDescriptor> transitionDescriptors)
+        public void NextStep(in TObservation observation, in IEnumerable<TState> candidates,
+                in IReadOnlyDictionary<TState, double> emissionLogProbabilities,
+                in IReadOnlyDictionary<Transition<TState>, double> transitionLogProbabilities,
+                in IReadOnlyDictionary<Transition<TState>, TDescriptor> transitionDescriptors)
         {
             if (!this.ProcessingStarted())
             {
@@ -309,9 +281,10 @@ namespace Sandwych.Hmm
         /**
          * See {@link #nextStep(Object, Collection, Map, Map, Map)}
          */
-        public void NextStep(TObservation observation, IEnumerable<TState> candidates,
-                IReadOnlyDictionary<TState, double> emissionLogProbabilities,
-                IReadOnlyDictionary<Transition<TState>, double> transitionLogProbabilities)
+        public void NextStep(in TObservation observation,
+                in IEnumerable<TState> candidates,
+                in IReadOnlyDictionary<TState, double> emissionLogProbabilities,
+                in IReadOnlyDictionary<Transition<TState>, double> transitionLogProbabilities)
         {
             this.NextStep(observation, candidates, emissionLogProbabilities, transitionLogProbabilities,
                      new Dictionary<Transition<TState>, TDescriptor>());
@@ -393,7 +366,7 @@ namespace Sandwych.Hmm
          * Returns whether the specified message is either empty or only contains state candidates
          * with zero probability and thus causes the HMM to break.
          */
-        private bool HmmBreak(IDictionary<TState, double> message)
+        private bool HmmBreak(in IDictionary<TState, double> message)
         {
             foreach (var logProbability in message.Values)
             {
@@ -408,8 +381,8 @@ namespace Sandwych.Hmm
         /**
          * @param observation Use only if HMM only starts with first observation.
          */
-        private void InitializeStateProbabilities(TObservation observation, IEnumerable<TState> candidates,
-                IReadOnlyDictionary<TState, double> initialLogProbabilities)
+        private void InitializeStateProbabilities(in TObservation observation, in IEnumerable<TState> candidates,
+                in IReadOnlyDictionary<TState, double> initialLogProbabilities)
         {
             if (ProcessingStarted())
             {
@@ -441,10 +414,10 @@ namespace Sandwych.Hmm
                 _messageHistory.Add(_message);
             }
 
-            _lastExtendedStates = new Dictionary<TState, ExtendedState>(candidates.Count());
+            _lastExtendedStates = new Dictionary<TState, Candidate<TState, TObservation, TDescriptor>>(candidates.Count());
             foreach (TState candidate in candidates)
             {
-                _lastExtendedStates[candidate] = new ExtendedState(candidate, null, observation, default(TDescriptor));
+                _lastExtendedStates[candidate] = new Candidate<TState, TObservation, TDescriptor>(candidate, null, observation, default(TDescriptor));
             }
 
             _prevCandidates = new List<TState>(candidates); // Defensive copy.
@@ -455,11 +428,12 @@ namespace Sandwych.Hmm
          *
          * @throws NullPointerException if any emission probability is missing
          */
-        private ForwardStepResult ForwardStep(TObservation observation, IEnumerable<TState> prevCandidates,
-                IEnumerable<TState> curCandidates, IDictionary<TState, double> message,
-                IReadOnlyDictionary<TState, double> emissionLogProbabilities,
-                IReadOnlyDictionary<Transition<TState>, double> transitionLogProbabilities,
-                IReadOnlyDictionary<Transition<TState>, TDescriptor> transitionDescriptors)
+        private ForwardStepResult ForwardStep(in TObservation observation, in IEnumerable<TState> prevCandidates,
+                in IEnumerable<TState> curCandidates,
+                in IDictionary<TState, double> message,
+                in IReadOnlyDictionary<TState, double> emissionLogProbabilities,
+                in IReadOnlyDictionary<Transition<TState>, double> transitionLogProbabilities,
+                in IReadOnlyDictionary<Transition<TState>, TDescriptor> transitionDescriptors)
         {
             var result = new ForwardStepResult(curCandidates.Count());
             Debug.Assert(prevCandidates.Count() > 0);
@@ -489,18 +463,18 @@ namespace Sandwych.Hmm
                 if (hasMaxPrevState)
                 {
                     var transition = new Transition<TState>(maxPrevState, curState);
-                    var extendedState = new ExtendedState(curState,
-                        _lastExtendedStates.TryGetValue(maxPrevState, out var bp) ? bp : default(ExtendedState),
+                    var extendedState = new Candidate<TState, TObservation, TDescriptor>(curState,
+                        _lastExtendedStates.TryGetValue(maxPrevState, out var bp) ? bp : default,
                         observation,
-                        transitionDescriptors.TryGetValue(transition, out var td) ? td : default(TDescriptor));
+                        transitionDescriptors.TryGetValue(transition, out var td) ? td : default);
                     result._newExtendedStates[curState] = extendedState;
                 }
             }
             return result;
         }
 
-        private double TransitionLogProbability(TState prevState, TState curState,
-            IReadOnlyDictionary<Transition<TState>, double> transitionLogProbabilities)
+        private double TransitionLogProbability(in TState prevState, in TState curState,
+            in IReadOnlyDictionary<Transition<TState>, double> transitionLogProbabilities)
         {
             if (!transitionLogProbabilities.TryGetValue(new Transition<TState>(prevState, curState), out var transitionLogProbability))
             {
@@ -520,9 +494,12 @@ namespace Sandwych.Hmm
         private TState GetMostLikelyState()
         {
             // Otherwise an HMM break would have occurred and message would be null.
-            Debug.Assert(_message.Count > 0);
+            if (_message.Count == 0)
+            {
+                throw new InvalidOperationException("_message is empty!");
+            }
 
-            TState result = default(TState);
+            TState result = default;
             var maxLogProbability = double.NegativeInfinity;
             foreach (var entry in _message)
             {
@@ -533,7 +510,6 @@ namespace Sandwych.Hmm
                 }
             }
 
-            //Debug.Assert(result != null); // Otherwise an HMM break would have occurred.
             return result;
         }
 
@@ -549,7 +525,7 @@ namespace Sandwych.Hmm
 
             // Retrieve most likely state sequence in reverse order
             var result = new List<SequenceState<TState, TObservation, TDescriptor>>();
-            var es = _lastExtendedStates.TryGetValue(lastState, out var esv) ? esv : default(ExtendedState);
+            var es = _lastExtendedStates.TryGetValue(lastState, out var esv) ? esv : default;
             IEnumerator<IReadOnlyDictionary<TState, double>> smoothingIter = null;
             if (_forwardBackward != null)
             {
@@ -570,15 +546,15 @@ namespace Sandwych.Hmm
                     var hasNext = smoothingIter.MoveNext();
                     Debug.Assert(hasNext);
                     var smoothingProbabilitiesVector = smoothingIter.Current;
-                    smoothingProbability = smoothingProbabilitiesVector.TryGetValue(es._state, out var prob) ? prob : double.NaN;
+                    smoothingProbability = smoothingProbabilitiesVector.TryGetValue(es.State, out var prob) ? prob : double.NaN;
                 }
                 else
                 {
                     smoothingProbability = double.NaN;
                 }
-                var ss = new SequenceState<TState, TObservation, TDescriptor>(es._state, es._observation, es._transitionDescriptor, smoothingProbability);
+                var ss = new SequenceState<TState, TObservation, TDescriptor>(es.State, es.Observation, es.TransitionDescriptor, smoothingProbability);
                 result.Add(ss);
-                es = es._backPointer;
+                es = es.BackPointer;
             }
 
             result.Reverse();

@@ -4,8 +4,8 @@ using System.Text;
 
 namespace Sandwych.MapMatchingKit
 {
-    public struct MatcherState
+    public readonly struct MatcherCandidate
     {
-        public bool IsDirected { get; set; }
+        public bool IsDirected => false;
     }
 }

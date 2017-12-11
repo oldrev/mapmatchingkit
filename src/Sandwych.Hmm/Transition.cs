@@ -26,7 +26,7 @@ namespace Sandwych.Hmm
     /// Represents the transition between two consecutive candidates.
     /// </summary>
     /// <typeparam name="TState">the state type</typeparam>
-    public struct Transition<TState> : IEquatable<Transition<TState>>
+    public readonly struct Transition<TState> : IEquatable<Transition<TState>>
     {
         private readonly TState _fromCandidate;
         private readonly TState _toCandidate;

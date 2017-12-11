@@ -28,36 +28,40 @@ namespace Sandwych.Hmm
     /// <typeparam name="TState">The state type</typeparam>
     /// <typeparam name="TObservation">The observation type</typeparam>
     /// <typeparam name="TDescriptor">The transition descriptor type</typeparam>
-    public struct SequenceState<TState, TObservation, TDescriptor>
+    public readonly struct SequenceState<TState, TObservation, TDescriptor>
     {
+        private readonly TState _state;
+        private readonly TObservation _observation;
+        private readonly TDescriptor _transitionDescriptor;
+        private readonly double _smoothingProbability;
 
-        public TState State { get; private set; }
+        public TState State => _state;
 
         /// <summary>
         /// Null if HMM was started with initial state probabilities and state is the initial state.
         /// </summary>
-        public TObservation Observation { get; private set; }
+        public TObservation Observation => _observation;
+
 
         /// <summary>
         /// Null if transition descriptor was not provided.
         /// </summary>
-        public TDescriptor TransitionDescriptor { get; private set; }
+        public TDescriptor TransitionDescriptor => _transitionDescriptor;
 
         /// <summary>
         /// Probability of this state given all observations.
         /// </summary>
-        public double SmoothingProbability { get; private set; }
+        public double SmoothingProbability => _smoothingProbability;
 
-        public SequenceState(TState state, TObservation observation, TDescriptor transitionDescriptor, double smoothingProbability)
+        public SequenceState(in TState state, in TObservation observation, in TDescriptor transitionDescriptor, double smoothingProbability)
         {
-            this.State = state;
-            this.Observation = observation;
-            this.TransitionDescriptor = transitionDescriptor;
-            this.SmoothingProbability = smoothingProbability;
+            _state = state;
+            _observation = observation;
+            _transitionDescriptor = transitionDescriptor;
+            _smoothingProbability = smoothingProbability;
         }
 
         bool HasSmoothingProbability => this.SmoothingProbability != double.NaN;
-
     }
 
 }

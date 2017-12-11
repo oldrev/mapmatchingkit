@@ -36,7 +36,7 @@ namespace Sandwych.Hmm
         /// <summary>
         /// Internal state of each time step.
         /// </summary>
-        private struct Step
+        private readonly struct Step
         {
             public readonly IEnumerable<TState> _candidates;
             public readonly IReadOnlyDictionary<TState, double> _emissionProbabilities;
@@ -44,9 +44,9 @@ namespace Sandwych.Hmm
             public readonly IReadOnlyDictionary<TState, double> _forwardProbabilities;
             public readonly double _scalingDivisor; // Normalizes sum of forward probabilities to 1.
 
-            public Step(IEnumerable<TState> candidates, IReadOnlyDictionary<TState, double> emissionProbabilities,
-                    IReadOnlyDictionary<Transition<TState>, double> transitionProbabilities,
-                    IReadOnlyDictionary<TState, double> forwardProbabilities, double scalingDivisor)
+            public Step(in IEnumerable<TState> candidates, in IReadOnlyDictionary<TState, double> emissionProbabilities,
+                    in IReadOnlyDictionary<Transition<TState>, double> transitionProbabilities,
+                    in IReadOnlyDictionary<TState, double> forwardProbabilities, in double scalingDivisor)
             {
                 this._candidates = candidates;
                 this._emissionProbabilities = emissionProbabilities;
@@ -73,8 +73,8 @@ namespace Sandwych.Hmm
         /// such as {@link ArrayList} to ensure deterministic results. 
         /// </param>
         /// <param name="initialProbabilities">initialProbabilities Initial probabilities for each initial state. </param>
-        public void StartWithInitialStateProbabilities(IEnumerable<TState> initialStates,
-            IReadOnlyDictionary<TState, double> initialProbabilities)
+        public void StartWithInitialStateProbabilities(in IEnumerable<TState> initialStates,
+            in IReadOnlyDictionary<TState, double> initialProbabilities)
         {
             if (!SumsToOne(initialProbabilities.Values))
             {
@@ -98,8 +98,8 @@ namespace Sandwych.Hmm
          * @throws IllegalStateException if this method or
          * {@link #startWithInitialStateProbabilities(Collection, Map)}} has already been called
          */
-        public void StartWithInitialObservation(TObservation observation, IEnumerable<TState> candidates,
-                IReadOnlyDictionary<TState, double> emissionProbabilities)
+        public void StartWithInitialObservation(in TObservation observation, in IEnumerable<TState> candidates,
+                in IReadOnlyDictionary<TState, double> emissionProbabilities)
         {
             InitializeStateProbabilities(observation, candidates, emissionProbabilities);
         }
@@ -121,9 +121,9 @@ namespace Sandwych.Hmm
          * {@link #startWithInitialStateProbabilities(Collection, Map)} nor
          * {@link #startWithInitialObservation(Object, Collection, Map)} has not been called before
          */
-        public void NextStep(TObservation observation, IEnumerable<TState> candidates,
-                IReadOnlyDictionary<TState, double> emissionProbabilities,
-                IReadOnlyDictionary<Transition<TState>, double> transitionProbabilities)
+        public void NextStep(in TObservation observation, in IEnumerable<TState> candidates,
+                in IReadOnlyDictionary<TState, double> emissionProbabilities,
+                in IReadOnlyDictionary<Transition<TState>, double> transitionProbabilities)
         {
             if (_steps == null)
             {
@@ -133,8 +133,8 @@ namespace Sandwych.Hmm
 
             // Make defensive copies.
             // candidates = new List<TState>(candidates);
-            emissionProbabilities = new Dictionary<TState, double>(emissionProbabilities.ToDictionary(p => p.Key, p => p.Value));
-            transitionProbabilities = new Dictionary<Transition<TState>, double>(transitionProbabilities.ToDictionary(p => p.Key, p => p.Value));
+            var newEmissionProbabilities = new Dictionary<TState, double>(emissionProbabilities.ToDictionary(p => p.Key, p => p.Value));
+            var newTransitionProbabilities = new Dictionary<Transition<TState>, double>(transitionProbabilities.ToDictionary(p => p.Key, p => p.Value));
 
             // On-the-fly computation of forward probabilities at each step allows to efficiently
             // (re)compute smoothing probabilities at any time step.
@@ -144,13 +144,13 @@ namespace Sandwych.Hmm
             foreach (var curState in candidates)
             {
                 var forwardProbability = ComputeForwardProbability(curState,
-                        prevForwardProbabilities, emissionProbabilities, transitionProbabilities);
+                        prevForwardProbabilities, newEmissionProbabilities, newTransitionProbabilities);
                 curForwardProbabilities[curState] = forwardProbability;
                 sum += forwardProbability;
             }
 
             NormalizeForwardProbabilities(curForwardProbabilities, sum);
-            _steps.Add(new Step(candidates, emissionProbabilities, transitionProbabilities,
+            _steps.Add(new Step(candidates, newEmissionProbabilities, newTransitionProbabilities,
                     curForwardProbabilities, sum));
 
             _prevCandidates = candidates;
@@ -170,7 +170,7 @@ namespace Sandwych.Hmm
         /// Returns the probability of the specified candidate at the specified zero-based time step
         /// given the observations up to t.
         /// </summary>
-        public double GetForwardProbability(int t, TState candidate)
+        public double GetForwardProbability(in int t, in TState candidate)
         {
             if (_steps == null)
             {
@@ -184,7 +184,7 @@ namespace Sandwych.Hmm
         /// <summary>
         /// Returns the probability of the specified candidate given all previous observations.
         /// </summary>
-        public double GetCurrentForwardProbability(TState candidate)
+        public double GetCurrentForwardProbability(in TState candidate)
         {
             if (_steps == null)
             {
@@ -292,8 +292,8 @@ namespace Sandwych.Hmm
             return result;
         }
 
-        private double ComputeUnscaledBackwardProbability(TState candidate,
-                IReadOnlyDictionary<TState, double> nextBackwardProbabilities, Step nextStep)
+        private double ComputeUnscaledBackwardProbability(in TState candidate,
+                in IReadOnlyDictionary<TState, double> nextBackwardProbabilities, in Step nextStep)
         {
             var result = default(double);
             foreach (TState nextCandidate in nextStep._candidates)
@@ -305,7 +305,7 @@ namespace Sandwych.Hmm
             return result;
         }
 
-        private bool SumsToOne(IEnumerable<double> probabilities)
+        private bool SumsToOne(in IEnumerable<double> probabilities)
         {
             var sum = default(double);
             foreach (var probability in probabilities)
@@ -322,7 +322,7 @@ namespace Sandwych.Hmm
         /// <param name="candidates"></param>
         /// <param name="initialProbabilities"></param>
         private void InitializeStateProbabilities(
-            TObservation observation, IEnumerable<TState> candidates, IReadOnlyDictionary<TState, double> initialProbabilities)
+            in TObservation observation, in IEnumerable<TState> candidates, in IReadOnlyDictionary<TState, double> initialProbabilities)
         {
             if (_steps != null)
             {
@@ -355,9 +355,9 @@ namespace Sandwych.Hmm
         /// <param name="emissionProbabilities"></param>
         /// <param name="transitionProbabilities"></param>
         /// <returns></returns>
-        private double ComputeForwardProbability(TState currentState,
-                IReadOnlyDictionary<TState, double> prevForwardProbabilities, IReadOnlyDictionary<TState, double> emissionProbabilities,
-                IReadOnlyDictionary<Transition<TState>, double> transitionProbabilities)
+        private double ComputeForwardProbability(in TState currentState,
+                in IReadOnlyDictionary<TState, double> prevForwardProbabilities, in IReadOnlyDictionary<TState, double> emissionProbabilities,
+                in IReadOnlyDictionary<Transition<TState>, double> transitionProbabilities)
         {
             var result = default(double);
             foreach (TState prevState in _prevCandidates)
@@ -376,14 +376,14 @@ namespace Sandwych.Hmm
         /// <param name="curState"></param>
         /// <param name="transitionProbabilities"></param>
         /// <returns></returns>
-        private static double GetTransitionProbability(TState prevState, TState curState,
-                IReadOnlyDictionary<Transition<TState>, double> transitionProbabilities)
+        private static double GetTransitionProbability(in TState prevState, in TState curState,
+                in IReadOnlyDictionary<Transition<TState>, double> transitionProbabilities)
         {
             return transitionProbabilities.TryGetValue(new Transition<TState>(prevState, curState), out var transitionProbability) ? transitionProbability : 0.0;
         }
 
         private void NormalizeForwardProbabilities(
-                IDictionary<TState, double> forwardProbabilities, double sum)
+                in IDictionary<TState, double> forwardProbabilities, in double sum)
         {
             foreach (var key in forwardProbabilities.Keys.ToArray())
             {

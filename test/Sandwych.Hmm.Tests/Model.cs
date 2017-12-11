@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Sandwych.Hmm.Tests
 {
-    public struct Rain
+    public class Rain
     {
         public readonly static Rain T = new Rain("Rain");
         public readonly static Rain F = new Rain("Sun");
@@ -21,7 +21,7 @@ namespace Sandwych.Hmm.Tests
 
     }
 
-    public struct Umbrella
+    public class Umbrella
     {
         public readonly static Umbrella T = new Umbrella("Umbrella");
         public readonly static Umbrella F = new Umbrella("No umbrella");

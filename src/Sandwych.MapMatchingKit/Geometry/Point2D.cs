@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Sandwych.MapMatchingKit.Geometry
 {
-    public struct Point2D : IEquatable<Point2D>
+    public readonly struct Point2D : IEquatable<Point2D>
     {
         private readonly double _x;
         private readonly double _y;

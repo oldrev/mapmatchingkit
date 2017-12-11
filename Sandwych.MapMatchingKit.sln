@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.27004.2006
+VisualStudioVersion = 15.0.27130.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sandwych.Hmm", "src\Sandwych.Hmm\Sandwych.Hmm.csproj", "{13A3865C-37AB-49B6-9687-CA285DF2EB04}"
 EndProject
@@ -12,6 +12,8 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{5F02380C-9094-411E-9CB8-40B6259F79D8}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Benchmark", "Benchmark", "{23FE07B7-E394-4F17-A162-CEC270697C78}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sandwych.MapMatchingKit", "src\Sandwych.MapMatchingKit\Sandwych.MapMatchingKit.csproj", "{B8F22581-A63E-4F9C-AF6B-A2115F00FD9C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -31,6 +33,10 @@ Global
 		{0F1F7B8D-A56F-4028-9701-7636482404E9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0F1F7B8D-A56F-4028-9701-7636482404E9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0F1F7B8D-A56F-4028-9701-7636482404E9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B8F22581-A63E-4F9C-AF6B-A2115F00FD9C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B8F22581-A63E-4F9C-AF6B-A2115F00FD9C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B8F22581-A63E-4F9C-AF6B-A2115F00FD9C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B8F22581-A63E-4F9C-AF6B-A2115F00FD9C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

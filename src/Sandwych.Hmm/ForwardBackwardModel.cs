@@ -30,7 +30,7 @@ namespace Sandwych.Hmm
     /// </summary>
     /// <typeparam name="TState">The state type</typeparam>
     /// <typeparam name="TObservation">The observation type</typeparam>
-    public sealed class ForwardBackwardAlgorithm<TState, TObservation>
+    public sealed class ForwardBackwardModel<TState, TObservation> 
     {
 
         /// <summary>
@@ -62,7 +62,7 @@ namespace Sandwych.Hmm
         private IEnumerable<TState> _prevCandidates; // For on-the-fly computation of forward probabilities
 
         /// <summary> Lets the computation start with the given initial state probabilities. </summary>
-        public void StartWithInitialStateProbabilities(in IEnumerable<TState> initialStates,
+        public void Start(in IEnumerable<TState> initialStates,
             in IReadOnlyDictionary<TState, double> initialProbabilities)
         {
             if (!SumsToOne(initialProbabilities.Values))
@@ -70,11 +70,11 @@ namespace Sandwych.Hmm
                 throw new ArgumentException(nameof(initialStates), "Initial state probabilities must sum to 1.");
             }
 
-            this.InitializeStateProbabilities(default(TObservation), initialStates, initialProbabilities);
+            this.InitializeStateProbabilities(default, initialStates, initialProbabilities);
         }
 
         /// <summary> Lets the computation start at the given first observation. </summary>
-        public void StartWithInitialObservation(in TObservation observation, in IEnumerable<TState> candidates,
+        public void Start(in TObservation observation, in IEnumerable<TState> candidates,
                 in IReadOnlyDictionary<TState, double> emissionProbabilities)
         {
             this.InitializeStateProbabilities(observation, candidates, emissionProbabilities);

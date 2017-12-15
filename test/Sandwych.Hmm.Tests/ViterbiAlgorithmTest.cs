@@ -69,9 +69,9 @@ namespace Sandwych.Hmm.Tests
             transitionDescriptors[new Transition<Rain>(Rain.F, Rain.T)] = Descriptor.S2R;
             transitionDescriptors[new Transition<Rain>(Rain.F, Rain.F)] = Descriptor.S2S;
 
-            var viterbi = (new ViterbiAlgorithm<Rain, Umbrella, Descriptor>()).SetKeepMessageHistory(true).
+            var viterbi = (new ViterbiModel<Rain, Umbrella, Descriptor>()).SetKeepMessageHistory(true).
                     SetComputeSmoothingProbabilities(true);
-            viterbi.StartWithInitialObservation(Umbrella.T, candidates,
+            viterbi.Start(Umbrella.T, candidates,
                     emissionLogProbabilitiesForUmbrella);
             viterbi.NextStep(Umbrella.T, candidates, emissionLogProbabilitiesForUmbrella,
                     transitionLogProbabilities, transitionDescriptors);
@@ -132,7 +132,7 @@ namespace Sandwych.Hmm.Tests
         [Fact]
         public void TestSetParams()
         {
-            var viterbi = new ViterbiAlgorithm<Rain, Umbrella, Descriptor>();
+            var viterbi = new ViterbiModel<Rain, Umbrella, Descriptor>();
 
             Assert.False(viterbi.IsKeepMessageHistory);
             viterbi.SetKeepMessageHistory(true);
@@ -169,7 +169,7 @@ namespace Sandwych.Hmm.Tests
         [Fact]
         public void TestEmptySequence()
         {
-            var viterbi = new ViterbiAlgorithm<Rain, Umbrella, Descriptor>();
+            var viterbi = new ViterbiModel<Rain, Umbrella, Descriptor>();
             var result = viterbi.ComputeMostLikelySequence();
 
             //Assert.Equal(Arrays.asList(), result);
@@ -179,7 +179,7 @@ namespace Sandwych.Hmm.Tests
         [Fact]
         public void TestBreakAtInitialMessage()
         {
-            var viterbi = new ViterbiAlgorithm<Rain, Umbrella, Descriptor>();
+            var viterbi = new ViterbiModel<Rain, Umbrella, Descriptor>();
             var candidates = new List<Rain>();
             candidates.Add(Rain.T);
             candidates.Add(Rain.F);
@@ -187,7 +187,7 @@ namespace Sandwych.Hmm.Tests
             var emissionLogProbabilities = new Dictionary<Rain, double>();
             emissionLogProbabilities[Rain.T] = Math.Log(0.0);
             emissionLogProbabilities[Rain.F] = Math.Log(0.0);
-            viterbi.StartWithInitialObservation(Umbrella.T, candidates, emissionLogProbabilities);
+            viterbi.Start(Umbrella.T, candidates, emissionLogProbabilities);
             Assert.True(viterbi.IsBroken);
             //Assert.Equal(Arrays.asList(), viterbi.computeMostLikelySequence());
         }
@@ -195,8 +195,8 @@ namespace Sandwych.Hmm.Tests
         [Fact]
         public void TestEmptyInitialMessage()
         {
-            var viterbi = new ViterbiAlgorithm<Rain, Umbrella, Descriptor>();
-            viterbi.StartWithInitialObservation(Umbrella.T, new List<Rain>(), new Dictionary<Rain, Double>());
+            var viterbi = new ViterbiModel<Rain, Umbrella, Descriptor>();
+            viterbi.Start(Umbrella.T, new List<Rain>(), new Dictionary<Rain, Double>());
             Assert.True(viterbi.IsBroken);
             //assertEquals(Arrays.asList(), viterbi.computeMostLikelySequence());
         }
@@ -204,7 +204,7 @@ namespace Sandwych.Hmm.Tests
         [Fact]
         public void TestBreakAtFirstTransition()
         {
-            var viterbi = new ViterbiAlgorithm<Rain, Umbrella, Descriptor>();
+            var viterbi = new ViterbiModel<Rain, Umbrella, Descriptor>();
             var candidates = new List<Rain>();
             candidates.Add(Rain.T);
             candidates.Add(Rain.F);
@@ -212,7 +212,7 @@ namespace Sandwych.Hmm.Tests
             var emissionLogProbabilities = new Dictionary<Rain, double>();
             emissionLogProbabilities[Rain.T] = Math.Log(0.9);
             emissionLogProbabilities[Rain.F] = Math.Log(0.2);
-            viterbi.StartWithInitialObservation(Umbrella.T, candidates, emissionLogProbabilities);
+            viterbi.Start(Umbrella.T, candidates, emissionLogProbabilities);
             Assert.False(viterbi.IsBroken);
 
             var transitionLogProbabilities = new Dictionary<Transition<Rain>, double>();
@@ -230,7 +230,7 @@ namespace Sandwych.Hmm.Tests
         [Fact]
         public void TestBreakAtFirstTransitionWithNoCandidates()
         {
-            var viterbi = new ViterbiAlgorithm<Rain, Umbrella, Descriptor>();
+            var viterbi = new ViterbiModel<Rain, Umbrella, Descriptor>();
             var candidates = new List<Rain>();
             candidates.Add(Rain.T);
             candidates.Add(Rain.F);
@@ -238,7 +238,7 @@ namespace Sandwych.Hmm.Tests
             var emissionLogProbabilities = new Dictionary<Rain, double>();
             emissionLogProbabilities[Rain.T] = Math.Log(0.9);
             emissionLogProbabilities[Rain.F] = Math.Log(0.2);
-            viterbi.StartWithInitialObservation(Umbrella.T, candidates, emissionLogProbabilities);
+            viterbi.Start(Umbrella.T, candidates, emissionLogProbabilities);
             Assert.False(viterbi.IsBroken);
 
             viterbi.NextStep(Umbrella.T, new List<Rain>(), new Dictionary<Rain, Double>(),
@@ -251,7 +251,7 @@ namespace Sandwych.Hmm.Tests
         [Fact]
         public void TestBreakAtSecondTransition()
         {
-            var viterbi = new ViterbiAlgorithm<Rain, Umbrella, Descriptor>();
+            var viterbi = new ViterbiModel<Rain, Umbrella, Descriptor>();
             var candidates = new List<Rain>();
             candidates.Add(Rain.T);
             candidates.Add(Rain.F);
@@ -259,7 +259,7 @@ namespace Sandwych.Hmm.Tests
             var emissionLogProbabilities = new Dictionary<Rain, double>();
             emissionLogProbabilities[Rain.T] = Math.Log(0.9);
             emissionLogProbabilities[Rain.F] = Math.Log(0.2);
-            viterbi.StartWithInitialObservation(Umbrella.T, candidates, emissionLogProbabilities);
+            viterbi.Start(Umbrella.T, candidates, emissionLogProbabilities);
             Assert.False(viterbi.IsBroken);
 
             var transitionLogProbabilities = new Dictionary<Transition<Rain>, double>();
@@ -309,8 +309,8 @@ namespace Sandwych.Hmm.Tests
             transitionLogProbabilities[new Transition<Rain>(Rain.T, Rain.T)] = Math.Log(0.5);
             transitionLogProbabilities[new Transition<Rain>(Rain.T, Rain.F)] = Math.Log(0.5);
 
-            var viterbi = new ViterbiAlgorithm<Rain, Umbrella, Descriptor>();
-            viterbi.StartWithInitialObservation(Umbrella.T, candidates,
+            var viterbi = new ViterbiModel<Rain, Umbrella, Descriptor>();
+            viterbi.Start(Umbrella.T, candidates,
                     emissionLogProbabilitiesForUmbrella);
             viterbi.NextStep(Umbrella.T, candidates, emissionLogProbabilitiesForUmbrella,
                     transitionLogProbabilities);

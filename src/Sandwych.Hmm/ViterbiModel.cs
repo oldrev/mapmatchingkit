@@ -57,7 +57,7 @@ namespace Sandwych.Hmm
     /// constant number of time steps, only O(t) back pointers and transition descriptors need to be
     /// stored in memory.
     /// </summary>
-    public sealed class ViterbiAlgorithm<TState, TObservation, TDescriptor>
+    public sealed class ViterbiModel<TState, TObservation, TDescriptor> 
     {
 
         private readonly struct ForwardStepResult
@@ -96,14 +96,14 @@ namespace Sandwych.Hmm
          */
         private IDictionary<TState, double> _message;
 
-        private ForwardBackwardAlgorithm<TState, TObservation> _forwardBackward;
+        private ForwardBackwardModel<TState, TObservation> _forwardBackward;
 
         private IList<IDictionary<TState, double>> _messageHistory; // For debugging only.
 
         /// <summary>
         /// Need to construct a new instance for each sequence of observations.
         /// </summary>
-        public ViterbiAlgorithm()
+        public ViterbiModel()
         {
         }
 
@@ -113,9 +113,9 @@ namespace Sandwych.Hmm
          * Default: false
          * Must be called before processing is started.
          */
-        public ViterbiAlgorithm<TState, TObservation, TDescriptor> SetKeepMessageHistory(bool keepMessageHistory)
+        public ViterbiModel<TState, TObservation, TDescriptor> SetKeepMessageHistory(bool keepMessageHistory)
         {
-            if (ProcessingStarted())
+            if (this.IsProcessingStarted)
             {
                 throw new InvalidOperationException("Processing has already started.");
             }
@@ -131,23 +131,24 @@ namespace Sandwych.Hmm
             return this;
         }
 
-        /**
-         * Whether to compute smoothing probabilities using the {@link ForwardBackwardAlgorithm}
-         * for the states of the most likely sequence. Note that this significantly increases
-         * computation time and memory footprint.
-         * Default: false
-         * Must be called before processing is started.
-         */
-        public ViterbiAlgorithm<TState, TObservation, TDescriptor> SetComputeSmoothingProbabilities(bool computeSmoothingProbabilities)
+        /// <summary>
+        /// Whether to compute smoothing probabilities using the ForwardBackwardAlgorithm
+        /// for the states of the most likely sequence. Note that this significantly increases
+        /// computation time and memory footprint. <br/>
+        /// Must be called before processing is started.
+        /// </summary>
+        /// <param name="isComputeSmoothingProbabilities">Default: false</param>
+        /// <returns></returns>
+        public ViterbiModel<TState, TObservation, TDescriptor> SetComputeSmoothingProbabilities(bool isComputeSmoothingProbabilities)
         {
-            if (this.ProcessingStarted())
+            if (this.IsProcessingStarted)
             {
                 throw new InvalidOperationException("Processing has already started.");
             }
 
-            if (computeSmoothingProbabilities)
+            if (isComputeSmoothingProbabilities)
             {
-                _forwardBackward = new ForwardBackwardAlgorithm<TState, TObservation>();
+                _forwardBackward = new ForwardBackwardModel<TState, TObservation>();
             }
             else
             {
@@ -156,94 +157,61 @@ namespace Sandwych.Hmm
             return this;
         }
 
-        /**
-         * Returns whether {@link #startWithInitialObservation(Object, Collection, Map)}
-         * or {@link #startWithInitialStateProbabilities(Collection, Map)} has already been called.
-         */
-        public bool ProcessingStarted()
-        {
-            return _message != null;
-        }
+        public bool IsProcessingStarted => _message != null;
 
-        /**
-         * Lets the HMM computation start with the given initial state probabilities.
-         *
-         * @param initialStates Pass a collection with predictable iteration order such as
-         * {@link ArrayList} to ensure deterministic results.
-         * @param initialLogProbabilities Initial log probabilities for each initial state.
-         *
-         * @throws NullPointerException if any initial probability is missing
-         *
-         * @throws IllegalStateException if this method or
-         * {@link #startWithInitialObservation(Object, Collection, Map)}
-         * has already been called
-         */
-        public void StartWithInitialStateProbabilities(IEnumerable<TState> initialStates, IReadOnlyDictionary<TState, double> initialLogProbabilities)
+        /// <summary>
+        /// Lets the HMM computation start with the given initial state probabilities.
+        /// </summary>
+        /// <param name="initialStates"></param>
+        /// <param name="initialLogProbabilities"></param>
+        public void Start(in IEnumerable<TState> initialStates, in IReadOnlyDictionary<TState, double> initialLogProbabilities)
         {
-            this.InitializeStateProbabilities(default(TObservation), initialStates, initialLogProbabilities);
+            this.InitializeStateProbabilities(default, initialStates, initialLogProbabilities);
 
             if (_forwardBackward != null)
             {
-                _forwardBackward.StartWithInitialStateProbabilities(initialStates,
+                _forwardBackward.Start(initialStates,
                         HmmUtils.LogToNonLogProbabilities(initialLogProbabilities));
             }
         }
 
-        /**
-         * Lets the HMM computation start at the given first observation and uses the given emission
-         * probabilities as the initial state probability for each starting state s.
-         *
-         * @param candidates Pass a collection with predictable iteration order such as
-         * {@link ArrayList} to ensure deterministic results.
-         * @param emissionLogProbabilities Emission log probabilities of the first observation for
-         * each of the road position candidates.
-         *
-         * @throws NullPointerException if any emission probability is missing
-         *
-         * @throws IllegalStateException if this method or
-         * {@link #startWithInitialStateProbabilities(Collection, Map)}} has already been called
-         */
-        public void StartWithInitialObservation(in TObservation observation, in IEnumerable<TState> candidates,
+        /// <summary>
+        /// Lets the HMM computation start at the given first observation and uses the given emission
+        /// probabilities as the initial state probability for each starting state s.
+        /// </summary>
+        /// <param name="observation">Pass a collection with predictable iteration order such as List to ensure deterministic results</param>
+        /// <param name="candidates"></param>
+        /// <param name="emissionLogProbabilities">emissionLogProbabilities Emission log probabilities of the first observation for each of the road position candidates</param>
+        public void Start(in TObservation observation, in IEnumerable<TState> candidates,
                 in IReadOnlyDictionary<TState, double> emissionLogProbabilities)
         {
             this.InitializeStateProbabilities(observation, candidates, emissionLogProbabilities);
 
             if (_forwardBackward != null)
             {
-                _forwardBackward.StartWithInitialObservation(observation, candidates,
+                _forwardBackward.Start(observation, candidates,
                         HmmUtils.LogToNonLogProbabilities(emissionLogProbabilities));
             }
         }
 
-        /**
-         * Processes the next time step. Must not be called if the HMM is broken.
-         *
-         * @param candidates Pass a collection with predictable iteration order such as
-         * {@link ArrayList} to ensure deterministic results.
-         * @param emissionLogProbabilities Emission log probabilities for each candidate state.
-         *
-         * @param transitionLogProbabilities Transition log probability between all pairs of candidates.
-         * A transition probability of zero is assumed for every missing transition.
-         *
-         * @param transitionDescriptors Optional objects that describes the transitions.
-         *
-         * @throws NullPointerException if any emission probability is missing
-         *
-         * @throws IllegalStateException if neither
-         * {@link #startWithInitialStateProbabilities(Collection, Map)} nor
-         * {@link #startWithInitialObservation(Object, Collection, Map)}
-         * has not been called before or if this method is called after an HMM break has occurred
-         */
+        /// <summary>
+        /// Processes the next time step. Must not be called if the HMM is broken.
+        /// </summary>
+        /// <param name="observation"></param>
+        /// <param name="candidates">Pass a collection with predictable iteration order such as List to ensure deterministic results </param>
+        /// <param name="emissionLogProbabilities">Emission log probabilities for each candidate state</param>
+        /// <param name="transitionLogProbabilities">Transition log probability between all pairs of candidates. 
+        /// A transition probability of zero is assumed for every missing transition</param>
+        /// <param name="transitionDescriptors">Optional objects that describes the transitions</param>
         public void NextStep(in TObservation observation, in IEnumerable<TState> candidates,
                 in IReadOnlyDictionary<TState, double> emissionLogProbabilities,
                 in IReadOnlyDictionary<Transition<TState>, double> transitionLogProbabilities,
                 in IReadOnlyDictionary<Transition<TState>, TDescriptor> transitionDescriptors)
         {
-            if (!this.ProcessingStarted())
+            if (!this.IsProcessingStarted)
             {
                 throw new InvalidOperationException(
-                        "startWithInitialStateProbabilities() or startWithInitialObservation() "
-                        + "must be called first.");
+                        "startWithInitialStateProbabilities() or startWithInitialObservation() must be called first.");
             }
             if (this.IsBroken)
             {
@@ -276,9 +244,49 @@ namespace Sandwych.Hmm
             }
         }
 
-        /**
-         * See {@link #nextStep(Object, Collection, Map, Map, Map)}
-         */
+        private void InitializeStateProbabilities(in TObservation observation, in IEnumerable<TState> candidates,
+                     in IReadOnlyDictionary<TState, double> initialLogProbabilities)
+        {
+            if (this.IsProcessingStarted)
+            {
+                throw new InvalidOperationException("Initial probabilities have already been set.");
+            }
+
+            // Set initial log probability for each start state candidate based on first observation.
+            // Do not assign initialLogProbabilities directly to message to not rely on its iteration
+            // order.
+            var initialMessage = new Dictionary<TState, double>(candidates.Count());
+            foreach (var candidate in candidates)
+            {
+                if (!initialLogProbabilities.TryGetValue(candidate, out var logProbability))
+                {
+                    throw new NullReferenceException("No initial probability for " + candidate);
+                }
+                initialMessage[candidate] = logProbability;
+            }
+
+            this.IsBroken = this.HmmBreak(initialMessage);
+            if (this.IsBroken)
+            {
+                return;
+            }
+
+            _message = initialMessage;
+            if (_messageHistory != null)
+            {
+                _messageHistory.Add(_message);
+            }
+
+            _lastExtendedStates = new Dictionary<TState, Candidate<TState, TObservation, TDescriptor>>(candidates.Count());
+            foreach (TState candidate in candidates)
+            {
+                _lastExtendedStates[candidate] = new Candidate<TState, TObservation, TDescriptor>(candidate, null, observation, default(TDescriptor));
+            }
+
+            _prevCandidates = new List<TState>(candidates); // Defensive copy.
+        }
+
+
         public void NextStep(in TObservation observation,
                 in IEnumerable<TState> candidates,
                 in IReadOnlyDictionary<TState, double> emissionLogProbabilities,
@@ -288,15 +296,15 @@ namespace Sandwych.Hmm
                      new Dictionary<Transition<TState>, TDescriptor>());
         }
 
-        /**
-         * Returns the most likely sequence of states for all time steps. This includes the initial
-         * states / initial observation time step. If an HMM break occurred in the last time step t,
-         * then the most likely sequence up to t-1 is returned. See also {@link #isBroken()}.
-         *
-         * <p>Formally, the most likely sequence is argmax p([s_0,] s_1, ..., s_T | o_1, ..., o_T)
-         * with respect to s_1, ..., s_T, where s_t is a state candidate at time step t,
-         * o_t is the observation at time step t and T is the number of time steps.
-         */
+        /// <summary>
+        /// Returns the most likely sequence of states for all time steps. This includes the initial
+        /// states / initial observation time step. If an HMM break occurred in the last time step t,
+        /// then the most likely sequence up to t-1 is returned. See also {@link #isBroken()}.
+        /// 
+        /// <p>Formally, the most likely sequence is argmax p([s_0,] s_1, ..., s_T | o_1, ..., o_T)
+        /// with respect to s_1, ..., s_T, where s_t is a state candidate at time step t,
+        /// o_t is the observation at time step t and T is the number of time steps.
+        /// </summary>
         public IReadOnlyList<SequenceState<TState, TObservation, TDescriptor>> ComputeMostLikelySequence()
         {
             if (_message == null)
@@ -369,47 +377,7 @@ namespace Sandwych.Hmm
             return true;
         }
 
-        private void InitializeStateProbabilities(in TObservation observation, in IEnumerable<TState> candidates,
-                in IReadOnlyDictionary<TState, double> initialLogProbabilities)
-        {
-            if (ProcessingStarted())
-            {
-                throw new InvalidOperationException("Initial probabilities have already been set.");
-            }
 
-            // Set initial log probability for each start state candidate based on first observation.
-            // Do not assign initialLogProbabilities directly to message to not rely on its iteration
-            // order.
-            var initialMessage = new Dictionary<TState, double>(candidates.Count());
-            foreach (var candidate in candidates)
-            {
-                if (!initialLogProbabilities.TryGetValue(candidate, out var logProbability))
-                {
-                    throw new NullReferenceException("No initial probability for " + candidate);
-                }
-                initialMessage[candidate] = logProbability;
-            }
-
-            this.IsBroken = this.HmmBreak(initialMessage);
-            if (this.IsBroken)
-            {
-                return;
-            }
-
-            _message = initialMessage;
-            if (_messageHistory != null)
-            {
-                _messageHistory.Add(_message);
-            }
-
-            _lastExtendedStates = new Dictionary<TState, Candidate<TState, TObservation, TDescriptor>>(candidates.Count());
-            foreach (TState candidate in candidates)
-            {
-                _lastExtendedStates[candidate] = new Candidate<TState, TObservation, TDescriptor>(candidate, null, observation, default(TDescriptor));
-            }
-
-            _prevCandidates = new List<TState>(candidates); // Defensive copy.
-        }
 
         /// <summary>
         /// Computes the new forward message and the back pointers to the previous states.

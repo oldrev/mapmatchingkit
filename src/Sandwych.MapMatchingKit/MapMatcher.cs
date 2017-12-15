@@ -52,14 +52,14 @@ namespace Sandwych.MapMatchingKit
         /// Computes the most likely candidate sequence for the GPX entries.
         /// </summary>
         /// <param name="timeSteps"></param>
-        /// <param name="originalGpxEntriesCount"></param>
+        /// <param name="originalGpsEntriesCount"></param>
         /// <param name="queryGraph"></param>
         /// <returns></returns>
         private IReadOnlyList<SequenceState<MatcherCandidate, GpsEntry, TRoadPath>> ComputeViterbiSequence(
-                in IEnumerable<TimeStep<MatcherCandidate, GpsEntry, TRoadPath>> timeSteps, in int originalGpxEntriesCount)
+                in IEnumerable<TimeStep<MatcherCandidate, GpsEntry, TRoadPath>> timeSteps, in int originalGpsEntriesCount)
         {
             var probabilities = new HmmProbabilities(measurementErrorSigma, transitionProbabilityBeta);
-            var viterbi = new ViterbiAlgorithm<MatcherCandidate, GpsEntry, TRoadPath>();
+            var viterbi = new ViterbiModel<MatcherCandidate, GpsEntry, TRoadPath>();
 
             int timeStepCounter = 0;
             TimeStep<MatcherCandidate, GpsEntry, TRoadPath> prevTimeStep = default;
@@ -70,7 +70,7 @@ namespace Sandwych.MapMatchingKit
 
                 if (!hasPrevTimeStep)
                 {
-                    viterbi.StartWithInitialObservation(timeStep.Observation, timeStep.Candidates, timeStep.EmissionLogProbabilities);
+                    viterbi.Start(timeStep.Observation, timeStep.Candidates, timeStep.EmissionLogProbabilities);
                 }
                 else
                 {

@@ -53,8 +53,8 @@ namespace Sandwych.Hmm.Tests
             transitionProbabilities.Add(new Transition<Rain>(Rain.F, Rain.T), 0.3);
             transitionProbabilities.Add(new Transition<Rain>(Rain.F, Rain.F), 0.7);
 
-            ForwardBackwardAlgorithm<Rain, Umbrella> fw = new ForwardBackwardAlgorithm<Rain, Umbrella>();
-            fw.StartWithInitialStateProbabilities(candidates, initialStateProbabilities);
+            var fw = new ForwardBackwardModel<Rain, Umbrella>();
+            fw.Start(candidates, initialStateProbabilities);
             fw.NextStep(Umbrella.T, candidates, emissionProbabilitiesForUmbrella,
                     transitionProbabilities);
             fw.NextStep(Umbrella.T, candidates, emissionProbabilitiesForUmbrella,

@@ -29,56 +29,46 @@ namespace Sandwych.MapMatchingKit
     /// <typeparam name="TState">road position type, which corresponds to the HMM state.</typeparam>
     /// <typeparam name="TObservation">location measurement type, which corresponds to the HMM observation.</typeparam>
     /// <typeparam name="TRoadPath">road path object</typeparam>
-    public readonly struct TimeStep<TState, TObservation, TRoadPath>
+    public class TimeStep<TState, TObservation, TRoadPath>
     {
-
-        private readonly TObservation _observation;
-        private readonly IEnumerable<TState> _candidates;
-        private readonly Dictionary<TState, double> _emissionLogProbabilities; //= new Dictionary<TState, double>();
-        private readonly Dictionary<Transition<TState>, double> _transitionLogProbabilities; //= new Dictionary<Transition<TState>, double>();
-        private readonly Dictionary<Transition<TState>, TRoadPath> _roadPaths; // = new Dictionary<Transition<TState>, TRoadPath>();
 
         /// <summary>
         /// Observation made at this time step.
         /// </summary>
-        public TObservation Observation => _observation;
-
-
+        public TObservation Observation { get; }
 
         /// <summary>
         /// State candidates at this time step.
         /// </summary>
-        public IEnumerable<TState> Candidates => _candidates;
+        public IEnumerable<TState> Candidates { get; }
 
 
         /// <summary>
         /// Road paths between all candidates pairs of the previous and the current time step.
         /// </summary>
-        public IReadOnlyDictionary<Transition<TState>, TRoadPath> RoadPath => _roadPaths;
+        public Dictionary<Transition<TState>, TRoadPath> RoadPaths { get; }
 
-        public IReadOnlyDictionary<TState, double> EmissionLogProbabilities => _emissionLogProbabilities;
+        public Dictionary<TState, double> EmissionLogProbabilities { get; }
 
-        public IReadOnlyDictionary<Transition<TState>, double> TransitionLogProbabilities => _transitionLogProbabilities;
+        public Dictionary<Transition<TState>, double> TransitionLogProbabilities { get; }
 
-        public IReadOnlyDictionary<Transition<TState>, TRoadPath> RoadPaths => _roadPaths;
 
         public TimeStep(in TObservation observation, IEnumerable<TState> candidates)
         {
-            _emissionLogProbabilities = new Dictionary<TState, double>();
-            _transitionLogProbabilities = new Dictionary<Transition<TState>, double>();
-            _roadPaths = new Dictionary<Transition<TState>, TRoadPath>();
-
-            _observation = observation;
-            _candidates = candidates;
+            this.EmissionLogProbabilities = new Dictionary<TState, double>();
+            this.TransitionLogProbabilities = new Dictionary<Transition<TState>, double>();
+            this.RoadPaths = new Dictionary<Transition<TState>, TRoadPath>();
+            this.Observation = observation;
+            this.Candidates = candidates;
         }
 
         public void AddEmissionLogProbability(TState candidate, double emissionLogProbability)
         {
-            if (_emissionLogProbabilities.ContainsKey(candidate))
+            if (this.EmissionLogProbabilities.ContainsKey(candidate))
             {
                 throw new ArgumentOutOfRangeException(nameof(candidate), "Candidate has already been added.");
             }
-            _emissionLogProbabilities.Add(candidate, emissionLogProbability);
+            this.EmissionLogProbabilities.Add(candidate, emissionLogProbability);
         }
 
         /// <summary>
@@ -91,11 +81,11 @@ namespace Sandwych.MapMatchingKit
                                                 double transitionLogProbability)
         {
             var transition = new Transition<TState>(fromPosition, toPosition);
-            if (_transitionLogProbabilities.ContainsKey(transition))
+            if (this.TransitionLogProbabilities.ContainsKey(transition))
             {
                 throw new ArgumentOutOfRangeException(nameof(transition), "Transition has already been added.");
             }
-            _transitionLogProbabilities.Add(transition, transitionLogProbability);
+            this.TransitionLogProbabilities.Add(transition, transitionLogProbability);
         }
 
         /// <summary>
@@ -107,11 +97,11 @@ namespace Sandwych.MapMatchingKit
         public void AddRoadPath(TState fromPosition, TState toPosition, TRoadPath roadPath)
         {
             var transition = new Transition<TState>(fromPosition, toPosition);
-            if (_roadPaths.ContainsKey(transition))
+            if (this.RoadPaths.ContainsKey(transition))
             {
                 throw new ArgumentOutOfRangeException(nameof(transition), "Transition has already been added.");
             }
-            _roadPaths.Add(transition, roadPath);
+            this.RoadPaths.Add(transition, roadPath);
         }
 
     }

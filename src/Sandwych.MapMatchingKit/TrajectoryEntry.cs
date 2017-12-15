@@ -4,25 +4,26 @@ using System.Text;
 using GeoAPI.Geometries;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.Operation.Distance;
-using Sandwych.MapMatchingKit.Geometry;
 
 namespace Sandwych.MapMatchingKit
 {
-    public readonly struct GpsEntry
+    public readonly struct TrajectoryEntry
     {
+        public long Id { get; }
         public Point Point { get; }
         public DateTimeOffset Time { get; }
 
-        public GpsEntry(in DateTimeOffset time, in Point point)
+        public TrajectoryEntry(in long id, in DateTimeOffset time, in Point point)
         {
+            this.Id = id;
             this.Time = time;
             this.Point = point;
         }
 
-        public static TimeSpan TimeDelta(in GpsEntry prev, in GpsEntry next) =>
+        public static TimeSpan TimeDelta(in TrajectoryEntry prev, in TrajectoryEntry next) =>
             next.Time - prev.Time;
 
-        public double DistanceFrom(in GpsEntry other) =>
+        public double DistanceFrom(in TrajectoryEntry other) =>
             DistanceOp.Distance(this.Point, other.Point);
 
     }

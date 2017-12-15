@@ -21,7 +21,7 @@ using System.Collections.Generic;
 using System.Text;
 using NetTopologySuite.Operation.Distance;
 using Sandwych.Hmm;
-using Sandwych.MapMatchingKit.Util;
+using Sandwych.MapMatchingKit.Markov;
 
 namespace Sandwych.MapMatchingKit
 {
@@ -45,8 +45,9 @@ namespace Sandwych.MapMatchingKit
      */
     public class MapMatcher<TRoadPath>
     {
-        private double measurementErrorSigma = 0;
-        private double transitionProbabilityBeta = 0;
+        private double measurementErrorSigma = 50.0;
+        private double transitionProbabilityBeta = 2.0;
+
 
         /// <summary>
         /// Computes the most likely candidate sequence for the GPX entries.
@@ -55,14 +56,14 @@ namespace Sandwych.MapMatchingKit
         /// <param name="originalGpsEntriesCount"></param>
         /// <param name="queryGraph"></param>
         /// <returns></returns>
-        private IReadOnlyList<SequenceState<MatcherCandidate, GpsEntry, TRoadPath>> ComputeViterbiSequence(
-                in IEnumerable<TimeStep<MatcherCandidate, GpsEntry, TRoadPath>> timeSteps, in int originalGpsEntriesCount)
+        private IReadOnlyList<SequenceState<MatcherCandidate, TrajectoryEntry, TRoadPath>> ComputeViterbiSequence(
+                in IEnumerable<TimeStep<MatcherCandidate, TrajectoryEntry, TRoadPath>> timeSteps, in int originalGpsEntriesCount)
         {
             var probabilities = new HmmProbabilities(measurementErrorSigma, transitionProbabilityBeta);
-            var viterbi = new ViterbiModel<MatcherCandidate, GpsEntry, TRoadPath>();
+            var viterbi = new ViterbiModel<MatcherCandidate, TrajectoryEntry, TRoadPath>();
 
             int timeStepCounter = 0;
-            TimeStep<MatcherCandidate, GpsEntry, TRoadPath> prevTimeStep = default;
+            TimeStep<MatcherCandidate, TrajectoryEntry, TRoadPath> prevTimeStep = default;
             bool hasPrevTimeStep = false;
             foreach (var timeStep in timeSteps)
             {
@@ -86,10 +87,10 @@ namespace Sandwych.MapMatchingKit
                     {
                         var prevGPXE = prevTimeStep.Observation;
                         var gpxe = timeStep.Observation;
-                        double dist = 500.0; //distanceCalc.calcDist(prevGPXE.lat, prevGPXE.lon, gpxe.lat, gpxe.lon);
-                        if (dist > 2000)
+                        var distance = DistanceOp.Distance(prevGPXE.Point, gpxe.Point); //distanceCalc.calcDist(prevGPXE.lat, prevGPXE.lon, gpxe.lat, gpxe.lon);
+                        if (distance > 2000)
                         {
-                            likelyReasonStr = "Too long distance to previous measurement? " + Math.Round(dist) + "m, ";
+                            likelyReasonStr = "Too long distance to previous measurement? " + Math.Round(distance) + "m, ";
                         }
                     }
 
@@ -104,9 +105,9 @@ namespace Sandwych.MapMatchingKit
         }
 
 
-        private void ComputeTransitionProbabilities(in TimeStep<MatcherCandidate, GpsEntry, TRoadPath> prevTimeStep,
-                                            in TimeStep<MatcherCandidate, GpsEntry, TRoadPath> timeStep,
-                                            in HmmProbabilities probabilities)
+        private void ComputeTransitionProbabilities(in TimeStep<MatcherCandidate, TrajectoryEntry, TRoadPath> prevTimeStep,
+                                                    in TimeStep<MatcherCandidate, TrajectoryEntry, TRoadPath> timeStep,
+                                                    in HmmProbabilities probabilities)
         {
             double linearDistance = DistanceOp.Distance(prevTimeStep.Observation.Point, timeStep.Observation.Point);
             // distanceCalc.calcDist(prevTimeStep.observation.lat,
@@ -171,7 +172,7 @@ namespace Sandwych.MapMatchingKit
         }
 
 
-        private void ComputeEmissionProbabilities(in TimeStep<MatcherCandidate, GpsEntry, TRoadPath> timeStep, in HmmProbabilities probabilities)
+        private void ComputeEmissionProbabilities(in TimeStep<MatcherCandidate, TrajectoryEntry, TRoadPath> timeStep, in HmmProbabilities probabilities)
         {
             foreach (var candidate in timeStep.Candidates)
             {

@@ -48,7 +48,7 @@ namespace Sandwych.Hmm
         /// </summary>
         public double SmoothingProbability { get; }
 
-        public SequenceState(in TState state, in TObservation observation, in TDescriptor transitionDescriptor, in double smoothingProbability)
+        public SequenceState(in TState state, in TObservation observation, in TDescriptor transitionDescriptor, in double smoothingProbability = double.NaN)
         {
             this.State = state;
             this.Observation = observation;

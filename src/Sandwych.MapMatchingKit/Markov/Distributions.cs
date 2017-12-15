@@ -18,7 +18,7 @@
  * limitations under the License.
  */
 
-namespace Sandwych.MapMatchingKit.Util
+namespace Sandwych.MapMatchingKit.Markov
 {
 
 
@@ -28,7 +28,7 @@ namespace Sandwych.MapMatchingKit.Util
     public static class Distributions
     {
 
-        private static double NormalDistribution(double sigma, double x) =>
+        public static double NormalDistribution(in double sigma, in double x) =>
             1.0 / (Math.Sqrt(2.0 * Math.PI) * sigma) * Math.Exp(-0.5 * Math.Pow(x / sigma, 2));
 
         /// <summary>
@@ -38,7 +38,7 @@ namespace Sandwych.MapMatchingKit.Util
         /// <param name="sigma"></param>
         /// <param name="x"></param>
         /// <returns></returns>
-        public static double LogNormalDistribution(double sigma, double x) =>
+        public static double LogNormalDistribution(in double sigma, in double x) =>
             Math.Log(1.0 / (Math.Sqrt(2.0 * Math.PI) * sigma)) + (-0.5 * Math.Pow(x / sigma, 2));
 
         /// <summary>
@@ -48,7 +48,7 @@ namespace Sandwych.MapMatchingKit.Util
         /// </param>
         /// <param name="x"></param>
         /// <returns></returns>
-        private static double ExponentialDistribution(double beta, double x) =>
+        public static double ExponentialDistribution(in double beta, in double x) =>
             1.0 / beta * Math.Exp(-x / beta);
 
         /// <summary>
@@ -60,7 +60,7 @@ namespace Sandwych.MapMatchingKit.Util
         /// </param>
         /// <param name="x"></param>
         /// <returns></returns>
-        public static double LogExponentialDistribution(double beta, double x) =>
+        public static double LogExponentialDistribution(in double beta, in double x) =>
             Math.Log(1.0 / beta) - (x / beta);
     }
 }

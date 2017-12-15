@@ -101,7 +101,7 @@ namespace Sandwych.Hmm.Tests
             Assert.Equal(Descriptor.S2R, result[3].TransitionDescriptor);
 
             // Check for HMM breaks
-            Assert.False(viterbi.IsBroken());
+            Assert.False(viterbi.IsBroken);
 
             // Check message history
             var expectedMessageHistory = new List<IDictionary<Rain, double>>();
@@ -173,7 +173,7 @@ namespace Sandwych.Hmm.Tests
             var result = viterbi.ComputeMostLikelySequence();
 
             //Assert.Equal(Arrays.asList(), result);
-            Assert.False(viterbi.IsBroken());
+            Assert.False(viterbi.IsBroken);
         }
 
         [Fact]
@@ -188,7 +188,7 @@ namespace Sandwych.Hmm.Tests
             emissionLogProbabilities[Rain.T] = Math.Log(0.0);
             emissionLogProbabilities[Rain.F] = Math.Log(0.0);
             viterbi.StartWithInitialObservation(Umbrella.T, candidates, emissionLogProbabilities);
-            Assert.True(viterbi.IsBroken());
+            Assert.True(viterbi.IsBroken);
             //Assert.Equal(Arrays.asList(), viterbi.computeMostLikelySequence());
         }
 
@@ -197,7 +197,7 @@ namespace Sandwych.Hmm.Tests
         {
             var viterbi = new ViterbiAlgorithm<Rain, Umbrella, Descriptor>();
             viterbi.StartWithInitialObservation(Umbrella.T, new List<Rain>(), new Dictionary<Rain, Double>());
-            Assert.True(viterbi.IsBroken());
+            Assert.True(viterbi.IsBroken);
             //assertEquals(Arrays.asList(), viterbi.computeMostLikelySequence());
         }
 
@@ -213,7 +213,7 @@ namespace Sandwych.Hmm.Tests
             emissionLogProbabilities[Rain.T] = Math.Log(0.9);
             emissionLogProbabilities[Rain.F] = Math.Log(0.2);
             viterbi.StartWithInitialObservation(Umbrella.T, candidates, emissionLogProbabilities);
-            Assert.False(viterbi.IsBroken());
+            Assert.False(viterbi.IsBroken);
 
             var transitionLogProbabilities = new Dictionary<Transition<Rain>, double>();
             transitionLogProbabilities[new Transition<Rain>(Rain.T, Rain.T)] = Math.Log(0.0);
@@ -223,7 +223,7 @@ namespace Sandwych.Hmm.Tests
             viterbi.NextStep(Umbrella.T, candidates, emissionLogProbabilities,
                     transitionLogProbabilities);
 
-            Assert.True(viterbi.IsBroken());
+            Assert.True(viterbi.IsBroken);
             //assertEquals(Arrays.asList(Rain.T), states(viterbi.computeMostLikelySequence()));
         }
 
@@ -239,11 +239,11 @@ namespace Sandwych.Hmm.Tests
             emissionLogProbabilities[Rain.T] = Math.Log(0.9);
             emissionLogProbabilities[Rain.F] = Math.Log(0.2);
             viterbi.StartWithInitialObservation(Umbrella.T, candidates, emissionLogProbabilities);
-            Assert.False(viterbi.IsBroken());
+            Assert.False(viterbi.IsBroken);
 
             viterbi.NextStep(Umbrella.T, new List<Rain>(), new Dictionary<Rain, Double>(),
                     new Dictionary<Transition<Rain>, Double>());
-            Assert.True(viterbi.IsBroken());
+            Assert.True(viterbi.IsBroken);
 
             //assertEquals(Arrays.asList(Rain.T), states(viterbi.computeMostLikelySequence()));
         }
@@ -260,7 +260,7 @@ namespace Sandwych.Hmm.Tests
             emissionLogProbabilities[Rain.T] = Math.Log(0.9);
             emissionLogProbabilities[Rain.F] = Math.Log(0.2);
             viterbi.StartWithInitialObservation(Umbrella.T, candidates, emissionLogProbabilities);
-            Assert.False(viterbi.IsBroken());
+            Assert.False(viterbi.IsBroken);
 
             var transitionLogProbabilities = new Dictionary<Transition<Rain>, double>();
             transitionLogProbabilities[new Transition<Rain>(Rain.T, Rain.T)] = Math.Log(0.5);
@@ -269,7 +269,7 @@ namespace Sandwych.Hmm.Tests
             transitionLogProbabilities[new Transition<Rain>(Rain.F, Rain.F)] = Math.Log(0.5);
             viterbi.NextStep(Umbrella.T, candidates, emissionLogProbabilities,
                     transitionLogProbabilities);
-            Assert.False(viterbi.IsBroken());
+            Assert.False(viterbi.IsBroken);
 
             transitionLogProbabilities = new Dictionary<Transition<Rain>, double>();
             transitionLogProbabilities[new Transition<Rain>(Rain.T, Rain.T)] = Math.Log(0.0);
@@ -279,7 +279,7 @@ namespace Sandwych.Hmm.Tests
             viterbi.NextStep(Umbrella.T, candidates, emissionLogProbabilities,
                     transitionLogProbabilities);
 
-            Assert.True(viterbi.IsBroken());
+            Assert.True(viterbi.IsBroken);
             //assertEquals(Arrays.asList(Rain.T, Rain.T), states(viterbi.computeMostLikelySequence()));
         }
 

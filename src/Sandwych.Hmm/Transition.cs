@@ -28,36 +28,33 @@ namespace Sandwych.Hmm
     /// <typeparam name="TState">the state type</typeparam>
     public readonly struct Transition<TState> : IEquatable<Transition<TState>>
     {
-        private readonly TState _fromCandidate;
-        private readonly TState _toCandidate;
+        public TState FromCandidate { get; }
 
-        public Transition(TState fromCandidate, TState toCandidate)
+        public TState ToCandidate { get; }
+
+        public Transition(in TState fromCandidate, in TState toCandidate)
         {
-            this._fromCandidate = fromCandidate;
-            this._toCandidate = toCandidate;
+            this.FromCandidate = fromCandidate;
+            this.ToCandidate = toCandidate;
         }
-
-        public TState FromCandidate => _fromCandidate;
-
-        public TState ToCandidate => _toCandidate;
 
         public override int GetHashCode()
         {
             unchecked
             {
                 int hash = 17;
-                hash = hash * 31 + _fromCandidate.GetHashCode();
-                hash = hash * 31 + _toCandidate.GetHashCode();
+                hash = hash * 31 + this.FromCandidate.GetHashCode();
+                hash = hash * 31 + this.ToCandidate.GetHashCode();
                 return hash;
             }
         }
 
         public bool Equals(Transition<TState> other) =>
-            this._fromCandidate.Equals(other._fromCandidate) && this._toCandidate.Equals(other._toCandidate);
+            this.FromCandidate.Equals(other.FromCandidate) && this.ToCandidate.Equals(other.ToCandidate);
 
         public override String ToString()
         {
-            return $"Transition [fromCandidate={_fromCandidate}, toCandidate={_toCandidate}]";
+            return $"Transition [from={this.FromCandidate}, to={this.ToCandidate}]";
         }
 
     }

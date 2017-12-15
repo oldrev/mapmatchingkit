@@ -10,22 +10,19 @@ namespace Sandwych.MapMatchingKit
 {
     public readonly struct GpsEntry
     {
-        private readonly Point _point;
-        private readonly DateTimeOffset _time;
-
-        public Point Point => _point;
-        public DateTimeOffset Time => _time;
+        public Point Point { get; }
+        public DateTimeOffset Time { get; }
 
         public GpsEntry(in DateTimeOffset time, in Point point)
         {
-            _time = time;
-            _point = point;
+            this.Time = time;
+            this.Point = point;
         }
 
-        public TimeSpan TimeDelta(GpsEntry prev, GpsEntry next) =>
+        public static TimeSpan TimeDelta(in GpsEntry prev, in GpsEntry next) =>
             next.Time - prev.Time;
 
-        public double DistanceFrom(GpsEntry other) =>
+        public double DistanceFrom(in GpsEntry other) =>
             DistanceOp.Distance(this.Point, other.Point);
 
     }

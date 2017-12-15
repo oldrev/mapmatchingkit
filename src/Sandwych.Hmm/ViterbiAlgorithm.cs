@@ -62,18 +62,18 @@ namespace Sandwych.Hmm
 
         private readonly struct ForwardStepResult
         {
-            public readonly IDictionary<TState, double> _newMessage;
+            public IDictionary<TState, double> NewMessage { get; }
 
             /**
              * Includes back pointers to previous state candidates for retrieving the most likely
              * sequence after the forward pass.
              */
-            public readonly IDictionary<TState, Candidate<TState, TObservation, TDescriptor>> _newExtendedStates;
+            public IDictionary<TState, Candidate<TState, TObservation, TDescriptor>> NewExtendedStates { get; }
 
             public ForwardStepResult(int numberStates)
             {
-                _newMessage = new Dictionary<TState, double>(HmmUtils.InitialHashMapCapacity(numberStates));
-                _newExtendedStates = new Dictionary<TState, Candidate<TState, TObservation, TDescriptor>>(HmmUtils.InitialHashMapCapacity(numberStates));
+                NewMessage = new Dictionary<TState, double>(HmmUtils.InitialHashMapCapacity(numberStates));
+                NewExtendedStates = new Dictionary<TState, Candidate<TState, TObservation, TDescriptor>>(HmmUtils.InitialHashMapCapacity(numberStates));
             }
         }
 
@@ -95,8 +95,6 @@ namespace Sandwych.Hmm
          * instead of computing the conditional probability of states given the observations.
          */
         private IDictionary<TState, double> _message;
-
-        private bool _isBroken = false;
 
         private ForwardBackwardAlgorithm<TState, TObservation> _forwardBackward;
 
@@ -247,7 +245,7 @@ namespace Sandwych.Hmm
                         "startWithInitialStateProbabilities() or startWithInitialObservation() "
                         + "must be called first.");
             }
-            if (_isBroken)
+            if (this.IsBroken)
             {
                 throw new InvalidOperationException("Method must not be called after an HMM break.");
             }
@@ -256,17 +254,17 @@ namespace Sandwych.Hmm
             var forwardStepResult = this.ForwardStep(observation, _prevCandidates,
                     candidates, _message, emissionLogProbabilities, transitionLogProbabilities,
                     transitionDescriptors);
-            _isBroken = HmmBreak(forwardStepResult._newMessage);
-            if (_isBroken)
+            this.IsBroken = HmmBreak(forwardStepResult.NewMessage);
+            if (this.IsBroken)
             {
                 return;
             }
             if (_messageHistory != null)
             {
-                _messageHistory.Add(forwardStepResult._newMessage);
+                _messageHistory.Add(forwardStepResult.NewMessage);
             }
-            _message = forwardStepResult._newMessage;
-            _lastExtendedStates = forwardStepResult._newExtendedStates;
+            _message = forwardStepResult.NewMessage;
+            _lastExtendedStates = forwardStepResult.NewExtendedStates;
 
             _prevCandidates = new List<TState>(candidates); // Defensive copy.
 
@@ -318,10 +316,7 @@ namespace Sandwych.Hmm
          *
          * An HMM break means that the probability of all states equals zero.
          */
-        public bool IsBroken()
-        {
-            return _isBroken;
-        }
+        public bool IsBroken { get; private set; } = false;
 
         /**
          * @see #setComputeSmoothingProbabilities(boolean)
@@ -333,10 +328,6 @@ namespace Sandwych.Hmm
          */
         public bool IsKeepMessageHistory => _messageHistory != null;
 
-        /**
-         *  Returns the sequence of intermediate forward messages for each time step.
-         *  Returns null if message history is not kept.
-         */
         public IList<IDictionary<TState, double>> MessageHistory => _messageHistory;
 
         public String GetMessageHistoryString()
@@ -362,10 +353,10 @@ namespace Sandwych.Hmm
             return sb.ToString();
         }
 
-        /**
-         * Returns whether the specified message is either empty or only contains state candidates
-         * with zero probability and thus causes the HMM to break.
-         */
+        /// <summary>
+        /// Returns whether the specified message is either empty or only contains state candidates
+        /// with zero probability and thus causes the HMM to break.
+        /// </summary>
         private bool HmmBreak(in IDictionary<TState, double> message)
         {
             foreach (var logProbability in message.Values)
@@ -378,9 +369,6 @@ namespace Sandwych.Hmm
             return true;
         }
 
-        /**
-         * @param observation Use only if HMM only starts with first observation.
-         */
         private void InitializeStateProbabilities(in TObservation observation, in IEnumerable<TState> candidates,
                 in IReadOnlyDictionary<TState, double> initialLogProbabilities)
         {
@@ -402,8 +390,8 @@ namespace Sandwych.Hmm
                 initialMessage[candidate] = logProbability;
             }
 
-            _isBroken = HmmBreak(initialMessage);
-            if (_isBroken)
+            this.IsBroken = this.HmmBreak(initialMessage);
+            if (this.IsBroken)
             {
                 return;
             }
@@ -423,11 +411,9 @@ namespace Sandwych.Hmm
             _prevCandidates = new List<TState>(candidates); // Defensive copy.
         }
 
-        /**
-         * Computes the new forward message and the back pointers to the previous states.
-         *
-         * @throws NullPointerException if any emission probability is missing
-         */
+        /// <summary>
+        /// Computes the new forward message and the back pointers to the previous states.
+        /// </summary>
         private ForwardStepResult ForwardStep(in TObservation observation, in IEnumerable<TState> prevCandidates,
                 in IEnumerable<TState> curCandidates,
                 in IDictionary<TState, double> message,
@@ -442,7 +428,7 @@ namespace Sandwych.Hmm
             {
                 var maxLogProbability = Double.NegativeInfinity;
                 var hasMaxPrevState = false;
-                var maxPrevState = default(TState);
+                TState maxPrevState = default;
                 foreach (var prevState in prevCandidates)
                 {
                     var logProbability = message[prevState] + TransitionLogProbability(
@@ -455,7 +441,7 @@ namespace Sandwych.Hmm
                     }
                 }
                 // Throws NullPointerException if curState is not stored in the map.
-                result._newMessage[curState] = maxLogProbability + emissionLogProbabilities[curState];
+                result.NewMessage[curState] = maxLogProbability + emissionLogProbabilities[curState];
 
                 // Note that maxPrevState == null if there is no transition with non-zero probability.
                 // In this case curState has zero probability and will not be part of the most likely
@@ -467,7 +453,7 @@ namespace Sandwych.Hmm
                         _lastExtendedStates.TryGetValue(maxPrevState, out var bp) ? bp : default,
                         observation,
                         transitionDescriptors.TryGetValue(transition, out var td) ? td : default);
-                    result._newExtendedStates[curState] = extendedState;
+                    result.NewExtendedStates[curState] = extendedState;
                 }
             }
             return result;
@@ -488,9 +474,9 @@ namespace Sandwych.Hmm
             }
         }
 
-        /**
-         * Retrieves the first state of the current forward message with maximum probability.
-         */
+        /// <summary>
+        /// Retrieves the first state of the current forward message with maximum probability.
+        /// </summary>
         private TState GetMostLikelyState()
         {
             // Otherwise an HMM break would have occurred and message would be null.
@@ -513,9 +499,9 @@ namespace Sandwych.Hmm
             return result;
         }
 
-        /**
-         * Retrieves most likely sequence from the internal back pointer sequence.
-         */
+        /// <summary> 
+        /// Retrieves most likely sequence from the internal back pointer sequence.
+        /// </summary>
         private IReadOnlyList<SequenceState<TState, TObservation, TDescriptor>> RetrieveMostLikelySequence()
         {
             // Otherwise an HMM break would have occurred and message would be null.

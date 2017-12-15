@@ -79,7 +79,7 @@ namespace Sandwych.MapMatchingKit
                             timeStep.EmissionLogProbabilities, timeStep.TransitionLogProbabilities,
                             timeStep.RoadPaths);
                 }
-                if (viterbi.IsBroken())
+                if (viterbi.IsBroken)
                 {
                     var likelyReasonStr = "";
                     if (!hasPrevTimeStep)

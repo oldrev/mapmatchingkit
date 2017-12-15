@@ -38,41 +38,30 @@ namespace Sandwych.Hmm
         /// </summary>
         private readonly struct Step
         {
-            public readonly IEnumerable<TState> _candidates;
-            public readonly IReadOnlyDictionary<TState, double> _emissionProbabilities;
-            public readonly IReadOnlyDictionary<Transition<TState>, double> _transitionProbabilities;
-            public readonly IReadOnlyDictionary<TState, double> _forwardProbabilities;
-            public readonly double _scalingDivisor; // Normalizes sum of forward probabilities to 1.
+            public IEnumerable<TState> Candidates { get; }
+            public IReadOnlyDictionary<TState, double> EmissionProbabilities { get; }
+            public IReadOnlyDictionary<Transition<TState>, double> TransitionProbabilities { get; }
+            public IReadOnlyDictionary<TState, double> ForwardProbabilities { get; }
+            public double ScalingDivisor { get; } // Normalizes sum of forward probabilities to 1.
 
             public Step(in IEnumerable<TState> candidates, in IReadOnlyDictionary<TState, double> emissionProbabilities,
                     in IReadOnlyDictionary<Transition<TState>, double> transitionProbabilities,
                     in IReadOnlyDictionary<TState, double> forwardProbabilities, in double scalingDivisor)
             {
-                this._candidates = candidates;
-                this._emissionProbabilities = emissionProbabilities;
-                this._transitionProbabilities = transitionProbabilities;
-                this._forwardProbabilities = forwardProbabilities;
-                this._scalingDivisor = scalingDivisor;
+                this.Candidates = candidates;
+                this.EmissionProbabilities = emissionProbabilities;
+                this.TransitionProbabilities = transitionProbabilities;
+                this.ForwardProbabilities = forwardProbabilities;
+                this.ScalingDivisor = scalingDivisor;
             }
         }
 
-        private const double Delta = 1e-8;
+        public const double Delta = 1e-8;
 
         private IList<Step> _steps;
         private IEnumerable<TState> _prevCandidates; // For on-the-fly computation of forward probabilities
 
-        /*
-         * @throws NullPointerException if any initial probability is missing
-         * @throws IllegalStateException if this method or
-         * {@link #startWithInitialObservation(Object, Collection, Map)} has already been called
-         */
-        /// <summary>
-        /// Lets the computation start with the given initial state probabilities.
-        /// </summary>
-        /// <param name="initialStates">initialStates Pass a collection with predictable iteration order 
-        /// such as {@link ArrayList} to ensure deterministic results. 
-        /// </param>
-        /// <param name="initialProbabilities">initialProbabilities Initial probabilities for each initial state. </param>
+        /// <summary> Lets the computation start with the given initial state probabilities. </summary>
         public void StartWithInitialStateProbabilities(in IEnumerable<TState> initialStates,
             in IReadOnlyDictionary<TState, double> initialProbabilities)
         {
@@ -81,27 +70,46 @@ namespace Sandwych.Hmm
                 throw new ArgumentException(nameof(initialStates), "Initial state probabilities must sum to 1.");
             }
 
-            InitializeStateProbabilities(default(TObservation), initialStates, initialProbabilities);
+            this.InitializeStateProbabilities(default(TObservation), initialStates, initialProbabilities);
         }
 
-        /**
-         * Lets the computation start at the given first observation.
-         *
-         * @param candidates Pass a collection with predictable iteration order such as
-         * {@link ArrayList} to ensure deterministic results.
-         *
-         * @param emissionProbabilities Emission probabilities of the first observation for
-         * each of the road position candidates.
-         *
-         * @throws NullPointerException if any emission probability is missing
-         *
-         * @throws IllegalStateException if this method or
-         * {@link #startWithInitialStateProbabilities(Collection, Map)}} has already been called
-         */
+        /// <summary> Lets the computation start at the given first observation. </summary>
         public void StartWithInitialObservation(in TObservation observation, in IEnumerable<TState> candidates,
                 in IReadOnlyDictionary<TState, double> emissionProbabilities)
         {
-            InitializeStateProbabilities(observation, candidates, emissionProbabilities);
+            this.InitializeStateProbabilities(observation, candidates, emissionProbabilities);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="observation">observation Use only if HMM only starts with first observation.</param>
+        /// <param name="candidates"></param>
+        /// <param name="initialProbabilities"></param>
+        private void InitializeStateProbabilities(
+            in TObservation observation, in IEnumerable<TState> candidates, in IReadOnlyDictionary<TState, double> initialProbabilities)
+        {
+            if (_steps != null)
+            {
+                throw new InvalidOperationException("Initial probabilities have already been set.");
+            }
+
+            //candidates = new List<TState>(candidates); // Defensive copy
+            _steps = new List<Step>();
+
+            var forwardProbabilities = new Dictionary<TState, double>(candidates.Count());
+            var sum = 0.0;
+            foreach (TState candidate in candidates)
+            {
+                var forwardProbability = initialProbabilities[candidate];
+                forwardProbabilities[candidate] = forwardProbability;
+                sum += forwardProbability;
+            }
+
+            NormalizeForwardProbabilities(forwardProbabilities, sum);
+            _steps.Add(new Step(candidates, null, null, forwardProbabilities, sum));
+
+            _prevCandidates = candidates;
         }
 
         /**
@@ -138,7 +146,7 @@ namespace Sandwych.Hmm
 
             // On-the-fly computation of forward probabilities at each step allows to efficiently
             // (re)compute smoothing probabilities at any time step.
-            var prevForwardProbabilities = _steps[_steps.Count - 1]._forwardProbabilities;
+            var prevForwardProbabilities = _steps[_steps.Count - 1].ForwardProbabilities;
             var curForwardProbabilities = new Dictionary<TState, double>(candidates.Count());
             var sum = default(double);
             foreach (var curState in candidates)
@@ -177,7 +185,7 @@ namespace Sandwych.Hmm
                 throw new InvalidOperationException("No time steps yet.");
             }
 
-            return _steps[t]._forwardProbabilities[candidate];
+            return _steps[t].ForwardProbabilities[candidate];
         }
 
 
@@ -208,7 +216,7 @@ namespace Sandwych.Hmm
             var result = default(double);
             foreach (var step in _steps)
             {
-                result += Math.Log(step._scalingDivisor);
+                result += Math.Log(step.ScalingDivisor);
             }
             return result;
         }
@@ -236,8 +244,8 @@ namespace Sandwych.Hmm
 
             // Initial step
             var step = stepIter.Current;
-            var backwardProbabilities = new Dictionary<TState, double>(step._candidates.Count());
-            foreach (TState candidate in step._candidates)
+            var backwardProbabilities = new Dictionary<TState, double>(step.Candidates.Count());
+            foreach (TState candidate in step.Candidates)
             {
                 backwardProbabilities[candidate] = 1.0f;
             }
@@ -245,7 +253,7 @@ namespace Sandwych.Hmm
             {
                 outBackwardProbabilities.Add(backwardProbabilities);
             }
-            result.Add(ComputeSmoothingProbabilitiesVector(step._candidates, step._forwardProbabilities, backwardProbabilities));
+            result.Add(ComputeSmoothingProbabilitiesVector(step.Candidates, step.ForwardProbabilities, backwardProbabilities));
 
             // Remaining steps
             while (stepIter.MoveNext())
@@ -253,22 +261,22 @@ namespace Sandwych.Hmm
                 var nextStep = step;
                 step = stepIter.Current;
                 var nextBackwardProbabilities = backwardProbabilities;
-                backwardProbabilities = new Dictionary<TState, double>(step._candidates.Count());
-                foreach (TState candidate in step._candidates)
+                backwardProbabilities = new Dictionary<TState, double>(step.Candidates.Count());
+                foreach (TState candidate in step.Candidates)
                 {
                     // Using the scaling divisors of the next steps eliminates the need to
                     // normalize the smoothing probabilities,
                     // see also https://en.wikipedia.org/wiki/Forward%E2%80%93backward_algorithm.
                     double probability = ComputeUnscaledBackwardProbability(candidate,
-                            nextBackwardProbabilities, nextStep) / nextStep._scalingDivisor;
+                            nextBackwardProbabilities, nextStep) / nextStep.ScalingDivisor;
                     backwardProbabilities[candidate] = probability;
                 }
                 if (outBackwardProbabilities != null)
                 {
                     outBackwardProbabilities.Add(backwardProbabilities);
                 }
-                result.Add(ComputeSmoothingProbabilitiesVector(step._candidates,
-                        step._forwardProbabilities, backwardProbabilities));
+                result.Add(ComputeSmoothingProbabilitiesVector(step.Candidates,
+                        step.ForwardProbabilities, backwardProbabilities));
             }
             result.Reverse();
             return result;
@@ -296,11 +304,11 @@ namespace Sandwych.Hmm
                 in IReadOnlyDictionary<TState, double> nextBackwardProbabilities, in Step nextStep)
         {
             var result = default(double);
-            foreach (TState nextCandidate in nextStep._candidates)
+            foreach (TState nextCandidate in nextStep.Candidates)
             {
-                result += nextStep._emissionProbabilities[nextCandidate] *
+                result += nextStep.EmissionProbabilities[nextCandidate] *
                         nextBackwardProbabilities[nextCandidate] * GetTransitionProbability(
-                        candidate, nextCandidate, nextStep._transitionProbabilities);
+                        candidate, nextCandidate, nextStep.TransitionProbabilities);
             }
             return result;
         }
@@ -315,37 +323,7 @@ namespace Sandwych.Hmm
             return Math.Abs(sum - 1.0) <= Delta;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="observation">observation Use only if HMM only starts with first observation.</param>
-        /// <param name="candidates"></param>
-        /// <param name="initialProbabilities"></param>
-        private void InitializeStateProbabilities(
-            in TObservation observation, in IEnumerable<TState> candidates, in IReadOnlyDictionary<TState, double> initialProbabilities)
-        {
-            if (_steps != null)
-            {
-                throw new InvalidOperationException("Initial probabilities have already been set.");
-            }
 
-            //candidates = new List<TState>(candidates); // Defensive copy
-            _steps = new List<Step>();
-
-            var forwardProbabilities = new Dictionary<TState, double>(candidates.Count());
-            var sum = 0.0;
-            foreach (TState candidate in candidates)
-            {
-                var forwardProbability = initialProbabilities[candidate];
-                forwardProbabilities[candidate] = forwardProbability;
-                sum += forwardProbability;
-            }
-
-            NormalizeForwardProbabilities(forwardProbabilities, sum);
-            _steps.Add(new Step(candidates, null, null, forwardProbabilities, sum));
-
-            _prevCandidates = candidates;
-        }
 
         /// <summary>
         /// Returns the non-normalized forward probability of the specified state.

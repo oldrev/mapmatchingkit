@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using GeoAPI.Geometries;
 
 namespace Sandwych.MapMatchingKit.RoadMap
 {
@@ -11,10 +12,13 @@ namespace Sandwych.MapMatchingKit.RoadMap
 
         public double Fraction { get; }
 
-        public RoadPoint(in Road edge, in double fraction)
+        public IPoint Geometry { get; }
+
+        public RoadPoint(in Road edge, in double fraction, IPoint point)
         {
             this.Edge = edge;
             this.Fraction = fraction;
+            this.Geometry = point;
         }
 
     }

@@ -27,17 +27,17 @@ namespace Sandwych.MapMatchingKit.Tests.Model
     public readonly struct GpsMeasurement
     {
 
-        public DateTimeOffset Time { get; }
+        public long Time { get; }
 
         public Point Position { get; }
 
-        public GpsMeasurement(in DateTimeOffset time, in Point position)
+        public GpsMeasurement(in long time, in Point position)
         {
             this.Time = time;
             this.Position = position;
         }
 
-        public GpsMeasurement(in DateTimeOffset time, in double lon, in double lat) : this(time, new Point(lon, lat))
+        public GpsMeasurement(in long time, in double lon, in double lat) : this(time, new Point(lon, lat))
         {
         }
 

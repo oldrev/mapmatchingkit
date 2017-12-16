@@ -17,4 +17,8 @@
     <ProjectReference Include="..\Sandwych.Hmm\Sandwych.Hmm.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Data\" />
+  </ItemGroup>
+
 </Project>

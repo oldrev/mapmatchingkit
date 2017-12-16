@@ -90,8 +90,8 @@ namespace Sandwych.MapMatchingKit.Tests
             this._routeLengths = routeLengths;
         }
 
-        private static DateTimeOffset Seconds(int seconds) =>
-            DateTimeOffset.MinValue.AddSeconds(seconds);
+        private static long Seconds(int seconds) =>
+            DateTimeOffset.MinValue.AddSeconds(seconds).ToUnixTimeMilliseconds();
 
         private static void AddRouteLength(in IDictionary<Transition<RoadPosition>, double> routeLengths,
                                            in RoadPosition from, in RoadPosition to, in double routeLength) =>
@@ -136,7 +136,7 @@ namespace Sandwych.MapMatchingKit.Tests
         {
             var linearDistance = this.ComputeDistance(prevTimeStep.Observation.Position,
                     timeStep.Observation.Position);
-            var timeDiff = timeStep.Observation.Time.ToUnixTimeSeconds() - prevTimeStep.Observation.Time.ToUnixTimeSeconds();
+            var timeDiff = (double)(timeStep.Observation.Time - prevTimeStep.Observation.Time) / 1000.0;
 
             foreach (var from in prevTimeStep.Candidates)
             {

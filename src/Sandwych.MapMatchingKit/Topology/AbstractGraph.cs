@@ -13,6 +13,10 @@ namespace Sandwych.MapMatchingKit.Topology
 
         public AbstractGraph(IEnumerable<TEdge> edges)
         {
+            if (edges == null)
+            {
+                throw new ArgumentNullException(nameof(edges));
+            }
             _adjacencyGraph.AddVerticesAndEdgeRange(edges);
         }
 

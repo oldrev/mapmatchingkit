@@ -11,17 +11,15 @@ namespace Sandwych.MapMatchingKit.Topology
         where TPoint : IEdgePoint<TEdge>
     {
         private readonly IGraph<TEdge> _graph;
-        private readonly IEdgeWeightAlgorithm<TEdge> _edgeWeightAlgorithm;
 
-        public DijkstraRouter(in IGraph<TEdge> graph, in IEdgeWeightAlgorithm<TEdge> edgeWeightAlgorithm)
+        public DijkstraRouter(in IGraph<TEdge> graph)
         {
             _graph = graph;
-            _edgeWeightAlgorithm = edgeWeightAlgorithm;
         }
 
-        public bool TryRoute(in TPoint startPoint, in TPoint endPoint, out IEnumerable<TEdge> path)
+        public bool TryRoute(in TPoint startPoint, in TPoint endPoint, Func<TEdge, double> computeWeight, out IEnumerable<TEdge> path)
         {
-            var tryFunc = _graph.InternalGraph.ShortestPathsDijkstra(edge => _edgeWeightAlgorithm.ComputeWeight(edge), startPoint.Edge.Target);
+            var tryFunc = _graph.InternalGraph.ShortestPathsDijkstra(edge => computeWeight(edge), startPoint.Edge.Target);
             return tryFunc(endPoint.Edge.Source, out path);
         }
     }

@@ -13,6 +13,11 @@ namespace Sandwych.MapMatchingKit.Spatial
         private readonly NetTopologySuite.Index.ISpatialIndex<SpatialIndexItem> _index = new STRtree<SpatialIndexItem>();
 
         protected override NetTopologySuite.Index.ISpatialIndex<SpatialIndexItem> Index => _index;
+
+        protected StrtreeIndex(IEnumerable<SpatialIndexItem> items) : base(items)
+        {
+        }
+
     }
 
 }

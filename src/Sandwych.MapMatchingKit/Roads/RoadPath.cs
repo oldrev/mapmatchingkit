@@ -3,8 +3,10 @@ using System.Linq;
 using System.Collections.Generic;
 using System.Text;
 using Sandwych.MapMatchingKit.Topology;
+using NetTopologySuite.Geometries;
+using GeoAPI.Geometries;
 
-namespace Sandwych.MapMatchingKit.RoadMap
+namespace Sandwych.MapMatchingKit.Roads
 {
     public readonly struct RoadPath : IPath<Road, RoadPoint>
     {
@@ -48,6 +50,14 @@ namespace Sandwych.MapMatchingKit.RoadMap
                 }
             }
         }
+
+        public MultiLineString ToGeometry()
+        {
+            var lineStrings = this.Edges.SelectMany(e => e.Geometry).Cast<ILineString>().ToArray();
+            var geom = new MultiLineString(lineStrings);
+            return geom;
+        }
+
     }
 
 }

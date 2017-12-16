@@ -13,5 +13,10 @@ namespace Sandwych.MapMatchingKit.Spatial
 
         protected override NetTopologySuite.Index.ISpatialIndex<SpatialIndexItem> Index => _index;
 
+        public QuadtreeIndex(IEnumerable<SpatialIndexItem> items) : base(items)
+        {
+
+        }
+
     }
 }

@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Text;
 using GeoAPI.Geometries;
 
-namespace Sandwych.MapMatchingKit.RoadMap
+namespace Sandwych.MapMatchingKit.Roads
 {
     public readonly struct RoadPoint : IEdgePoint<Road>
     {

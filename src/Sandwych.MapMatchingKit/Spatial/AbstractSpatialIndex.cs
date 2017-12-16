@@ -11,9 +11,12 @@ namespace Sandwych.MapMatchingKit.Spatial
     {
         protected abstract NetTopologySuite.Index.ISpatialIndex<SpatialIndexItem> Index { get; }
 
-        protected AbstractSpatialIndex()
+        protected AbstractSpatialIndex(IEnumerable<SpatialIndexItem> items)
         {
-
+            foreach (var item in items)
+            {
+                this.Add(item);
+            }
         }
 
         public List<(int id, double distance)> Radius(Point c, double radius)

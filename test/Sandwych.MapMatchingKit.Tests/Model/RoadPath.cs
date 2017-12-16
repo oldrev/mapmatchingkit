@@ -21,8 +21,6 @@ using System.Text;
 
 namespace Sandwych.MapMatchingKit.Tests.Model
 {
-
-
     /**
      * Represents the road path between two consecutive road positions.
      */

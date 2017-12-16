@@ -18,10 +18,13 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using NetTopologySuite.Operation.Distance;
 using Sandwych.Hmm;
 using Sandwych.MapMatchingKit.Markov;
+using Sandwych.MapMatchingKit.Roads;
+using Sandwych.MapMatchingKit.Topology;
 
 namespace Sandwych.MapMatchingKit
 {
@@ -43,11 +46,20 @@ namespace Sandwych.MapMatchingKit
      * @author Stefan Holder
      * @author kodonnell
      */
-    public class MapMatcher<TRoadPath>
+    public class MapMatcher
     {
-        private double measurementErrorSigma = 50.0;
-        private double transitionProbabilityBeta = 2.0;
+        private readonly double measurementErrorSigma = 50.0;
+        private readonly double transitionProbabilityBeta = 2.0;
+        private readonly HmmProbabilities _hmmProbabilities = new HmmProbabilities();
 
+        public RoadMap RoadMap { get; }
+        public IGraphRouter<Road, RoadPoint> Router { get; }
+
+        public MapMatcher(RoadMap roadMap)
+        {
+            this.RoadMap = roadMap;
+            this.Router = new DijkstraRouter<Road, RoadPoint>(this.RoadMap);
+        }
 
         /// <summary>
         /// Computes the most likely candidate sequence for the GPX entries.
@@ -56,14 +68,14 @@ namespace Sandwych.MapMatchingKit
         /// <param name="originalGpsEntriesCount"></param>
         /// <param name="queryGraph"></param>
         /// <returns></returns>
-        private IReadOnlyList<SequenceState<MatcherCandidate, TrajectoryEntry, TRoadPath>> ComputeViterbiSequence(
-                in IEnumerable<TimeStep<MatcherCandidate, TrajectoryEntry, TRoadPath>> timeSteps, in int originalGpsEntriesCount)
+        private IReadOnlyList<SequenceState<MatcherCandidate, TrajectoryEntry, RoadPath>> ComputeViterbiSequence(
+                in IEnumerable<TimeStep<MatcherCandidate, TrajectoryEntry, RoadPath>> timeSteps, in int originalGpsEntriesCount)
         {
             var probabilities = new HmmProbabilities(measurementErrorSigma, transitionProbabilityBeta);
-            var viterbi = new ViterbiModel<MatcherCandidate, TrajectoryEntry, TRoadPath>();
+            var viterbi = new ViterbiModel<MatcherCandidate, TrajectoryEntry, RoadPath>();
 
             int timeStepCounter = 0;
-            TimeStep<MatcherCandidate, TrajectoryEntry, TRoadPath> prevTimeStep = default;
+            TimeStep<MatcherCandidate, TrajectoryEntry, RoadPath> prevTimeStep = default;
             bool hasPrevTimeStep = false;
             foreach (var timeStep in timeSteps)
             {
@@ -105,8 +117,8 @@ namespace Sandwych.MapMatchingKit
         }
 
 
-        private void ComputeTransitionProbabilities(in TimeStep<MatcherCandidate, TrajectoryEntry, TRoadPath> prevTimeStep,
-                                                    in TimeStep<MatcherCandidate, TrajectoryEntry, TRoadPath> timeStep,
+        private void ComputeTransitionProbabilities(in TimeStep<MatcherCandidate, TrajectoryEntry, RoadPath> prevTimeStep,
+                                                    in TimeStep<MatcherCandidate, TrajectoryEntry, RoadPath> timeStep,
                                                     in HmmProbabilities probabilities)
         {
             double linearDistance = DistanceOp.Distance(prevTimeStep.Observation.Point, timeStep.Observation.Point);
@@ -121,24 +133,22 @@ namespace Sandwych.MapMatchingKit
                 foreach (var to in timeStep.Candidates)
                 {
                     // enforce heading if required:
+                    /*
                     if (from.IsDirected)
                     {
                         // Make sure that the path starting at the "from" candidate goes through
                         // the outgoing edge.
-                        /*
                         queryGraph.unfavorVirtualEdgePair(from.getQueryResult().getClosestNode(),
                                 from.getIncomingVirtualEdge().getEdge());
-                                */
                     }
                     if (to.IsDirected)
                     {
                         // Make sure that the path ending at "to" candidate goes through
                         // the incoming edge.
-                        /*
                         queryGraph.unfavorVirtualEdgePair(to.getQueryResult().getClosestNode(),
                                 to.getOutgoingVirtualEdge().getEdge());
-                                */
                     }
+                    */
 
                     // Need to create a new routing algorithm for every routing.
                     /*
@@ -167,12 +177,33 @@ namespace Sandwych.MapMatchingKit
                     //queryGraph.clearUnfavoredStatus();
                     */
 
+                    // For real map matching applications, route lengths and road paths would be
+                    // computed using a router. The most efficient way is to use a single-source
+                    // multi-target router.
+                    //var routeLength = _routeLengths[new Transition<RoadPosition>(from, to)];                    
+
+                    var allPathEdges = default(List<Road>);
+                    RoadPath path = default;
+                    if (from.RoadPoint.Edge.Target != to.RoadPoint.Edge.Source)
+                    {
+                        var pathFound = this.Router.TryRoute(from.RoadPoint, to.RoadPoint, r => 1.0 / r.Length, out var pathEdges);
+                        allPathEdges = new List<Road>(pathEdges.Count() + 2);
+                        allPathEdges.Add(from.RoadPoint.Edge);
+                        allPathEdges.AddRange(pathEdges);
+                        allPathEdges.Add(to.RoadPoint.Edge);
+                    }
+                    path = new RoadPath(from.RoadPoint, to.RoadPoint, allPathEdges);
+                    timeStep.AddRoadPath(from, to, path);
+
+                    var transitionLogProbability = _hmmProbabilities.TransitionLogProbability(
+                            path.Distance, linearDistance, 1.0);
+                    timeStep.AddTransitionLogProbability(from, to, transitionLogProbability);
                 }
             }
         }
 
 
-        private void ComputeEmissionProbabilities(in TimeStep<MatcherCandidate, TrajectoryEntry, TRoadPath> timeStep, in HmmProbabilities probabilities)
+        private void ComputeEmissionProbabilities(in TimeStep<MatcherCandidate, TrajectoryEntry, RoadPath> timeStep, in HmmProbabilities probabilities)
         {
             foreach (var candidate in timeStep.Candidates)
             {

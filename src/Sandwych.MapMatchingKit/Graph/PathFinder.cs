@@ -5,6 +5,7 @@ using GeoAPI.Geometries;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.Operation.Linemerge;
 using QuickGraph;
+using QuickGraph.Algorithms;
 using QuickGraph.Algorithms.Observers;
 using QuickGraph.Algorithms.ShortestPath;
 

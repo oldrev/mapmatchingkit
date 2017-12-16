@@ -4,11 +4,13 @@ using System.Text;
 
 namespace Sandwych.MapMatchingKit.Topology
 {
-    public interface IGraphRouter<TEdge, TPoint>
+    public interface IPath<TEdge, TPoint>
         where TEdge : IGraphEdge
         where TPoint : IEdgePoint<TEdge>
     {
-        bool TryRoute(in TPoint startPoint, in TPoint endPoint, out IEnumerable<TEdge> path);
+        TPoint StartPoint { get; }
+        TPoint EndPoint { get; }
+        IEnumerable<TEdge> Edges { get; }
+        double Distance { get; }
     }
-
 }

@@ -1,27 +1,28 @@
-﻿using QuickGraph.Algorithms.ShortestPath;
+﻿using QuickGraph.Algorithms.Observers;
+using QuickGraph.Algorithms;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
 namespace Sandwych.MapMatchingKit.Topology
 {
-    public class DijkstraRouter<TEdge> : IGraphRouter<TEdge>
+    public class DijkstraRouter<TEdge, TPoint> : IGraphRouter<TEdge, TPoint>
         where TEdge : IGraphEdge
+        where TPoint : IEdgePoint<TEdge>
     {
-        private readonly DijkstraShortestPathAlgorithm<int, TEdge> _dijkstra;
         private readonly IGraph<TEdge> _graph;
         private readonly IEdgeWeightAlgorithm<TEdge> _edgeWeightAlgorithm;
 
-        public DijkstraRouter(IGraph<TEdge> graph, IEdgeWeightAlgorithm<TEdge> edgeWeightAlgorithm)
+        public DijkstraRouter(in IGraph<TEdge> graph, in IEdgeWeightAlgorithm<TEdge> edgeWeightAlgorithm)
         {
             _graph = graph;
             _edgeWeightAlgorithm = edgeWeightAlgorithm;
-            _dijkstra = new DijkstraShortestPathAlgorithm<int, TEdge>(_graph.InternalGraph, edge => _edgeWeightAlgorithm.ComputeWeight(edge));
         }
 
-        public bool TryRoute(TEdge source, TEdge target, out IEnumerable<IGraphEdge> path)
+        public bool TryRoute(in TPoint startPoint, in TPoint endPoint, out IEnumerable<TEdge> path)
         {
-            throw new NotImplementedException();
+            var tryFunc = _graph.InternalGraph.ShortestPathsDijkstra(edge => _edgeWeightAlgorithm.ComputeWeight(edge), startPoint.Edge.Target);
+            return tryFunc(endPoint.Edge.Source, out path);
         }
     }
 }

@@ -30,7 +30,6 @@ namespace Sandwych.MapMatchingKit.Tests.Model
     {
         // The following members are used to check whether the correct road paths are retrieved
         // from the most likely sequence.
-
         public RoadPosition From { get; }
         public RoadPosition To { get; }
 
@@ -42,7 +41,7 @@ namespace Sandwych.MapMatchingKit.Tests.Model
 
         public bool Equals(RoadPath other)
         {
-            return this.From == other.From && this.To == other.To;
+            return this.From.Equals(other.From) && this.To.Equals(other.To);
         }
     }
 }

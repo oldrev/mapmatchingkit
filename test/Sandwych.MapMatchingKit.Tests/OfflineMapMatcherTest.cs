@@ -26,81 +26,85 @@ using Sandwych.Hmm;
 
 namespace Sandwych.MapMatchingKit.Tests
 {
-    /**
-     * This class demonstrate how to use the hmm-lib for map matching. The methods
-     * of this class can be used as a template to implement map matching for an actual map.
-     *
-     * The test scenario is depicted in ./OfflineMapMatcherTest.png.
-     * All road segments can be driven in both directions. The orientation of road segments
-     * is needed to determine the fractions of a road positions.
-     */
+    /// <summary>
+    /// This class demonstrate how to use the hmm-lib for map matching. The methods
+    /// of this class can be used as a template to implement map matching for an actual map. <br/>
+
+    /// The test scenario is depicted in ./OfflineMapMatcherTest.png. <br/>
+    /// All road segments can be driven in both directions. The orientation of road segments
+    /// is needed to determine the fractions of a road positions.
+    /// </summary>
     public class OfflineMapMatcherTest
     {
 
         private readonly HmmProbabilities hmmProbabilities = new HmmProbabilities();
 
-        private readonly IDictionary<GpsMeasurement, IEnumerable<RoadPosition>> candidateMap =
+        private readonly IReadOnlyDictionary<GpsMeasurement, IEnumerable<RoadPosition>> _candidateMap =
                 new Dictionary<GpsMeasurement, IEnumerable<RoadPosition>>();
 
-        private readonly IDictionary<Transition<RoadPosition>, Double> routeLengths = new Dictionary<Transition<RoadPosition>, double>();
+        private readonly IReadOnlyDictionary<Transition<RoadPosition>, Double> _routeLengths;
 
-        private readonly GpsMeasurement gps1 = new GpsMeasurement(Seconds(0), 10, 10);
-        private readonly GpsMeasurement gps2 = new GpsMeasurement(Seconds(1), 30, 20);
-        private readonly GpsMeasurement gps3 = new GpsMeasurement(Seconds(2), 30, 40);
-        private readonly GpsMeasurement gps4 = new GpsMeasurement(Seconds(3), 10, 70);
+        private GpsMeasurement Gps1 { get; } = new GpsMeasurement(Seconds(0), 10, 10);
+        private GpsMeasurement Gps2 { get; } = new GpsMeasurement(Seconds(1), 30, 20);
+        private GpsMeasurement Gps3 { get; } = new GpsMeasurement(Seconds(2), 30, 40);
+        private GpsMeasurement Gps4 { get; } = new GpsMeasurement(Seconds(3), 10, 70);
 
-        private readonly RoadPosition rp11 = new RoadPosition(1, 1.0 / 5.0, 20.0, 10.0);
-        private readonly RoadPosition rp12 = new RoadPosition(2, 1.0 / 5.0, 60.0, 10.0);
-        private readonly RoadPosition rp21 = new RoadPosition(1, 2.0 / 5.0, 20.0, 20.0);
-        private readonly RoadPosition rp22 = new RoadPosition(2, 2.0 / 5.0, 60.0, 20.0);
-        private readonly RoadPosition rp31 = new RoadPosition(1, 5.0 / 6.0, 20.0, 40.0);
-        private readonly RoadPosition rp32 = new RoadPosition(3, 1.0 / 4.0, 30.0, 50.0);
-        private readonly RoadPosition rp33 = new RoadPosition(2, 5.0 / 6.0, 60.0, 40.0);
-        private readonly RoadPosition rp41 = new RoadPosition(4, 2.0 / 3.0, 20.0, 70.0);
-        private readonly RoadPosition rp42 = new RoadPosition(5, 2.0 / 3.0, 60.0, 70.0);
+        private RoadPosition RP11 { get; } = new RoadPosition(1, 1.0 / 5.0, 20.0, 10.0);
+        private RoadPosition RP12 { get; } = new RoadPosition(2, 1.0 / 5.0, 60.0, 10.0);
+        private RoadPosition RP21 { get; } = new RoadPosition(1, 2.0 / 5.0, 20.0, 20.0);
+        private RoadPosition RP22 { get; } = new RoadPosition(2, 2.0 / 5.0, 60.0, 20.0);
+        private RoadPosition RP31 { get; } = new RoadPosition(1, 5.0 / 6.0, 20.0, 40.0);
+        private RoadPosition RP32 { get; } = new RoadPosition(3, 1.0 / 4.0, 30.0, 50.0);
+        private RoadPosition RP33 { get; } = new RoadPosition(2, 5.0 / 6.0, 60.0, 40.0);
+        private RoadPosition RP41 { get; } = new RoadPosition(4, 2.0 / 3.0, 20.0, 70.0);
+        private RoadPosition RP42 { get; } = new RoadPosition(5, 2.0 / 3.0, 60.0, 70.0);
 
         public OfflineMapMatcherTest()
         {
-            candidateMap.Add(gps1, new RoadPosition[] { rp11, rp12 });
-            candidateMap.Add(gps2, new RoadPosition[] { rp21, rp22 });
-            candidateMap.Add(gps3, new RoadPosition[] { rp31, rp32, rp33 });
-            candidateMap.Add(gps4, new RoadPosition[] { rp41, rp42 });
+            _candidateMap = new Dictionary<GpsMeasurement, IEnumerable<RoadPosition>>() {
+                { Gps1, new RoadPosition[] { RP11, RP12 } },
+                { Gps2, new RoadPosition[] { RP21, RP22 } },
+                { Gps3, new RoadPosition[] { RP31, RP32, RP33 } },
+                { Gps4, new RoadPosition[] { RP41, RP42 } },
+            };
 
-            AddRouteLength(rp11, rp21, 10.0);
-            AddRouteLength(rp11, rp22, 110.0);
-            AddRouteLength(rp12, rp21, 110.0);
-            AddRouteLength(rp12, rp22, 10.0);
+            var routeLengths = new Dictionary<Transition<RoadPosition>, double>();
+            AddRouteLength(routeLengths, RP11, RP21, 10.0);
+            AddRouteLength(routeLengths, RP11, RP22, 110.0);
+            AddRouteLength(routeLengths, RP12, RP21, 110.0);
+            AddRouteLength(routeLengths, RP12, RP22, 10.0);
 
-            AddRouteLength(rp21, rp31, 20.0);
-            AddRouteLength(rp21, rp32, 40.0);
-            AddRouteLength(rp21, rp33, 80.0);
-            AddRouteLength(rp22, rp31, 80.0);
-            AddRouteLength(rp22, rp32, 60.0);
-            AddRouteLength(rp22, rp33, 20.0);
+            AddRouteLength(routeLengths, RP21, RP31, 20.0);
+            AddRouteLength(routeLengths, RP21, RP32, 40.0);
+            AddRouteLength(routeLengths, RP21, RP33, 80.0);
+            AddRouteLength(routeLengths, RP22, RP31, 80.0);
+            AddRouteLength(routeLengths, RP22, RP32, 60.0);
+            AddRouteLength(routeLengths, RP22, RP33, 20.0);
 
-            AddRouteLength(rp31, rp41, 30.0);
-            AddRouteLength(rp31, rp42, 70.0);
-            AddRouteLength(rp32, rp41, 30.0);
-            AddRouteLength(rp32, rp42, 50.0);
-            AddRouteLength(rp33, rp41, 70.0);
-            AddRouteLength(rp33, rp42, 30.0);
+            AddRouteLength(routeLengths, RP31, RP41, 30.0);
+            AddRouteLength(routeLengths, RP31, RP42, 70.0);
+            AddRouteLength(routeLengths, RP32, RP41, 30.0);
+            AddRouteLength(routeLengths, RP32, RP42, 50.0);
+            AddRouteLength(routeLengths, RP33, RP41, 70.0);
+            AddRouteLength(routeLengths, RP33, RP42, 30.0);
+            this._routeLengths = routeLengths;
         }
 
-        private static DateTimeOffset Seconds(int seconds)
-        {
-            return DateTimeOffset.MinValue.AddSeconds(seconds);
-        }
+        private static DateTimeOffset Seconds(int seconds) =>
+            DateTimeOffset.MinValue.AddSeconds(seconds);
 
-        private void AddRouteLength(in RoadPosition from, in RoadPosition to, in double routeLength)
-        {
-            this.routeLengths.Add(new Transition<RoadPosition>(from, to), routeLength);
-        }
+        private static void AddRouteLength(in IDictionary<Transition<RoadPosition>, double> routeLengths,
+                                           in RoadPosition from, in RoadPosition to, in double routeLength) =>
+            routeLengths.Add(new Transition<RoadPosition>(from, to), routeLength);
 
-        /*
-         * Returns the Cartesian distance between two points.
-         * For real map matching applications, one would compute the great circle distance between
-         * two GPS points.
-         */
+        /// <summary>
+        /// Returns the Cartesian distance between two points. <br/>
+        /// For real map matching applications, one would compute the great circle distance between
+        /// two GPS points.
+        /// </summary>
+        /// <param name="p1"></param>
+        /// <param name="p2"></param>
+        /// <returns></returns>
         private double ComputeDistance(in Point p1, in Point p2)
         {
             double xDiff = p1.X - p2.X;
@@ -108,16 +112,14 @@ namespace Sandwych.MapMatchingKit.Tests
             return Math.Sqrt(xDiff * xDiff + yDiff * yDiff);
         }
 
-        /*
-         * For real map matching applications, candidates would be computed using a radius query.
-         */
-        private IEnumerable<RoadPosition> ComputeCandidates(GpsMeasurement gpsMeasurement)
-        {
-            return candidateMap[gpsMeasurement];
-        }
+        /// <summary>
+        /// For real map matching applications, candidates would be computed using a radius query.
+        /// </summary>
+        private IEnumerable<RoadPosition> ComputeCandidates(in GpsMeasurement gpsMeasurement) =>
+            _candidateMap[gpsMeasurement];
 
         private void ComputeEmissionProbabilities(
-                TimeStep<RoadPosition, GpsMeasurement, RoadPath> timeStep)
+                in TimeStep<RoadPosition, GpsMeasurement, RoadPath> timeStep)
         {
             foreach (RoadPosition candidate in timeStep.Candidates)
             {
@@ -129,25 +131,25 @@ namespace Sandwych.MapMatchingKit.Tests
         }
 
         private void ComputeTransitionProbabilities(
-                TimeStep<RoadPosition, GpsMeasurement, RoadPath> prevTimeStep,
-                TimeStep<RoadPosition, GpsMeasurement, RoadPath> timeStep)
+                in TimeStep<RoadPosition, GpsMeasurement, RoadPath> prevTimeStep,
+                in TimeStep<RoadPosition, GpsMeasurement, RoadPath> timeStep)
         {
-            double linearDistance = this.ComputeDistance(prevTimeStep.Observation.Position,
+            var linearDistance = this.ComputeDistance(prevTimeStep.Observation.Position,
                     timeStep.Observation.Position);
-            double timeDiff = timeStep.Observation.Time.ToUnixTimeSeconds() - prevTimeStep.Observation.Time.ToUnixTimeSeconds();
+            var timeDiff = timeStep.Observation.Time.ToUnixTimeSeconds() - prevTimeStep.Observation.Time.ToUnixTimeSeconds();
 
-            foreach (RoadPosition from in prevTimeStep.Candidates)
+            foreach (var from in prevTimeStep.Candidates)
             {
-                foreach (RoadPosition to in timeStep.Candidates)
+                foreach (var to in timeStep.Candidates)
                 {
 
                     // For real map matching applications, route lengths and road paths would be
                     // computed using a router. The most efficient way is to use a single-source
                     // multi-target router.
-                    double routeLength = routeLengths[new Transition<RoadPosition>(from, to)];
+                    var routeLength = _routeLengths[new Transition<RoadPosition>(from, to)];
                     timeStep.AddRoadPath(from, to, new RoadPath(from, to));
 
-                    double transitionLogProbability = hmmProbabilities.TransitionLogProbability(
+                    var transitionLogProbability = hmmProbabilities.TransitionLogProbability(
                             routeLength, linearDistance, timeDiff);
                     timeStep.AddTransitionLogProbability(from, to, transitionLogProbability);
                 }
@@ -157,7 +159,7 @@ namespace Sandwych.MapMatchingKit.Tests
         [Fact]
         public void TestMapMatching()
         {
-            List<GpsMeasurement> gpsMeasurements = new List<GpsMeasurement>() { gps1, gps2, gps3, gps4 };
+            var gpsMeasurements = new List<GpsMeasurement>() { Gps1, Gps2, Gps3, Gps4 };
 
             var viterbi = new ViterbiModel<RoadPosition, GpsMeasurement, RoadPath>();
             TimeStep<RoadPosition, GpsMeasurement, RoadPath> prevTimeStep = default;
@@ -185,16 +187,21 @@ namespace Sandwych.MapMatchingKit.Tests
 
             Assert.False(viterbi.IsBroken);
             var expected = new SequenceState<RoadPosition, GpsMeasurement, RoadPath>[] {
-                new SequenceState<RoadPosition, GpsMeasurement, RoadPath>(rp11, gps1, null),
-                new SequenceState<RoadPosition, GpsMeasurement, RoadPath>(rp21, gps2, new RoadPath(rp11, rp21)),
-                new SequenceState<RoadPosition, GpsMeasurement, RoadPath>(rp31, gps3, new RoadPath(rp21, rp31)),
-                new SequenceState<RoadPosition, GpsMeasurement, RoadPath>(rp41, gps4, new RoadPath(rp31, rp41))
+                new SequenceState<RoadPosition, GpsMeasurement, RoadPath>(RP11, Gps1, null),
+                new SequenceState<RoadPosition, GpsMeasurement, RoadPath>(RP21, Gps2, new RoadPath(RP11, RP21)),
+                new SequenceState<RoadPosition, GpsMeasurement, RoadPath>(RP31, Gps3, new RoadPath(RP21, RP31)),
+                new SequenceState<RoadPosition, GpsMeasurement, RoadPath>(RP41, Gps4, new RoadPath(RP31, RP41))
             };
-            Assert.Equal(expected[0], roadPositions[0]);
-            Assert.Equal(expected[1], roadPositions[1]);
-            Assert.Equal(expected[2], roadPositions[2]);
-            Assert.Equal(expected[3], roadPositions[3]);
-            Assert.Equal(expected.AsEnumerable(), roadPositions.AsEnumerable());
+
+            Assert.Equal(expected.Length, roadPositions.Count);
+
+            for (int i = 0; i < expected.Length; i++)
+            {
+                var e = expected[i];
+                var rp = roadPositions[i];
+                Assert.Equal(e.State.EdgeId, rp.State.EdgeId);
+                Assert.Equal(e.State.Fraction, rp.State.Fraction, 8);
+            }
         }
 
     }

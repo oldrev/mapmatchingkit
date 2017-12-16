@@ -25,7 +25,7 @@ namespace Sandwych.MapMatchingKit.Tests.Model
      * Default type to represent the position of a vehicle on the road network.
      * It is also possible to use a custom road position class instead.
      */
-    public class RoadPosition
+    public class RoadPosition : IEquatable<RoadPosition>
     {
         /**
          * ID of the edge, on which the vehicle is positioned.
@@ -61,5 +61,15 @@ namespace Sandwych.MapMatchingKit.Tests.Model
                     + ", position=" + Position + "]";
         }
 
+        public bool Equals(RoadPosition other)
+        {
+            if (object.ReferenceEquals(this, other))
+            {
+                return true;
+            }
+
+            return this.EdgeId == other.EdgeId && this.Fraction == other.Fraction;
+
+        }
     }
 }

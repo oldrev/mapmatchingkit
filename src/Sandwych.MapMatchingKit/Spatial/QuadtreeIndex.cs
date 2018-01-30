@@ -7,13 +7,13 @@ using GeoAPI.Geometries;
 
 namespace Sandwych.MapMatchingKit.Spatial
 {
-    public class QuadtreeIndex : AbstractSpatialIndex
+    public class QuadtreeIndex<TItem> : AbstractSpatialIndex<TItem>
     {
-        private readonly NetTopologySuite.Index.ISpatialIndex<SpatialIndexItem> _index = new Quadtree<SpatialIndexItem>();
+        private readonly NetTopologySuite.Index.ISpatialIndex<TItem> _index = new Quadtree<TItem>();
 
-        protected override NetTopologySuite.Index.ISpatialIndex<SpatialIndexItem> Index => _index;
+        protected override NetTopologySuite.Index.ISpatialIndex<TItem> Index => _index;
 
-        public QuadtreeIndex(IEnumerable<SpatialIndexItem> items) : base(items)
+        public QuadtreeIndex(IEnumerable<TItem> items, ISpatialService spatial, Func<TItem, IGeometry> geomGetter) : base(items, spatial, geomGetter)
         {
 
         }

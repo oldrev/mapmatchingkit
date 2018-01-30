@@ -39,7 +39,7 @@ namespace Sandwych.MapMatchingKit.Tests.Model
 
         public Point Position { get; }
 
-        public RoadPosition(long edgeId, double fraction, in Point position)
+        public RoadPosition(in long edgeId, in double fraction, in Point position)
         {
             if (fraction < 0.0 || fraction > 1.0)
             {
@@ -51,7 +51,7 @@ namespace Sandwych.MapMatchingKit.Tests.Model
             this.Position = position;
         }
 
-        public RoadPosition(long edgeId, double fraction, double x, double y) : this(edgeId, fraction, new Point(x, y))
+        public RoadPosition(in long edgeId, in double fraction, in double x, in double y) : this(edgeId, fraction, new Point(x, y))
         {
         }
 

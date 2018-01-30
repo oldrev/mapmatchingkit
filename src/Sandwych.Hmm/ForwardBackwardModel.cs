@@ -30,7 +30,7 @@ namespace Sandwych.Hmm
     /// </summary>
     /// <typeparam name="TState">The state type</typeparam>
     /// <typeparam name="TObservation">The observation type</typeparam>
-    public sealed class ForwardBackwardModel<TState, TObservation> 
+    public sealed class ForwardBackwardModel<TState, TObservation>
     {
 
         /// <summary>
@@ -228,11 +228,11 @@ namespace Sandwych.Hmm
         /// must be empty if not null.
         /// </param>
         /// <returns></returns>
-        List<IReadOnlyDictionary<TState, double>> ComputeSmoothingProbabilities(
-                List<IReadOnlyDictionary<TState, double>> outBackwardProbabilities)
+        private List<IReadOnlyDictionary<TState, double>> ComputeSmoothingProbabilities(
+                 in ICollection<IReadOnlyDictionary<TState, double>> outBackwardProbabilities = null)
         {
             //assert outBackwardProbabilities == null || outBackwardProbabilities.isEmpty();
-            Debug.Assert(outBackwardProbabilities == null || outBackwardProbabilities.Count == 0);
+            Debug.Assert(outBackwardProbabilities == null || outBackwardProbabilities.Count() == 0);
 
             var result = new List<IReadOnlyDictionary<TState, double>>();
 

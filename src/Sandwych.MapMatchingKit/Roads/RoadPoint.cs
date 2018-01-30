@@ -3,6 +3,8 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using GeoAPI.Geometries;
+using Sandwych.MapMatchingKit.Spatial;
+using Sandwych.MapMatchingKit.Spatial.Geometries;
 
 namespace Sandwych.MapMatchingKit.Roads
 {
@@ -12,14 +14,34 @@ namespace Sandwych.MapMatchingKit.Roads
 
         public double Fraction { get; }
 
-        public IPoint Geometry { get; }
+        public Coordinate2D Coordinate { get; }
 
-        public RoadPoint(in Road edge, in double fraction, IPoint point)
+        public float Azimuth { get; }
+
+        public RoadPoint(in Road edge, double fraction, float azimuth)
         {
             this.Edge = edge;
             this.Fraction = fraction;
-            this.Geometry = point;
+            this.Azimuth = azimuth;
+            this.Coordinate = CartesianSpatialService.Instance.Interpolate(this.Edge.Geometry, this.Fraction); //TODO 
         }
+
+        public RoadPoint(in Road edge, double fraction)
+        {
+            this.Edge = edge;
+            this.Fraction = fraction;
+            this.Azimuth = (float)CartesianSpatialService.Instance.Azimuth(edge.Geometry, fraction);
+            this.Coordinate = CartesianSpatialService.Instance.Interpolate(this.Edge.Geometry, this.Fraction); //TODO 
+        }
+
+        public static RoadPoint FromRoadFraction(in Road edge, double fraction, ISpatialService spatial)
+        {
+            var azimuth = spatial.Azimuth(edge.Geometry, fraction);
+            return new RoadPoint(edge, fraction, (float)azimuth);
+        }
+
+        public override int GetHashCode() =>
+            (this.Edge, this.Fraction, this.Coordinate, this.Azimuth).GetHashCode();
 
     }
 }

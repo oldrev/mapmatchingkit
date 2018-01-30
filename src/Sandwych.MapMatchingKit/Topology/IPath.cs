@@ -5,12 +5,13 @@ using System.Text;
 namespace Sandwych.MapMatchingKit.Topology
 {
     public interface IPath<TEdge, TPoint>
-        where TEdge : IGraphEdge
-        where TPoint : IEdgePoint<TEdge>
+        where TEdge : IGraphEdge<TEdge>
+        where TPoint : struct, IEdgePoint<TEdge>
     {
-        TPoint StartPoint { get; }
-        TPoint EndPoint { get; }
+        ref readonly TPoint StartPoint { get; }
+        ref readonly TPoint EndPoint { get; }
         IEnumerable<TEdge> Edges { get; }
-        double Distance { get; }
+        float Distance { get; }
+        double Cost(Func<TEdge, double> costFunc);
     }
 }

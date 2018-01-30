@@ -1,12 +1,13 @@
-﻿using NetTopologySuite.Geometries;
+﻿using GeoAPI.Geometries;
+using Sandwych.MapMatchingKit.Spatial.Geometries;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
 namespace Sandwych.MapMatchingKit.Spatial
 {
-    public interface ISpatialIndex
+    public interface ISpatialIndex<TItem>
     {
-        List<(int id, double distance)> Radius(Point c, double radius);
+        IReadOnlyList<(TItem, double)> Radius(Coordinate2D c, double radius);
     }
 }

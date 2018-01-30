@@ -7,22 +7,31 @@ using NetTopologySuite.Geometries;
 
 namespace Sandwych.MapMatchingKit.Roads
 {
-    public class Road : AbstractGraphEdge
+    public class Road : AbstractGraphEdge<Road>
     {
-        public double Length { get; }
-        public IMultiLineString Geometry { get; }
+        public RoadInfo RoadInfo { get; }
+        public Heading Headeing { get; }
+        public ILineString Geometry { get; }
 
-        public Road(int id, int source, int target, double length, ILineString geometry) : base(id, source, target)
+        public Road(RoadInfo info, Heading heading) :
+            base(heading == Heading.Forward ? info.Id * 2 : info.Id * 2 + 1,
+                heading == Heading.Forward ? info.Source : info.Target,
+                heading == Heading.Forward ? info.Target : info.Source)
         {
-            this.Length = length;
-            this.Geometry = new MultiLineString(new ILineString[] { geometry });
+            this.RoadInfo = info;
+            this.Headeing = heading;
+            if (heading == Heading.Forward)
+            {
+                this.Geometry = info.Geometry;
+            }
+            else
+            {
+                this.Geometry = info.Geometry.Reverse() as ILineString;
+            }
         }
 
-        public Road(int id, int source, int target, double length, IMultiLineString geometry) : base(id, source, target)
-        {
-            this.Length = length;
-            this.Geometry = geometry;
-        }
-
+        public float Length => this.RoadInfo.Length;
+        public float MaxSpeed => this.Headeing == Heading.Forward ? this.RoadInfo.MaxSpeedForward : this.RoadInfo.MaxSpeedBackward;
+        public float Priority => this.RoadInfo.Priority;
     }
 }

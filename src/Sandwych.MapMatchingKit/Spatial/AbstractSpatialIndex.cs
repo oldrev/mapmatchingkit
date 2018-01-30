@@ -2,40 +2,40 @@
 using System.Collections.Generic;
 using System.Text;
 using GeoAPI.Geometries;
-using NetTopologySuite.Geometries;
 using NetTopologySuite.Index;
+using Sandwych.MapMatchingKit.Spatial.Geometries;
 
 namespace Sandwych.MapMatchingKit.Spatial
 {
-    public abstract class AbstractSpatialIndex : ISpatialIndex
+    public abstract class AbstractSpatialIndex<TItem> : ISpatialIndex<TItem>
     {
-        protected abstract NetTopologySuite.Index.ISpatialIndex<SpatialIndexItem> Index { get; }
+        protected abstract NetTopologySuite.Index.ISpatialIndex<TItem> Index { get; }
+        protected ISpatialService Spatial { get; }
+        protected Func<TItem, IGeometry> ItemGeometryGetter { get; }
 
-        protected AbstractSpatialIndex(IEnumerable<SpatialIndexItem> items)
+        protected AbstractSpatialIndex(IEnumerable<TItem> items, ISpatialService spatialService, Func<TItem, IGeometry> geometryGetter)
         {
-            foreach (var item in items)
-            {
-                this.Add(item);
-            }
+            this.ItemGeometryGetter = geometryGetter;
+            this.Spatial = spatialService;
+            this.AddRange(items);
         }
 
-        public List<(int id, double distance)> Radius(Point c, double radius)
+        public IReadOnlyList<(TItem, double)> Radius(Coordinate2D c, double radius)
         {
-            var neighbors = new List<(int id, double distance)>();
-            var env = c.EnvelopeInternal;
+            var neighbors = new List<(TItem, double)>();
+            var env = this.Spatial.Envelope(c, radius);
 
-            var visitor = new IndexItemVisitor<SpatialIndexItem>(item =>
+            var visitor = new IndexItemVisitor<TItem>(item =>
             {
-                /*
-                double f = spatial.intercept(geometry, c);
-                Point p = spatial.interpolate(geometry, spatial.length(geometry), f);
-                double d = spatial.distance(p, c);
+                var geometry = this.ItemGeometryGetter(item) as ILineString;
+                var f = this.Spatial.Intercept(geometry, c);
+                var p = this.Spatial.Interpolate(geometry, this.Spatial.Length(geometry), f);
+                var d = this.Spatial.Distance(p, c);
 
                 if (d < radius)
                 {
-                    neighbors.Add((nid, f));
+                    neighbors.Add((item, f));
                 }
-                */
             });
 
             Index.Query(env, visitor);
@@ -43,10 +43,19 @@ namespace Sandwych.MapMatchingKit.Spatial
             return neighbors;
         }
 
-        protected void Add(SpatialIndexItem item)
+        protected void Add(TItem item)
         {
-            var env = item.Geometry.EnvelopeInternal;
-            Index.Insert(env, item);
+            var geom = this.ItemGeometryGetter(item);
+            var env = geom.EnvelopeInternal;
+            this.Index.Insert(env, item);
+        }
+
+        protected void AddRange(IEnumerable<TItem> items)
+        {
+            foreach (var item in items)
+            {
+                this.Add(item);
+            }
         }
     }
 }

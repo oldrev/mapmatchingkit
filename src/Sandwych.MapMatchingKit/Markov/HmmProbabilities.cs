@@ -92,7 +92,7 @@ namespace Sandwych.MapMatchingKit.Markov
          */
         public double TransitionLogProbability(double routeLength, double linearDistance, double timeDiff)
         {
-            Double transitionMetric = NormalizedTransitionMetric(routeLength, linearDistance, timeDiff);
+            var transitionMetric = NormalizedTransitionMetric(routeLength, linearDistance, timeDiff);
             return Distributions.LogExponentialDistribution(this.Beta, transitionMetric);
         }
 

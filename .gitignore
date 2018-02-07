@@ -4,6 +4,7 @@ Bin
 obj
 BenchmarkDotNet.Artifacts
 _ReSharper*
+*.swp
 *.user
 *.patch
 *.hg

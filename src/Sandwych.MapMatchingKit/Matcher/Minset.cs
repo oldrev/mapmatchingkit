@@ -23,11 +23,12 @@ namespace Sandwych.MapMatchingKit.Matcher
             return Math.Round(value / Precision) * Precision;
         }
 
-        /*
         /// <summary>
+        /// <para>
         /// Removes semantically redundant matching candidates from a set of matching candidates (as
         ///  <see cref="RoadPoint"/> object) and returns a minimized (reduced) subset.
-        /// <p>
+        /// </para>
+        /// <para>
         /// Given a position measurement, a matching candidate is each road in a certain radius of the
         /// measured position, and in particular that point on each road that is closest to the measured
         /// position. Hence, there are as many state candidates as roads in that area. The idea is to
@@ -36,6 +37,7 @@ namespace Sandwych.MapMatchingKit.Matcher
         /// the number of matching candidates is significantly higher than the respective number of
         /// routes. To give an example, assume the following matching candidates as <see cref="RoadPoint"/> 
         /// objects with a road id and a fraction:
+        /// </para>
         ///
         /// <ul>
         /// <li><i>(r<sub>i</sub>, 0.5)</i>
@@ -43,19 +45,21 @@ namespace Sandwych.MapMatchingKit.Matcher
         /// <li><i>(r<sub>k</sub>, 0.0)</i>
         /// </ul>
         ///
+        /// <para>
         /// where they are connected as <i>r<sub>i</sub> &#8594; r<sub>j</sub></i> and <i>r<sub>i</sub>
         /// &#8594; r<sub>k</sub></i>. Here, matching candidates <i>r<sub>j</sub></i> and
         /// <i>r<sub>k</sub></i> can be removed if we see routes as matching candidates. This is because
         /// both, <i>r<sub>j</sub></i> and <i>r<sub>k</sub></i>, are reachable from <i>r<sub>i</sub></i>.
-        /// 
+        /// </para>
+        /// <para>
         /// <b>Note:</b> Of course, <i>r<sub>j</sub></i> and <i>r<sub>k</sub></i> may be seen as relevant
         /// matching candidates, however, in the present HMM map matching algorithm there is no
         /// optimization of matching candidates along the road, instead it only considers the closest
         /// point of a road as a matching candidate.
+        /// </para>
         /// </summary>
         /// <param name="candidates">candidates Set of matching candidates as <see cref="RoadPoint"> objects.</param>
         /// <returns>Minimized (reduced) set of matching candidates as <see cref="RoadPoint"/> objects</returns>
-        */
         public static ISet<RoadPoint> Minimize(IEnumerable<RoadPoint> candidates)
         {
 

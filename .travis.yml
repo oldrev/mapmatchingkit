@@ -1,7 +1,7 @@
 language: csharp
 sudo: false
-mono: latest
-dotnet: 2.0.3
+mono: false
+dotnet: 2.0.5
 dist: trusty
 solution: Sandwych.MapMatchingKit.sln
 

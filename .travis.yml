@@ -1,6 +1,7 @@
 language: csharp
 mono: none
-dotnet: 2.0.5
+dotnet: 2.0.0
+solution: Sandwych.MapMatchingKit.sln
 
 branches:
   only:

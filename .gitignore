@@ -26,3 +26,4 @@ project.lock.json
 .vs/
 .build/
 .testPublish/ 
+.dotnetcli

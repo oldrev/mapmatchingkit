@@ -9,10 +9,11 @@ using System.Text;
 
 namespace Sandwych.MapMatchingKit.Matcher
 {
-    /**
-     * Matcher filter for Hidden Markov Model (HMM) map matching. It is a HMM filter (@{link Filter})
-     * and determines emission and transition probabilities for map matching with HMM.
-     */
+    /// <summary>
+    /// Matcher filter for Hidden Markov Model (HMM) map matching. It is a HMM filter (<see cref="IFilter{TCandidate, TTransition, TSample}"/>)
+    /// and determines emission and transition probabilities for map matching with HMM.
+    /// </summary>
+    /// <typeparam name="TSampleId"></typeparam>
     public class Matcher<TSampleId> : AbstractFilter<MatcherCandidate<TSampleId>, MatcherTransition, MatcherSample<TSampleId>>
     {
         private readonly RoadMap map;
@@ -28,14 +29,14 @@ namespace Sandwych.MapMatchingKit.Matcher
         private double radius = 200;
         private double distance = 15000;
 
-        /**
-         * Creates a HMM map matching filter for some map, router, cost function, and spatial operator.
-         *
-         * @param map {@link RoadMap} object of the map to be matched to.
-         * @param router {@link Router} object to be used for route estimation.
-         * @param cost Cost function to be used for routing.
-         * @param spatial Spatial operator for spatial calculations.
-         */
+
+        /// <summary>
+        /// Creates a HMM map matching filter for some map, router, cost function, and spatial operator.
+        /// </summary>
+        /// <param name="map">map <see cref="RoadMap" /> object of the map to be matched to.</param>
+        /// <param name="router">router <see cref="IGraphRouter{TEdge, TPoint}"/> object to be used for route estimation.</param>
+        /// <param name="cost">Cost function to be used for routing.</param>
+        /// <param name="spatial">Spatial operator for spatial calculations.</param>
         public Matcher(RoadMap map, IGraphRouter<Road, RoadPoint> router, Func<Road, double> cost, ISpatialService spatial)
         {
             this.map = map;
@@ -44,37 +45,38 @@ namespace Sandwych.MapMatchingKit.Matcher
             this.spatial = spatial;
         }
 
-        /**
-         * Gets standard deviation in meters of gaussian distribution that defines emission
-         * probabilities.
+
+        /*
          *
-         * @return Standard deviation in meters of gaussian distribution that defines emission
-         *         probabilities.
          */
+        /// <summary>
+        /// Gets standard deviation in meters of gaussian distribution that defines emission probabilities.
+        /// </summary>
+        /// <returns>Standard deviation in meters of gaussian distribution that defines emission probabilities.</returns>
         public double getSigma()
         {
             return Math.Sqrt(this.sig2);
         }
 
-        /**
-         * Sets standard deviation in meters of gaussian distribution for defining emission
-         * probabilities (default is 5 meters).
-         *
-         * @param sigma Standard deviation in meters of gaussian distribution for defining emission
-         *        probabilities (default is 5 meters).
-         */
+
+        /// <summary>
+        /// Sets standard deviation in meters of gaussian distribution for defining emission
+        /// probabilities (default is 5 meters).
+        /// </summary>
+        /// <param name="sigma">Standard deviation in meters of gaussian distribution for defining emission
+        /// probabilities (default is 5 meters).
+        /// </param>
         public void setSigma(double sigma)
         {
             this.sig2 = Math.Pow(sigma, 2);
             this.sqrt_2pi_sig2 = Math.Sqrt(2d * Math.PI * sig2);
         }
 
-        /**
-         * Gets lambda parameter of negative exponential distribution defining transition probabilities.
-         *
-         * @return Lambda parameter of negative exponential distribution defining transition
-         *         probabilities.
-         */
+
+        /// <summary>
+        /// Gets lambda parameter of negative exponential distribution defining transition probabilities.
+        /// </summary>
+        /// <returns>Lambda parameter of negative exponential distribution defining transition probabilities.</returns>
         public double getLambda()
         {
             return this.lambda;

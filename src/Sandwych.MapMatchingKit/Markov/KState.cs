@@ -7,13 +7,12 @@ using System.Text;
 namespace Sandwych.MapMatchingKit.Markov
 {
 
-    /**
-     * <i>k</i>-State data structure for organizing state memory in HMM inference.
-     *
-     * @param <C> Candidate inherits from {@link StateCandidate}.
-     * @param <T> Transition inherits from {@link StateTransition}.
-     * @param <S> Sample inherits from {@link Sample}.
-     */
+    /// <summary>
+    /// <i>k</i>-State data structure for organizing state memory in HMM inference.
+    /// </summary>
+    /// <typeparam name="TCandidate">Candidate inherits from {@link StateCandidate}.</typeparam>
+    /// <typeparam name="TTransition">Transition inherits from {@link StateTransition}.</typeparam>
+    /// <typeparam name="TSample">Sample inherits from {@link Sample}.</typeparam>
     public class KState<TCandidate, TTransition, TSample> :
         IStateMemory<TCandidate, TTransition, TSample>
         where TCandidate : class, IStateCandidate<TCandidate, TTransition, TSample>
@@ -24,9 +23,9 @@ namespace Sandwych.MapMatchingKit.Markov
         private readonly Deque<(ICollection<TCandidate>, TSample, TCandidate)> _sequence;
         private readonly IDictionary<TCandidate, int> _counters;
 
-        /**
-         * Creates empty {@link KState} object with default parameters, i.e. capacity is unbounded.
-         */
+        /// <summary>
+        /// Creates empty {@link KState} object with default parameters, i.e. capacity is unbounded.
+        /// </summary>
         public KState()
         {
             this._k = -1;
@@ -71,11 +70,10 @@ namespace Sandwych.MapMatchingKit.Markov
             }
         }
 
-        /**
-         * Gets the sequence of measurements <i>z<sub>0</sub>, z<sub>1</sub>, ..., z<sub>t</sub></i>.
-         *
-         * @return List with the sequence of measurements.
-         */
+        /// <summary>
+        /// Gets the sequence of measurements <i>z<sub>0</sub>, z<sub>1</sub>, ..., z<sub>t</sub></i>.
+        /// </summary>
+        /// <returns>List with the sequence of measurements.</returns>
         public IEnumerable<TSample> Samples()
         {
             foreach (var element in _sequence)
@@ -216,12 +214,12 @@ namespace Sandwych.MapMatchingKit.Markov
             return estimate;
         }
 
-        /**
-         * Gets the most likely sequence of state candidates <i>s<sub>0</sub>, s<sub>1</sub>, ...,
-         * s<sub>t</sub></i>.
-         *
-         * @return List of the most likely sequence of state candidates.
-         */
+
+        /// <summary>
+        /// Gets the most likely sequence of state candidates <i>s<sub>0</sub>, s<sub>1</sub>, ...,
+        /// s<sub>t</sub></i>.
+        /// </summary>
+        /// <returns>List of the most likely sequence of state candidates.</returns>
         public IEnumerable<TCandidate> Sequence()
         {
             var ksequence = new Deque<TCandidate>(_sequence.Count);

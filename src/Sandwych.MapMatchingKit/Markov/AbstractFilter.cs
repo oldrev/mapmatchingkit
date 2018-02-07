@@ -7,61 +7,63 @@ using Castle.Core.Logging;
 namespace Sandwych.MapMatchingKit.Markov
 {
 
-    /**
-     * Hidden Markov Model (HMM) filter for online and offline inference of states in a stochastic
-     * process.
-     *
-     * @param <C> Candidate inherits from {@link StateCandidate}.
-     * @param <T> Transition inherits from {@link StateTransition}.
-     * @param <S> Sample inherits from {@link Sample}.
-     */
+    /// <summary>
+    /// Hidden Markov Model (HMM) filter for online and offline inference of states in a stochastic
+    /// process.
+    /// </summary>
+    /// <typeparam name="TCandidate">Candidate inherits from {@link StateCandidate}.</typeparam>
+    /// <typeparam name="TTransition">Transition inherits from {@link StateTransition}.</typeparam>
+    /// <typeparam name="TSample">Sample inherits from {@link Sample}.</typeparam>
     public abstract class AbstractFilter<TCandidate, TTransition, TSample> :
         IFilter<TCandidate, TTransition, TSample>
         where TCandidate : IStateCandidate<TCandidate, TTransition, TSample>
     {
         private readonly static ILogger logger = NullLogger.Instance;
 
-        /**
-         * Gets state vector, which is a set of {@link StateCandidate} objects and with its emission
-         * probability.
-         *
-         * @param predecessors Predecessor state candidate <i>s<sub>t-1</sub></i>.
-         * @param sample Measurement sample.
-         * @return Set of tuples consisting of a {@link StateCandidate} and its emission probability.
-         */
+        /// <summary>
+        /// Gets state vector, which is a set of {@link StateCandidate} objects and with its emission
+        /// probability.
+        /// </summary>
+        /// <param name="predecessors">Predecessor state candidate <i>s<sub>t-1</sub></i>.</param>
+        /// <param name="sample">Measurement sample.</param>
+        /// <returns>Set of tuples consisting of a {@link StateCandidate} and its emission probability.</returns>
         protected abstract (TCandidate, double)[] Candidates(ISet<TCandidate> predecessors, in TSample sample);
 
-        /**
-         * Gets transition and its transition probability for a pair of {@link StateCandidate}s, which
-         * is a candidate <i>s<sub>t</sub></i> and its predecessor <i>s<sub>t</sub></i>
-         *
-         * @param predecessor Tuple of predecessor state candidate <i>s<sub>t-1</sub></i> and its
-         *        respective measurement sample.
-         * @param candidate Tuple of state candidate <i>s<sub>t</sub></i> and its respective measurement
-         *        sample.
-         * @return Tuple consisting of the transition from <i>s<sub>t-1</sub></i> to
-         *         <i>s<sub>t</sub></i> and its transition probability, or null if there is no
-         *         transition.
-         */
+
+        /// <summary>
+        /// Gets transition and its transition probability for a pair of {@link StateCandidate}s, which
+        /// is a candidate <i>s<sub>t</sub></i> and its predecessor <i>s<sub>t</sub></i>
+        /// </summary>
+        /// <param name="predecessor">Tuple of predecessor state candidate <i>s<sub>t-1</sub></i> and its 
+        /// respective measurement sample</param>
+        /// <param name="candidate">Tuple of state candidate <i>s<sub>t</sub></i> and its respective measurement
+        /// sample</param>
+        /// <returns>
+        /// Tuple consisting of the transition from <i>s<sub>t-1</sub></i> to
+        /// <i>s<sub>t</sub></i> and its transition probability, or null if there is no
+        /// transition.
+        /// </returns>
         protected abstract (TTransition, double) Transition(in (TSample, TCandidate) predecessor, in (TSample, TCandidate) candidate);
 
-        /**
-         * Gets transitions and its transition probabilities for each pair of state candidates
-         * <i>s<sub>t</sub></i> and <i>s<sub>t-1</sub></i>.
-         * <p>
-         * <b>Note:</b> This method may be overridden for better performance, otherwise it defaults to
-         * the method {@link Filter#transition} for each single pair of state candidate and its possible
-         * predecessor.
-         *
-         * @param predecessors Tuple of a set of predecessor state candidate <i>s<sub>t-1</sub></i> and
-         *        its respective measurement sample.
-         * @param candidates Tuple of a set of state candidate <i>s<sub>t</sub></i> and its respective
-         *        measurement sample.
-         * @return Maps each predecessor state candidate <i>s<sub>t-1</sub> &#8712; S<sub>t-1</sub></i>
-         *         to a map of state candidates <i>s<sub>t</sub> &#8712; S<sub>t</sub></i> containing
-         *         all transitions from <i>s<sub>t-1</sub></i> to <i>s<sub>t</sub></i> and its
-         *         transition probability, or null if there no transition.
-         */
+
+        /// <summary>
+        /// Gets transitions and its transition probabilities for each pair of state candidates
+        /// <i>s<sub>t</sub></i> and <i>s<sub>t-1</sub></i>.
+        /// <p>
+        /// <b>Note:</b> This method may be overridden for better performance, otherwise it defaults to
+        /// the method {@link Filter#transition} for each single pair of state candidate and its possible
+        /// predecessor.
+        /// </summary>
+        /// <param name="predecessors">Tuple of a set of predecessor state candidate <i>s<sub>t-1</sub></i> and 
+        /// its respective measurement sample.</param>
+        /// <param name="candidates">Tuple of a set of state candidate <i>s<sub>t</sub></i> and its respective 
+        /// measurement sample.</param>
+        /// <returns>
+        /// Maps each predecessor state candidate <i>s<sub>t-1</sub> &#8712; S<sub>t-1</sub></i>
+        /// to a map of state candidates <i>s<sub>t</sub> &#8712; S<sub>t</sub></i> containing
+        /// all transitions from <i>s<sub>t-1</sub></i> to <i>s<sub>t</sub></i> and its
+        /// transition probability, or null if there no transition.
+        /// </returns>
         protected virtual IDictionary<TCandidate, IDictionary<TCandidate, (TTransition, double)>> Transitions(
             in (TSample, ISet<TCandidate>) predecessors, in (TSample, ISet<TCandidate>) candidates)
         {
@@ -84,22 +86,21 @@ namespace Sandwych.MapMatchingKit.Markov
             return map;
         }
 
-        /**
-         * Executes Hidden Markov Model (HMM) filter iteration that determines for a given measurement
-         * sample <i>z<sub>t</sub></i>, which is a {@link Sample} object, and of a predecessor state
-         * vector <i>S<sub>t-1</sub></i>, which is a set of {@link StateCandidate} objects, a state
-         * vector <i>S<sub>t</sub></i> with filter and sequence probabilities set.
-         * <p>
-         * <b>Note:</b> The set of state candidates <i>S<sub>t-1</sub></i> is allowed to be empty. This
-         * is either the initial case or an HMM break occured, which is no state candidates representing
-         * the measurement sample could be found.
-         *
-         * @param predecessors State vector <i>S<sub>t-1</sub></i>, which may be empty.
-         * @param sample Measurement sample <i>z<sub>t</sub></i>.
-         * @param previous Previous measurement sample <i>z<sub>t-1</sub></i>.
-         *
-         * @return State vector <i>S<sub>t</sub></i>, which may be empty if an HMM break occured.
-         */
+
+        /// <summary>
+        /// Executes Hidden Markov Model (HMM) filter iteration that determines for a given measurement
+        /// sample <i>z<sub>t</sub></i>, which is a {@link Sample} object, and of a predecessor state
+        /// vector <i>S<sub>t-1</sub></i>, which is a set of {@link StateCandidate} objects, a state
+        /// vector <i>S<sub>t</sub></i> with filter and sequence probabilities set.
+        /// <p>
+        /// <b>Note:</b> The set of state candidates <i>S<sub>t-1</sub></i> is allowed to be empty. This
+        /// is either the initial case or an HMM break occured, which is no state candidates representing
+        /// the measurement sample could be found.
+        /// </summary>
+        /// <param name="predecessors">State vector <i>S<sub>t-1</sub></i>, which may be empty.</param>
+        /// <param name="previous">Previous measurement sample <i>z<sub>t-1</sub></i>.</param>
+        /// <param name="sample">Measurement sample <i>z<sub>t</sub></i>.</param>
+        /// <returns>State vector <i>S<sub>t</sub></i>, which may be empty if an HMM break occured.</returns>
         public ISet<TCandidate> Execute(ISet<TCandidate> predecessors, in TSample previous, in TSample sample)
         {
             //assert(predecessors != null);

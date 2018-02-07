@@ -8,10 +8,11 @@ using Sandwych.MapMatchingKit.Spatial.Geometries;
 
 namespace Sandwych.MapMatchingKit.Matcher
 {
-    /**
-     * Measurement sample for Hidden Markov Model (HMM) map matching which is a position measurement,
-     * e.g. measured with a GPS device.
-     */
+    /// <summary>
+    /// Measurement sample for Hidden Markov Model (HMM) map matching which is a position measurement,
+    /// e.g. measured with a GPS device.
+    /// </summary>
+    /// <typeparam name="TSampleId"></typeparam>
     public readonly struct MatcherSample<TSampleId> : ISample
     {
         public TSampleId Id { get; }

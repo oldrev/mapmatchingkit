@@ -40,38 +40,33 @@ namespace Sandwych.MapMatchingKit.Markov
         {
         }
 
-        /**
-         * @param sigma standard deviation of the normal distribution [m] used for
-         *              modeling the GPS error
-         * @param beta  beta parameter of the exponential distribution used for modeling
-         *              transition probabilities
-         */
+        /// <summary>
+        /// </summary>
+        /// <param name="sigma">standard deviation of the normal distribution [m] used for modeling the GPS error</param>
+        /// <param name="beta">beta parameter of the exponential distribution used for modeling transition probabilities</param>
         public HmmProbabilities(in double sigma, in double beta)
         {
             Sigma = sigma;
             Beta = beta;
         }
 
-        /**
-         * Returns the logarithmic emission probability density.
-         *
-         * @param distance Absolute distance [m] between GPS measurement and map
-         *                 matching candidate.
-         */
+        /// <summary>
+        /// Returns the logarithmic emission probability density.
+        /// </summary>
+        /// <param name="distance"></param>
+        /// <returns>Absolute distance [m] between GPS measurement and map matching candidate.</returns>
         public double EmissionLogProbability(in double distance)
         {
             return Distributions.LogNormalDistribution(this.Sigma, distance);
         }
 
-        /**
-         * Returns the logarithmic transition probability density for the given
-         * transition parameters.
-         *
-         * @param routeLength    Length of the shortest route [m] between two
-         *                       consecutive map matching candidates.
-         * @param linearDistance Linear distance [m] between two consecutive GPS
-         *                       measurements.
-         */
+        /// <summary>
+        /// Returns the logarithmic transition probability density for the given
+        /// transition parameters.
+        /// </summary>
+        /// <param name="routeLength"> Length of the shortest route [m] between two consecutive map matching candidates.</param>
+        /// <param name="linearDistance">Linear distance [m] between two consecutive GPS measurements.</param>
+        /// <returns></returns>
         public double TransitionLogProbability(in double routeLength, in double linearDistance)
         {
             // Transition metric taken from Newson & Krumm.
@@ -81,29 +76,33 @@ namespace Sandwych.MapMatchingKit.Markov
         }
 
 
-        /**
-         * Returns the logarithmic transition probability density for the given transition
-         * parameters.
-         *
-         * @param routeLength Length of the shortest route [m] between two consecutive map matching
-         * candidates.
-         * @param linearDistance Linear distance [m] between two consecutive GPS measurements.
-         * @param timeDiff time difference [s] between two consecutive GPS measurements.
-         */
+        /// <summary>
+        /// Returns the logarithmic transition probability density for the given transition
+        /// parameters.
+        /// </summary>
+        /// <param name="routeLength">Length of the shortest route [m] between two consecutive map matching candidates.</param>
+        /// <param name="linearDistance">Linear distance [m] between two consecutive GPS measurements.</param>
+        /// <param name="timeDiff">time difference [s] between two consecutive GPS measurements.</param>
+        /// <returns></returns>
         public double TransitionLogProbability(double routeLength, double linearDistance, double timeDiff)
         {
             var transitionMetric = NormalizedTransitionMetric(routeLength, linearDistance, timeDiff);
             return Distributions.LogExponentialDistribution(this.Beta, transitionMetric);
         }
 
-        /**
-         * Returns a transition metric for the transition between two consecutive map matching
-         * candidates.
-         *
-         * In contrast to Newson & Krumm the absolute distance difference is divided by the quadratic
-         * time difference to make the beta parameter of the exponential distribution independent of the
-         * sampling interval.
-         */
+
+        /// <summary>
+        /// Returns a transition metric for the transition between two consecutive map matching
+        /// candidates.
+        ///
+        /// In contrast to Newson & Krumm the absolute distance difference is divided by the quadratic
+        /// time difference to make the beta parameter of the exponential distribution independent of the
+        /// sampling interval.
+        /// </summary>
+        /// <param name="routeLength"></param>
+        /// <param name="linearDistance"></param>
+        /// <param name="timeDiff"></param>
+        /// <returns></returns>
         private double NormalizedTransitionMetric(double routeLength, double linearDistance,
                 double timeDiff)
         {

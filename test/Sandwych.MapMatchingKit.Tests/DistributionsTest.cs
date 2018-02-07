@@ -23,7 +23,7 @@ namespace Sandwych.MapMatchingKit.Tests
 {
     public class DistributionsTest
     {
-        private static double Delta = 1e-8;
+        //private static double Delta = 1e-8;
         private const int Precision = 8;
 
 

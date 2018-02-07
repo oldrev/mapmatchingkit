@@ -1,6 +1,7 @@
 language: csharp
 sudo: required
-mono: none
+mono: latest
+dist: trusty
 solution: Sandwych.MapMatchingKit.sln
 env:
   - CLI_VERSION=latest

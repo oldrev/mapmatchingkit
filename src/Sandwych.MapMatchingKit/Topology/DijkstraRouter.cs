@@ -6,7 +6,7 @@ using System.Collections.Generic;
 namespace Sandwych.MapMatchingKit.Topology
 {
 
-    /**
+    /*
      * Dijkstra's algorithm implementation of a {@link Router}. The routing functions use the Dijkstra
      * algorithm for finding shortest paths according to a customizable {@link Cost} function.
      *
@@ -23,7 +23,7 @@ namespace Sandwych.MapMatchingKit.Topology
         */
         private class Mark : IComparable<Mark>
         {
-            /**
+            /*
              * Constructor of an entry.
              *
              * @param one {@link AbstractEdge} defining the route mark.

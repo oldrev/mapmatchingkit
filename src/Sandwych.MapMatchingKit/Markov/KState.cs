@@ -35,7 +35,7 @@ namespace Sandwych.MapMatchingKit.Markov
         }
 
 
-        /**
+        /*
          * Creates an empty {@link KState} object and sets <i>&kappa;</i> and <i>&tau;</i> parameters.
          *
          * @param k <i>&kappa;</i> parameter bounds the length of the state sequence to at most

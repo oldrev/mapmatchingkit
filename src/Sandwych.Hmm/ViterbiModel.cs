@@ -23,7 +23,7 @@ using System.Linq;
 
 namespace Sandwych.Hmm
 {
-    /**
+    /*
      *
      * @param <S> the state type
      * @param <O> the observation type
@@ -36,10 +36,10 @@ namespace Sandwych.Hmm
     /// for all time steps. The plain Viterbi algorithm for stationary Markov processes is described e.g.
     /// in Rabiner, Juang, An introduction to Hidden Markov Models, IEEE ASSP Mag., pp 4-16, June 1986.
     ///
-    /// <p>Generally expects logarithmic probabilities as input to prevent arithmetic underflows for
+    /// Generally expects logarithmic probabilities as input to prevent arithmetic underflows for
     /// small probability values.
     /// 
-    /// <p>This algorithm supports storing transition objects in
+    /// This algorithm supports storing transition objects in
     /// {@link #nextStep(Object, Collection, Map, Map, Map)}. For instance if a HMM is
     /// used for map matching, this could be routes between road position candidates.
     /// The transition descriptors of the most likely sequence can be retrieved later in
@@ -49,7 +49,7 @@ namespace Sandwych.Hmm
     /// from t*n² to t*n since only one transition descriptor is stored per back pointer,
     /// where t is the number of time steps and n the number of candidates per time step.
     ///
-    /// <p>For long observation sequences, back pointers usually converge to a single path after a
+    /// For long observation sequences, back pointers usually converge to a single path after a
     /// certain number of time steps. For instance, when matching GPS coordinates to roads, the last
     /// GPS positions in the trace usually do not affect the first road matches anymore.
     /// This implementation exploits this fact by letting the Java garbage collector
@@ -301,7 +301,7 @@ namespace Sandwych.Hmm
         /// states / initial observation time step. If an HMM break occurred in the last time step t,
         /// then the most likely sequence up to t-1 is returned. See also {@link #isBroken()}.
         /// 
-        /// <p>Formally, the most likely sequence is argmax p([s_0,] s_1, ..., s_T | o_1, ..., o_T)
+        /// Formally, the most likely sequence is argmax p([s_0,] s_1, ..., s_T | o_1, ..., o_T)
         /// with respect to s_1, ..., s_T, where s_t is a state candidate at time step t,
         /// o_t is the observation at time step t and T is the number of time steps.
         /// </summary>

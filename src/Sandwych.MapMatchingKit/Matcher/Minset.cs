@@ -7,7 +7,7 @@ namespace Sandwych.MapMatchingKit.Matcher
 {
 
     /// <summary>
-    /// Minimizes a set of matching candidates represented as {@link RoadPoint} to remove semantically
+    /// Minimizes a set of matching candidates represented as <see cref="RoadPoint"/> to remove semantically
     /// redundant candidates.
     /// </summary>
     public static class Minset
@@ -23,6 +23,7 @@ namespace Sandwych.MapMatchingKit.Matcher
             return Math.Round(value / Precision) * Precision;
         }
 
+        /*
         /// <summary>
         /// Removes semantically redundant matching candidates from a set of matching candidates (as
         ///  <see cref="RoadPoint"/> object) and returns a minimized (reduced) subset.
@@ -46,7 +47,7 @@ namespace Sandwych.MapMatchingKit.Matcher
         /// &#8594; r<sub>k</sub></i>. Here, matching candidates <i>r<sub>j</sub></i> and
         /// <i>r<sub>k</sub></i> can be removed if we see routes as matching candidates. This is because
         /// both, <i>r<sub>j</sub></i> and <i>r<sub>k</sub></i>, are reachable from <i>r<sub>i</sub></i>.
-        /// <p>
+        /// 
         /// <b>Note:</b> Of course, <i>r<sub>j</sub></i> and <i>r<sub>k</sub></i> may be seen as relevant
         /// matching candidates, however, in the present HMM map matching algorithm there is no
         /// optimization of matching candidates along the road, instead it only considers the closest
@@ -54,6 +55,7 @@ namespace Sandwych.MapMatchingKit.Matcher
         /// </summary>
         /// <param name="candidates">candidates Set of matching candidates as <see cref="RoadPoint"> objects.</param>
         /// <returns>Minimized (reduced) set of matching candidates as <see cref="RoadPoint"/> objects</returns>
+        */
         public static ISet<RoadPoint> Minimize(IEnumerable<RoadPoint> candidates)
         {
 

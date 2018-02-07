@@ -1,0 +1,15 @@
+﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+  <PropertyGroup>
+    <PackageId>Sandwych.MapMatchingKit</PackageId>
+    <Title>Sandwych.MapMatchingKit is a GPS map-matching solution for .NET platform.</Title>
+    <Description>Sandwych.MapMatchingKit is a GPS map-matching solution for .NET platform. This solution is porting from the "barefoot" project which developed in Java.</Description>
+    <PackageTags>map;gis;map-matching;osm;spatial</PackageTags>
+    <VersionPrefix>0.1.0</VersionPrefix>
+    <VersionSuffix>alpha</VersionSuffix>
+  </PropertyGroup>
+
+  <Import Project="../../Shared.props" />
+
+</Project>
+

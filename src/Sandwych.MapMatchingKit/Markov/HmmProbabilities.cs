@@ -95,7 +95,7 @@ namespace Sandwych.MapMatchingKit.Markov
         /// Returns a transition metric for the transition between two consecutive map matching
         /// candidates.
         ///
-        /// In contrast to Newson & Krumm the absolute distance difference is divided by the quadratic
+        /// In contrast to Newson and Krumm the absolute distance difference is divided by the quadratic
         /// time difference to make the beta parameter of the exponential distribution independent of the
         /// sampling interval.
         /// </summary>

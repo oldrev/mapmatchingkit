@@ -49,7 +49,7 @@ namespace Sandwych.MapMatchingKit.Markov
         /// <summary>
         /// Gets transitions and its transition probabilities for each pair of state candidates
         /// <i>s<sub>t</sub></i> and <i>s<sub>t-1</sub></i>.
-        /// <p>
+        ///
         /// <b>Note:</b> This method may be overridden for better performance, otherwise it defaults to
         /// the method {@link Filter#transition} for each single pair of state candidate and its possible
         /// predecessor.
@@ -92,7 +92,7 @@ namespace Sandwych.MapMatchingKit.Markov
         /// sample <i>z<sub>t</sub></i>, which is a {@link Sample} object, and of a predecessor state
         /// vector <i>S<sub>t-1</sub></i>, which is a set of {@link StateCandidate} objects, a state
         /// vector <i>S<sub>t</sub></i> with filter and sequence probabilities set.
-        /// <p>
+        ///
         /// <b>Note:</b> The set of state candidates <i>S<sub>t-1</sub></i> is allowed to be empty. This
         /// is either the initial case or an HMM break occured, which is no state candidates representing
         /// the measurement sample could be found.

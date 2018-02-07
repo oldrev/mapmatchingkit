@@ -222,7 +222,6 @@ namespace Sandwych.Hmm
         }
 
         /// <summary>
-        /// <see cref="ComputeSmoothingProbabilities"/>
         /// </summary>
         /// <param name="outBackwardProbabilities">outBackwardProbabilities optional output parameter for backward probabilities, 
         /// must be empty if not null.

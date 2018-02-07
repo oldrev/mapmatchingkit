@@ -1,6 +1,7 @@
 # Overview
 
 [![Build status](https://ci.appveyor.com/api/projects/status/oh77641k0s78g4b2/branch/master?svg=true)](https://ci.appveyor.com/project/oldrev/mapmatchingkit/branch/master)
+[![Build Status](https://travis-ci.org/oldrev/mapmatchingkit.svg?branch=master)](https://travis-ci.org/oldrev/mapmatchingkit)
 
 Sandwych.MapMatchingKit is a GPS map-matching solution for .NET platform.
 

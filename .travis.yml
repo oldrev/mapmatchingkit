@@ -19,7 +19,7 @@ install:
   - dotnet restore
 
 script:
-  - dotnet build .\src\Sandwych.Hmm -r netstandard2.0
-  - dotnet build .\src\Sandwych.MapMatchingKit -r netstandard2.0
-  - dotnet test .\test\Sandwych.Hmm.Tests\Sandwych.Hmm.Tests.csproj
-  - dotnet test .\test\Sandwych.MapMatchingKit.Tests\Sandwych.MapMatchingKit.Tests.csproj
+  - dotnet build src/Sandwych.Hmm -r netstandard2.0
+  - dotnet build src/Sandwych.MapMatchingKit -r netstandard2.0
+  - dotnet test test/Sandwych.Hmm.Tests\Sandwych.Hmm.Tests.csproj
+  - dotnet test test/Sandwych.MapMatchingKit.Tests\Sandwych.MapMatchingKit.Tests.csproj

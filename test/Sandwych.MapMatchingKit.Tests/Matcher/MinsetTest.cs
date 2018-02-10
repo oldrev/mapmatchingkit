@@ -64,7 +64,7 @@ namespace Sandwych.MapMatchingKit.Tests.Matcher
                 foreach (var e in _entries)
                 {
                     var geom = wktRdr.Read(e.Item5) as ILineString;
-                    var spatial = CartesianSpatialOperation.Instance;
+                    var spatial = new CartesianSpatialOperation();
                     _roads.Add(new RoadInfo(e.Item1, e.Item2, e.Item3, e.Item1, e.Item4, (short)0, 1.0f, 100.0f, 100.0f, (float)spatial.Length(geom), geom));
                 }
                 _enumerator = _roads.GetEnumerator();

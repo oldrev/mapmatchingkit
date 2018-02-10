@@ -18,26 +18,29 @@ namespace Sandwych.MapMatchingKit.Roads
 
         public float Azimuth { get; }
 
-        public RoadPoint(in Road edge, double fraction, float azimuth)
+        public RoadPoint(in Road edge, double fraction, float azimuth, ISpatialOperation spatial)
         {
             this.Edge = edge;
             this.Fraction = fraction;
             this.Azimuth = azimuth;
-            this.Coordinate = CartesianSpatialOperation.Instance.Interpolate(this.Edge.Geometry, this.Fraction); //TODO 
+            this.Coordinate = spatial.Interpolate(this.Edge.Geometry, this.Fraction); 
         }
 
-        public RoadPoint(in Road edge, double fraction)
+        public RoadPoint(in Road edge, double fraction, float azimuth) : this(edge, fraction, azimuth, CartesianSpatialOperation.Instance)
+        {
+        }
+
+        public RoadPoint(in Road edge, double fraction, ISpatialOperation spatial)
         {
             this.Edge = edge;
             this.Fraction = fraction;
-            this.Azimuth = (float)CartesianSpatialOperation.Instance.Azimuth(edge.Geometry, fraction);
-            this.Coordinate = CartesianSpatialOperation.Instance.Interpolate(this.Edge.Geometry, this.Fraction); //TODO 
+            this.Azimuth = (float)spatial.Azimuth(edge.Geometry, fraction);
+            this.Coordinate = spatial.Interpolate(this.Edge.Geometry, this.Fraction); 
         }
 
-        public static RoadPoint FromRoadFraction(in Road edge, double fraction, ISpatialOperation spatial)
+        public RoadPoint(in Road edge, double fraction) : this(edge, fraction, CartesianSpatialOperation.Instance)
         {
-            var azimuth = spatial.Azimuth(edge.Geometry, fraction);
-            return new RoadPoint(edge, fraction, (float)azimuth);
+
         }
 
         public override int GetHashCode() =>

@@ -32,11 +32,11 @@ namespace Sandwych.MapMatchingKit.Roads
              */
             foreach (var point in points)
             {
-                yield return RoadPoint.FromRoadFraction(this.Edges[point.road.Id * 2], point.Item2, _spatial);
+                yield return new RoadPoint(this.Edges[point.road.Id * 2], point.Item2, _spatial);
 
                 if (this.Edges.ContainsKey(point.road.Id * 2 + 1))
                 {
-                    yield return RoadPoint.FromRoadFraction(this.Edges[point.road.Id * 2 + 1], 1.0 - point.Item2, _spatial);
+                    yield return new RoadPoint(this.Edges[point.road.Id * 2 + 1], 1.0 - point.Item2, _spatial);
                 }
             }
         }

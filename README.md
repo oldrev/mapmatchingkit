@@ -40,13 +40,13 @@ Besides map matching, the hmm-lib can also be used for other applications.
 # License
 
 * Copyright 2015-2017 BMW Car IT GmbH
-* Copyright 2017-TODAY Wei "oldrev" Li and Contributors
+* Copyright 2017-2018 Wei "oldrev" Li and Contributors
 
 This library is licensed under the [Apache 2.0 license](http://www.apache.org/licenses/LICENSE-2.0.html).
 
 # Contribute
 
-Contributions are welcome! For bug reports, please create an issue. 
+Contributions are always welcome! For bug reports, please create an issue. 
 For code contributions (e.g. new features or bugfixes), please create a pull request.
 
 # Credits
@@ -54,3 +54,6 @@ For code contributions (e.g. new features or bugfixes), please create a pull req
 * "barefoot" from BMW Car IT GmbH: [https://github.com/bmwcarit/barefoot](https://github.com/bmwcarit/barefoot)
 * "map-matching" from GraphHopper Project: [https://github.com/graphhopper/map-matching](https://github.com/graphhopper/map-matching)
 * "hmm-lib" from BMW Car IT GmbH: [https://github.com/bmwcarit/hmm-lib](https://github.com/bmwcarit/hmm-lib)
+* "Nito.Collections.Deque" from Stephen Cleary: [https://github.com/StephenCleary/Deque](https://github.com/StephenCleary/Deque)
+* "NetTopologySuite & ProjNET4GeoAPI" from NetTopologySuite Project: [https://github.com/NetTopologySuite](https://github.com/NetTopologySuite)
+* PriorityQueue class from Rx.NET Project: [https://github.com/Reactive-Extensions/Rx.NET](https://github.com/Reactive-Extensions/Rx.NET)

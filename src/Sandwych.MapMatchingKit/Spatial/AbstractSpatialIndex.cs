@@ -10,10 +10,10 @@ namespace Sandwych.MapMatchingKit.Spatial
     public abstract class AbstractSpatialIndex<TItem> : ISpatialIndex<TItem>
     {
         protected abstract NetTopologySuite.Index.ISpatialIndex<TItem> Index { get; }
-        protected ISpatialService Spatial { get; }
+        protected ISpatialOperation Spatial { get; }
         protected Func<TItem, IGeometry> ItemGeometryGetter { get; }
 
-        protected AbstractSpatialIndex(IEnumerable<TItem> items, ISpatialService spatialService, Func<TItem, IGeometry> geometryGetter)
+        protected AbstractSpatialIndex(IEnumerable<TItem> items, ISpatialOperation spatialService, Func<TItem, IGeometry> geometryGetter)
         {
             this.ItemGeometryGetter = geometryGetter;
             this.Spatial = spatialService;

@@ -18,7 +18,7 @@ namespace Sandwych.MapMatchingKit.Matcher
     {
         private readonly RoadMap _map;
         private readonly IGraphRouter<Road, RoadPoint> _router;
-        private readonly ISpatialService _spatial;
+        private readonly ISpatialOperation _spatial;
         private readonly Func<Road, double> _cost;
 
         private double _sig2 = Math.Pow(5.0, 2.0);
@@ -34,7 +34,7 @@ namespace Sandwych.MapMatchingKit.Matcher
         /// <param name="router">router <see cref="IGraphRouter{TEdge, TPoint}"/> object to be used for route estimation.</param>
         /// <param name="cost">Cost function to be used for routing.</param>
         /// <param name="spatial">Spatial operator for spatial calculations.</param>
-        public Matcher(RoadMap map, IGraphRouter<Road, RoadPoint> router, Func<Road, double> cost, ISpatialService spatial)
+        public Matcher(RoadMap map, IGraphRouter<Road, RoadPoint> router, Func<Road, double> cost, ISpatialOperation spatial)
         {
             this._map = map;
             this._router = router;

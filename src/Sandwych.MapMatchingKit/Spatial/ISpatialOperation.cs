@@ -7,7 +7,7 @@ using Sandwych.MapMatchingKit.Spatial.Geometries;
 
 namespace Sandwych.MapMatchingKit.Spatial
 {
-    public interface ISpatialService
+    public interface ISpatialOperation
     {
         /// <summary>
         /// Gets the distance between two <see cref="Geometries.Coordinate2D"/> <i>a</i> and <i>b</i>.

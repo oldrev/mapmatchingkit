@@ -9,30 +9,14 @@ using Sandwych.MapMatchingKit.Spatial.Geometries;
 
 namespace Sandwych.MapMatchingKit.Spatial
 {
-    public class CartesianSpatialService : ISpatialService
+    public class CartesianSpatialOperation : ISpatialOperation
     {
-        private static readonly Lazy<ISpatialService> s_instance = new Lazy<ISpatialService>(() => new CartesianSpatialService(), true);
+        private static readonly Lazy<ISpatialOperation> s_instance = new Lazy<ISpatialOperation>(() => new CartesianSpatialOperation(), true);
 
-        public static ISpatialService Instance => s_instance.Value;
+        public static ISpatialOperation Instance => s_instance.Value;
 
-        public double Distance(in Coordinate2D a, in Coordinate2D b)
-        {
-            //double d1 = pointA[0] - pointB[0];
-            //double d2 = pointA[1] - pointB[1];
-            //return Math.Sqrt(d1 * d1 + d2 * d2);
-            /*
-            //Too bad it needs allocation
-            var v1 = new Vector<double>(new double[2] { a.X, a.Y });
-            var v2 = new Vector<double>(new double[2] { b.X, b.Y });
-            var v3 = v1 - v2;
-            var v4 = v3 * v3;
-            var p = v4[0] + v4[1];
-            return (double)Math.Sqrt(p);
-            */
-            var d1 = a.X - b.X;
-            var d2 = a.Y - b.Y;
-            return Math.Sqrt(d1 * d1 + d2 * d2);
-        }
+        public double Distance(in Coordinate2D a, in Coordinate2D b) =>
+            a.CartesianDistance(b);
 
         public double Length(ILineString path) => path.Length;
 
@@ -47,11 +31,11 @@ namespace Sandwych.MapMatchingKit.Spatial
             for (int i = 1; i < p.NumPoints; ++i)
             {
                 var b = p.GetCoordinate2DAt(i);
-                ds = this.Distance(a, b);
+                ds = a.CartesianDistance(b);
                 var f_ = this.Intercept(a, b, c);
                 f_ = (f_ > 1) ? 1 : (f_ < 0) ? 0 : f_;
                 var x = this.Interpolate(a, b, f_);
-                var d_ = this.Distance(c, x);
+                var d_ = c.CartesianDistance(x);
 
                 if (d_ < d)
                 {
@@ -100,7 +84,7 @@ namespace Sandwych.MapMatchingKit.Spatial
             {
                 var a = path.GetCoordinate2DAt(i - 1);
                 var b = path.GetCoordinate2DAt(i);
-                var ds = this.Distance(a, b);
+                var ds = a.CartesianDistance(b);
                 if ((s + ds) >= d)
                 {
                     return this.Azimuth(a, b, (d - s) / ds);
@@ -140,7 +124,7 @@ namespace Sandwych.MapMatchingKit.Spatial
             for (int i = 1; i < path.NumPoints; ++i)
             {
                 var b = path.GetCoordinate2DAt(i);
-                ds = this.Distance(a, b);
+                ds = a.CartesianDistance(b);
 
                 if ((s + ds) >= d)
                 {
@@ -156,7 +140,7 @@ namespace Sandwych.MapMatchingKit.Spatial
 
         public Coordinate2D Interpolate(in Coordinate2D a, in Coordinate2D b, double f)
         {
-            var l = this.Distance(a, b);
+            var l = a.CartesianDistance(b);
             var d = l * f;
             return new Coordinate2D(a.X + d, a.Y + d);
         }

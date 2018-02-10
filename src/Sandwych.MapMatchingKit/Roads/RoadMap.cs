@@ -13,15 +13,15 @@ namespace Sandwych.MapMatchingKit.Roads
     public class RoadMap : AbstractGraph<Road>
     {
         public ISpatialIndex<Road> Index { get; }
-        private readonly ISpatialService _spatial;
+        private readonly ISpatialOperation _spatial;
 
-        public RoadMap(IEnumerable<Road> roads, ISpatialService spatial) : base(roads)
+        public RoadMap(IEnumerable<Road> roads, ISpatialOperation spatial) : base(roads)
         {
             _spatial = spatial;
             this.Index = new QuadtreeIndex<Road>(roads, spatial, r => r.Geometry);
         }
 
-        public RoadMap(IEnumerable<Road> roads) : this(roads, CartesianSpatialService.Instance)
+        public RoadMap(IEnumerable<Road> roads) : this(roads, CartesianSpatialOperation.Instance)
         {
         }
 

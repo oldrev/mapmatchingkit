@@ -23,18 +23,18 @@ namespace Sandwych.MapMatchingKit.Roads
             this.Edge = edge;
             this.Fraction = fraction;
             this.Azimuth = azimuth;
-            this.Coordinate = CartesianSpatialService.Instance.Interpolate(this.Edge.Geometry, this.Fraction); //TODO 
+            this.Coordinate = CartesianSpatialOperation.Instance.Interpolate(this.Edge.Geometry, this.Fraction); //TODO 
         }
 
         public RoadPoint(in Road edge, double fraction)
         {
             this.Edge = edge;
             this.Fraction = fraction;
-            this.Azimuth = (float)CartesianSpatialService.Instance.Azimuth(edge.Geometry, fraction);
-            this.Coordinate = CartesianSpatialService.Instance.Interpolate(this.Edge.Geometry, this.Fraction); //TODO 
+            this.Azimuth = (float)CartesianSpatialOperation.Instance.Azimuth(edge.Geometry, fraction);
+            this.Coordinate = CartesianSpatialOperation.Instance.Interpolate(this.Edge.Geometry, this.Fraction); //TODO 
         }
 
-        public static RoadPoint FromRoadFraction(in Road edge, double fraction, ISpatialService spatial)
+        public static RoadPoint FromRoadFraction(in Road edge, double fraction, ISpatialOperation spatial)
         {
             var azimuth = spatial.Azimuth(edge.Geometry, fraction);
             return new RoadPoint(edge, fraction, (float)azimuth);

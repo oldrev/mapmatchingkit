@@ -96,5 +96,17 @@ namespace Sandwych.MapMatchingKit.Spatial.Geometries
         }
 
         public double[] ToArray() => new double[2] { this.X, this.Y };
+
+        /// <summary>
+        /// Compute Cartesian distance.
+        /// </summary>
+        /// <param name="other">Other coordinate to compute distance</param>
+        /// <returns></returns>
+        public double CartesianDistance(in Coordinate2D other)
+        {
+            var d1 = this.X - other.X;
+            var d2 = this.Y - other.Y;
+            return Math.Sqrt(d1 * d1 + d2 * d2);
+        }
     }
 }

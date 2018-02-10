@@ -13,7 +13,7 @@ namespace Sandwych.MapMatchingKit.Spatial
 
         protected override NetTopologySuite.Index.ISpatialIndex<TItem> Index => _index;
 
-        public QuadtreeIndex(IEnumerable<TItem> items, ISpatialService spatial, Func<TItem, IGeometry> geomGetter) : base(items, spatial, geomGetter)
+        public QuadtreeIndex(IEnumerable<TItem> items, ISpatialOperation spatial, Func<TItem, IGeometry> geomGetter) : base(items, spatial, geomGetter)
         {
 
         }

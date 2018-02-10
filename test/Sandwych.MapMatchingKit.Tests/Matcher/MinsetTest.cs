@@ -1,13 +1,12 @@
-﻿using GeoAPI.Geometries;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using GeoAPI.Geometries;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.IO;
 using Sandwych.MapMatchingKit.Matcher;
 using Sandwych.MapMatchingKit.Roads;
 using Sandwych.MapMatchingKit.Spatial;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using Xunit;
 
 namespace Sandwych.MapMatchingKit.Tests.Matcher

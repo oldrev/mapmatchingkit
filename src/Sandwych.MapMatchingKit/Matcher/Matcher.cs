@@ -16,18 +16,15 @@ namespace Sandwych.MapMatchingKit.Matcher
     /// <typeparam name="TSampleId"></typeparam>
     public class Matcher<TSampleId> : AbstractFilter<MatcherCandidate<TSampleId>, MatcherTransition, MatcherSample<TSampleId>>
     {
-        private readonly RoadMap map;
-        private readonly IGraphRouter<Road, RoadPoint> router;
-        private readonly ISpatialService spatial;
-        private readonly Func<Road, double> cost;
+        private readonly RoadMap _map;
+        private readonly IGraphRouter<Road, RoadPoint> _router;
+        private readonly ISpatialService _spatial;
+        private readonly Func<Road, double> _cost;
 
-        private double sig2 = Math.Pow(5.0, 2.0);
-        private double sigA = Math.Pow(10.0, 2.0);
-        private double sqrt_2pi_sig2 = Math.Sqrt(2d * Math.PI * Math.Pow(5.0, 2.0));
-        private double sqrt_2pi_sigA = Math.Sqrt(2d * Math.PI * Math.Pow(10.0, 2.0));
-        private double lambda = 0d;
-        private double radius = 200;
-        private double distance = 15000;
+        private double _sig2 = Math.Pow(5.0, 2.0);
+        private double _sigA = Math.Pow(10.0, 2.0);
+        private double _sqrt_2pi_sig2 = Math.Sqrt(2d * Math.PI * Math.Pow(5.0, 2.0));
+        private double _sqrt_2pi_sigA = Math.Sqrt(2d * Math.PI * Math.Pow(10.0, 2.0));
 
 
         /// <summary>
@@ -39,23 +36,19 @@ namespace Sandwych.MapMatchingKit.Matcher
         /// <param name="spatial">Spatial operator for spatial calculations.</param>
         public Matcher(RoadMap map, IGraphRouter<Road, RoadPoint> router, Func<Road, double> cost, ISpatialService spatial)
         {
-            this.map = map;
-            this.router = router;
-            this.cost = cost;
-            this.spatial = spatial;
+            this._map = map;
+            this._router = router;
+            this._cost = cost;
+            this._spatial = spatial;
         }
 
-
-        /*
-         *
-         */
         /// <summary>
         /// Gets standard deviation in meters of gaussian distribution that defines emission probabilities.
         /// </summary>
         /// <returns>Standard deviation in meters of gaussian distribution that defines emission probabilities.</returns>
-        public double getSigma()
+        public double GetSigma()
         {
-            return Math.Sqrt(this.sig2);
+            return Math.Sqrt(this._sig2);
         }
 
 
@@ -66,75 +59,39 @@ namespace Sandwych.MapMatchingKit.Matcher
         /// <param name="sigma">Standard deviation in meters of gaussian distribution for defining emission
         /// probabilities (default is 5 meters).
         /// </param>
-        public void setSigma(double sigma)
+        public void SetSigma(double sigma)
         {
-            this.sig2 = Math.Pow(sigma, 2);
-            this.sqrt_2pi_sig2 = Math.Sqrt(2d * Math.PI * sig2);
+            this._sig2 = Math.Pow(sigma, 2);
+            this._sqrt_2pi_sig2 = Math.Sqrt(2d * Math.PI * _sig2);
         }
 
 
         /// <summary>
-        /// Gets lambda parameter of negative exponential distribution defining transition probabilities.
+        /// <para>
+        /// Get or sets lambda parameter of negative exponential distribution defining transition probabilities
+        /// (default is 0.0). It uses adaptive parameterization, if lambda is set to 0.0.
+        /// </para>
+        /// <para>Lambda parameter of negative exponential distribution defining transition probabilities.</para>
         /// </summary>
-        /// <returns>Lambda parameter of negative exponential distribution defining transition probabilities.</returns>
-        public double getLambda()
-        {
-            return this.lambda;
-        }
+        public double Lambda { get; set; } = 0D;
 
-        /**
-         * Sets lambda parameter of negative exponential distribution defining transition probabilities
-         * (default is 0.0). It uses adaptive parameterization, if lambda is set to 0.0.
-         *
-         * @param lambda Lambda parameter of negative exponential distribution defining transition
-         *        probabilities.
-         */
-        public void setLambda(double lambda)
-        {
-            this.lambda = lambda;
-        }
 
-        /**
-         * Gets maximum radius for candidate selection in meters.
-         *
-         * @return Maximum radius for candidate selection in meters.
-         */
-        public double getMaxRadius()
-        {
-            return this.radius;
-        }
+        /// <summary>
+        /// Gets or sets maximum radius for candidate selection in meters (default is 100 meters).
+        /// </summary>
+        public double MaxRadius { get; set; } = 100.0;
 
-        /**
-         * Sets maximum radius for candidate selection in meters (default is 100 meters).
-         *
-         * @param radius Maximum radius for candidate selection in meters.
-         */
-        public void setMaxRadius(double radius)
-        {
-            this.radius = radius;
-        }
 
-        /**
-         * Gets maximum transition distance in meters.
-         *
-         * @return Maximum transition distance in meters.
-         */
-        public double getMaxDistance() => this.distance;
+        /// <summary>
+        /// Gets or sets maximum transition distance in meters (default is 15000 meters).
+        /// </summary>
+        public double MaxDistance { get; set; } = 15000.0;
 
-        /**
-         * Sets maximum transition distance in meters (default is 15000 meters).
-         *
-         * @param distance Maximum transition distance in meters.
-         */
-        public void setMaxDistance(double distance)
-        {
-            this.distance = distance;
-        }
 
         protected override (MatcherCandidate<TSampleId>, double)[] Candidates(
             ISet<MatcherCandidate<TSampleId>> predecessors, in MatcherSample<TSampleId> sample)
         {
-            var points_ = this.map.Radius(sample.Coordinate, radius);
+            var points_ = this._map.Radius(sample.Coordinate, this.MaxRadius);
             var points = Minset.Minimize(points_);
 
             var map = new Dictionary<long, RoadPoint>();
@@ -165,8 +122,8 @@ namespace Sandwych.MapMatchingKit.Matcher
 
             foreach (var point in points)
             {
-                double dz = spatial.Distance(sample.Coordinate, point.Coordinate);
-                double emission = 1 / sqrt_2pi_sig2 * Math.Exp((-1) * dz * dz / (2 * sig2));
+                double dz = _spatial.Distance(sample.Coordinate, point.Coordinate);
+                double emission = 1 / _sqrt_2pi_sig2 * Math.Exp((-1) * dz * dz / (2 * _sig2));
                 if (!double.IsNaN(sample.Azimuth))
                 {
                     double da = sample.Azimuth > point.Azimuth
@@ -174,7 +131,7 @@ namespace Sandwych.MapMatchingKit.Matcher
                                     360 - (sample.Azimuth - point.Azimuth))
                             : Math.Min(point.Azimuth - sample.Azimuth,
                                     360 - (point.Azimuth - sample.Azimuth));
-                    emission *= Math.Max(1E-2, 1 / sqrt_2pi_sigA * Math.Exp((-1) * da / (2 * sigA)));
+                    emission *= Math.Max(1E-2, 1 / _sqrt_2pi_sigA * Math.Exp((-1) * da / (2 * _sigA)));
                 }
 
                 var candidate = new MatcherCandidate<TSampleId>(point);
@@ -202,14 +159,14 @@ namespace Sandwych.MapMatchingKit.Matcher
             }
 
             var transitions = new Dictionary<MatcherCandidate<TSampleId>, IDictionary<MatcherCandidate<TSampleId>, (MatcherTransition, double)>>();
-            var base_ = 1.0 * spatial.Distance(predecessors.Item1.Coordinate, candidates.Item1.Coordinate) / 60.0;
-            var bound = Math.Max(1000.0, Math.Min(distance, ((candidates.Item1.Time - predecessors.Item1.Time) / 1000.0) * 100.0));
+            var base_ = 1.0 * _spatial.Distance(predecessors.Item1.Coordinate, candidates.Item1.Coordinate) / 60.0;
+            var bound = Math.Max(1000.0, Math.Min(this.MaxDistance, ((candidates.Item1.Time - predecessors.Item1.Time) / 1000.0) * 100.0));
 
             foreach (var predecessor in predecessors.Item2)
             {
                 var map = new Dictionary<MatcherCandidate<TSampleId>, (MatcherTransition, double)>();
                 //TODO check return
-                router.TryRoute(predecessor.RoadPoint, targets, cost, Costs.DistanceCost, bound, out var routes);
+                _router.TryRoute(predecessor.RoadPoint, targets, _cost, Costs.DistanceCost, bound, out var routes);
 
                 foreach (var candidate in candidates.Item2)
                 {
@@ -227,13 +184,13 @@ namespace Sandwych.MapMatchingKit.Matcher
                     // experimentally choose lambda * Math.exp((-1.0) * lambda * Math.max(0,
                     // route.length() - dt)) to avoid unnecessary routes in case of u-turns.
 
-                    double beta = lambda == 0
+                    var beta = this.Lambda == 0D
                             ? (2.0 * Math.Max(1d,
-                                    candidates.Item1.Time - predecessors.Item1.Time) / 1000)
-                            : 1 / lambda;
+                                    candidates.Item1.Time - predecessors.Item1.Time) / 1000D)
+                            : 1D / this.Lambda;
 
-                    double transition = (1 / beta) * Math.Exp(
-                            (-1.0) * Math.Max(0, route.Cost(cost) - base_) / beta);
+                    var transition = (1D / beta) * Math.Exp(
+                            (-1.0) * Math.Max(0D, route.Cost(_cost) - base_) / beta);
 
                     map.Add(candidate, (new MatcherTransition(route), transition));
                 }

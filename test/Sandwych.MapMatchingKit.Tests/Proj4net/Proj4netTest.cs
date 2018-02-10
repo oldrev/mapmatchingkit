@@ -19,8 +19,8 @@ namespace Sandwych.MapMatchingKit.Tests.Proj4net
 
             var epsg4326 = @"GEOGCS[""WGS 84"",DATUM[""WGS_1984"",SPHEROID[""WGS 84"",6378137,298.257223563,AUTHORITY[""EPSG"",""7030""]],AUTHORITY[""EPSG"",""6326""]],PRIMEM[""Greenwich"",0,AUTHORITY[""EPSG"",""8901""]],UNIT[""degree"",0.01745329251994328,AUTHORITY[""EPSG"",""9122""]],AUTHORITY[""EPSG"",""4326""]]";
 
-            var srcCRS = ProjNet.Converters.WellKnownText.CoordinateSystemWktReader.Parse(epsg4326, Encoding.UTF8) as ICoordinateSystem;
-            var tgtCRS = ProjNet.Converters.WellKnownText.CoordinateSystemWktReader.Parse(epsg3395, Encoding.UTF8) as ICoordinateSystem;
+            var srcCRS = ProjNet.Converters.WellKnownText.CoordinateSystemWktReader.Parse(epsg4326, Encoding.ASCII) as ICoordinateSystem;
+            var tgtCRS = ProjNet.Converters.WellKnownText.CoordinateSystemWktReader.Parse(epsg3395, Encoding.ASCII) as ICoordinateSystem;
 
 
             var ctFac = new ProjNet.CoordinateSystems.Transformations.CoordinateTransformationFactory();

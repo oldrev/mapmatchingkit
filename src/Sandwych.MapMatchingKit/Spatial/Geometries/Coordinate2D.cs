@@ -1,11 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Numerics;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using System.Text;
 
 namespace Sandwych.MapMatchingKit.Spatial.Geometries
 {
+    [StructLayout(LayoutKind.Sequential)]
     public readonly struct Coordinate2D : ICoordinate2D, IComparable<Coordinate2D>, IEquatable<Coordinate2D>
     {
         private static readonly Coordinate2D s_nan = new Coordinate2D(double.NaN, double.NaN);
@@ -13,6 +16,7 @@ namespace Sandwych.MapMatchingKit.Spatial.Geometries
         public static ref readonly Coordinate2D NaN => ref s_nan;
 
         public double X { get; }
+
         public double Y { get; }
 
         public Coordinate2D(double x, double y)
@@ -25,6 +29,27 @@ namespace Sandwych.MapMatchingKit.Spatial.Geometries
         {
             this.X = c.X;
             this.Y = c.Y;
+        }
+
+        public Coordinate2D(double[] coords)
+        {
+            if (coords.Length != 2)
+            {
+                throw new ArgumentOutOfRangeException(nameof(coords));
+            }
+
+            this.X = coords[0];
+            this.Y = coords[1];
+        }
+
+        public Coordinate2D(ReadOnlySpan<double> span)
+        {
+            if (span.Length != 2)
+            {
+                throw new ArgumentOutOfRangeException(nameof(span));
+            }
+            this.X = span[0];
+            this.Y = span[1];
         }
 
         public bool IsNan => double.IsNaN(this.X) || double.IsNaN(this.Y);
@@ -69,5 +94,7 @@ namespace Sandwych.MapMatchingKit.Spatial.Geometries
                 }
             }
         }
+
+        public double[] ToArray() => new double[2] { this.X, this.Y };
     }
 }

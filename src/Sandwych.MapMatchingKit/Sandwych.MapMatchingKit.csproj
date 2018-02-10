@@ -5,6 +5,14 @@
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|netstandard2.0|AnyCPU'">
+    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netstandard2.0|AnyCPU'">
+    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+  </PropertyGroup>
+
   <ItemGroup>
     <PackageReference Include="Castle.LoggingFacility" Version="4.1.0" />
     <PackageReference Include="NetTopologySuite" Version="1.15.0-pre037" />

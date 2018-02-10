@@ -344,7 +344,8 @@ namespace Sandwych.MapMatchingKit.Tests.Topology
                     new RoadPoint(map.GetEdge(14), 0.1),
                 };
                 var route = router.Route(sources, targets, e => e.Weight, e => e.Weight, 200.0);
-                Assert.Null(route);
+                Assert.NotNull(route);
+                Assert.Empty(route);
 
             }
             {

@@ -1,54 +1,67 @@
 ﻿using Castle.Core.Logging;
 using Sandwych.MapMatchingKit.Roads;
+using Sandwych.MapMatchingKit.Utility;
 using System;
 using System.Collections.Generic;
 
 namespace Sandwych.MapMatchingKit.Topology
 {
 
-    /*
-     * Dijkstra's algorithm implementation of a {@link Router}. The routing functions use the Dijkstra
-     * algorithm for finding shortest paths according to a customizable {@link Cost} function.
-     *
-     * @param <E> Implementation of {@link AbstractEdge} in a directed {@link Graph}.
-     * @param <P> {@link Point} type of positions in the network.
-     */
+    /// <summary>
+    /// Dijkstra's algorithm implementation of a {@link Router}. The routing functions use the Dijkstra
+    /// algorithm for finding shortest paths according to a customizable {@link Cost} function.
+    /// </summary>
+    /// <typeparam name="P">{@link Point} type of positions in the network.</typeparam>
+    /// <typeparam name="TEdge">Implementation of {@link AbstractEdge} in a directed {@link Graph}.</typeparam>
     public class DijkstraRouter<P, TEdge>
         where TEdge : class, IGraphEdge<TEdge>
         where P : IEdgePoint<TEdge>
     {
         public ILogger Logger { get; set; } = NullLogger.Instance;
-        /*
-        *  Route mark representation.
-        */
+
+        /// <summary>
+        /// Route mark representation.
+        /// </summary>
         private class Mark : IComparable<Mark>
         {
-            /*
-             * Constructor of an entry.
-             *
-             * @param one {@link AbstractEdge} defining the route mark.
-             * @param two Predecessor {@link AbstractEdge}.
-             * @param three Cost value to this route mark.
-             * @param four Bounding cost value to this route mark.
-             */
-            public TEdge One { get; }
-            public TEdge Two { get; }
+            public TEdge MarkedEdge { get; }
+            public TEdge PredecessorEdge { get; }
             public double Cost { get; }
-            public double Bound { get; }
+            public double BoundingCost { get; }
 
-            public Mark(TEdge one, TEdge two, Double cost, Double bound)
+            /// <summary>
+            /// Constructor of an entry.
+            /// </summary>
+            /// <param name="markedEdge">{@link AbstractEdge} defining the route mark.</param>
+            /// <param name="predecessorEdge">Predecessor {@link AbstractEdge}.</param>
+            /// <param name="cost">Cost value to this route mark.</param>
+            /// <param name="boundingCost">Bounding cost value to this route mark.</param>
+            public Mark(TEdge markedEdge, TEdge predecessorEdge, Double cost, Double boundingCost)
             {
-                this.One = one;
-                this.Two = two;
+                this.MarkedEdge = markedEdge;
+                this.PredecessorEdge = predecessorEdge;
                 this.Cost = cost;
-                this.Bound = bound;
+                this.BoundingCost = boundingCost;
             }
 
-            public int CompareTo(Mark other) =>
-                (this.Cost < other.Cost) ? -1 : (this.Cost > other.Cost) ? 1 : 0;
+            public int CompareTo(Mark other)
+            {
+                if (this.Cost < other.Cost)
+                {
+                    return -1;
+                }
+                else if (this.Cost > other.Cost)
+                {
+                    return 1;
+                }
+                else
+                {
+                    return 0;
+                }
+            }
 
             public override int GetHashCode() =>
-                (this.One, this.Two, this.Cost, this.Bound).GetHashCode();
+                (this.MarkedEdge, this.PredecessorEdge, this.Cost, this.BoundingCost).GetHashCode();
         }
 
         public IEnumerable<TEdge> Route(P source, P target, Func<TEdge, double> cost)
@@ -128,7 +141,7 @@ namespace Sandwych.MapMatchingKit.Topology
             /*
              * Setup data structures
              */
-            var priorities = new C5.TreeBag<Mark>();
+            var priorities = new PriorityQueue<Mark>();
             var entries = new Dictionary<TEdge, Mark>();
             var finishs = new Dictionary<P, Mark>();
             var reaches = new Dictionary<Mark, P>();
@@ -140,8 +153,8 @@ namespace Sandwych.MapMatchingKit.Topology
             foreach (var source in sources)
             {
                 // initialize sources as start edges
-                var startcost = source.Edge.Cost(1 - source.Fraction, cost); //cost.cost(source.Edge, 1 - source.Fraction);
-                var startbound = bound != null ? source.Edge.Cost(1 - source.Fraction, bound) : 0;  //bound.cost(source.Edge.Cost(), 1 - source.Fraction) : 0.0;
+                var startcost = source.Edge.Cost(1.0 - source.Fraction, cost); //cost.cost(source.Edge, 1 - source.Fraction);
+                var startbound = bound != null ? source.Edge.Cost(1.0 - source.Fraction, bound) : 0D;  //bound.cost(source.Edge.Cost(), 1 - source.Fraction) : 0.0;
 
                 if (this.Logger.IsDebugEnabled)
                 {
@@ -159,7 +172,7 @@ namespace Sandwych.MapMatchingKit.Topology
                             continue;
                         }
                         var reachcost = startcost - source.Edge.Cost(1.0 - target.Fraction, cost); // cost.cost(source.Edge, 1 - target.Fraction);
-                        var reachbound = bound != null ? startcost - source.Edge.Cost(1.0 - target.Fraction, bound) : 0.0; //, // bound.cost(source.Edge, 1 - target.Fraction) : 0.0;
+                        var reachbound = bound != null ? startcost - source.Edge.Cost(1.0 - target.Fraction, bound) : 0D; //, // bound.cost(source.Edge, 1 - target.Fraction) : 0.0;
 
                         if (this.Logger.IsDebugEnabled)
                         {
@@ -171,7 +184,7 @@ namespace Sandwych.MapMatchingKit.Topology
                         var reach = new Mark(source.Edge, null, reachcost, reachbound);
                         reaches.Add(reach, target);
                         starts.Add(reach, source);
-                        priorities.Add(reach);
+                        priorities.Enqueue(reach);
                     }
                 }
 
@@ -185,7 +198,7 @@ namespace Sandwych.MapMatchingKit.Topology
                     start = new Mark(source.Edge, null, startcost, startbound);
                     entries[source.Edge] = start;
                     starts[start] = source;
-                    priorities.Add(start);
+                    priorities.Enqueue(start);
                 }
                 else
                 {
@@ -200,7 +213,7 @@ namespace Sandwych.MapMatchingKit.Topology
                         entries[source.Edge] = start;
                         starts[start] = source;
                         priorities.Remove(start);
-                        priorities.Add(start);
+                        priorities.Enqueue(start);
                     }
                 }
             }
@@ -210,7 +223,7 @@ namespace Sandwych.MapMatchingKit.Topology
              */
             while (priorities.Count > 0)
             {
-                var current = priorities.DeleteMin();
+                var current = priorities.Dequeue();
 
                 if (targetEdges.Count == 0)
                 {
@@ -221,7 +234,7 @@ namespace Sandwych.MapMatchingKit.Topology
                     break;
                 }
 
-                if (!double.IsNaN(max) && current.Bound > max)
+                if (!double.IsNaN(max) && current.BoundingCost > max)
                 {
                     if (this.Logger.IsDebugEnabled)
                     {
@@ -245,17 +258,17 @@ namespace Sandwych.MapMatchingKit.Topology
                             if (this.Logger.IsDebugEnabled)
                             {
                                 this.Logger.DebugFormat("finished target {0} with edge {1} and fraction {2} with {3} cost",
-                                    target, current.One, target.Fraction, current.Cost);
+                                    target, current.MarkedEdge, target.Fraction, current.Cost);
                             }
 
                             finishs[target] = current;
 
-                            var edges = targetEdges[current.One];
+                            var edges = targetEdges[current.MarkedEdge];
                             edges.Remove(target);
 
                             if (edges.Count == 0)
                             {
-                                targetEdges.Remove(current.One);
+                                targetEdges.Remove(current.MarkedEdge);
                             }
                             continue;
                         }
@@ -264,32 +277,32 @@ namespace Sandwych.MapMatchingKit.Topology
 
                 if (this.Logger.IsDebugEnabled)
                 {
-                    this.Logger.DebugFormat("succeed edge {0} with {1} cost", current.One.Id, current.Cost);
+                    this.Logger.DebugFormat("succeed edge {0} with {1} cost", current.MarkedEdge.Id, current.Cost);
                 }
 
-                var successors = current.One.Successors;
+                var successors = current.MarkedEdge.Successors;
 
                 foreach (var successor in successors)
                 {
                     var succcost = current.Cost + cost(successor);
-                    var succbound = bound != null ? current.Bound + bound(successor) : 0.0;
+                    var succbound = bound != null ? current.BoundingCost + bound(successor) : 0.0;
 
                     if (targetEdges.ContainsKey(successor))
                     {
                         // reach target edge
                         foreach (var targetEdge in targetEdges[successor])
                         {
-                            var reachcost = succcost - successor.Cost(1 - targetEdge.Fraction, cost);
-                            var reachbound = bound != null ? succbound - successor.Cost(1 - targetEdge.Fraction, bound) : 0.0;    /// bound(successor, 1 - target.Fraction) : 0.0;
+                            var reachcost = succcost - successor.Cost(1.0 - targetEdge.Fraction, cost);
+                            var reachbound = bound != null ? succbound - successor.Cost(1.0 - targetEdge.Fraction, bound) : 0.0;    /// bound(successor, 1 - target.Fraction) : 0.0;
                             if (this.Logger.IsDebugEnabled)
                             {
                                 this.Logger.DebugFormat("reached target {0} with successor edge {1} and fraction {2} with {3} cost",
                                     targetEdge, successor.Id, targetEdge.Fraction, reachcost);
                             }
 
-                            var reach = new Mark(successor, current.One, reachcost, reachbound);
+                            var reach = new Mark(successor, current.MarkedEdge, reachcost, reachbound);
                             reaches.Add(reach, targetEdge);
-                            priorities.Add(reach);
+                            priorities.Enqueue(reach);
                         }
                     }
 
@@ -299,9 +312,9 @@ namespace Sandwych.MapMatchingKit.Topology
                         {
                             this.Logger.DebugFormat("added successor edge {0} with {1} cost", successor.Id, succcost);
                         }
-                        Mark mark = new Mark(successor, current.One, succcost, succbound);
+                        Mark mark = new Mark(successor, current.MarkedEdge, succcost, succbound);
                         entries.Add(successor, mark);
-                        priorities.Add(mark);
+                        priorities.Enqueue(mark);
                     }
                 }
             }
@@ -313,13 +326,13 @@ namespace Sandwych.MapMatchingKit.Topology
                 if (finishs.ContainsKey(targetPoint))
                 {
                     var path = new List<TEdge>();
-                    var iterator = finishs.TryGetValue(targetPoint, out var outIterator) ? outIterator : null;
+                    var iterator = finishs[targetPoint];
                     Mark start = null;
                     while (iterator != null)
                     {
-                        path.Add(iterator.One);
+                        path.Add(iterator.MarkedEdge);
                         start = iterator;
-                        iterator = iterator.Two != null ? (entries.TryGetValue(iterator.Two, out var outIterator2) ? outIterator2 : null) : null;
+                        iterator = iterator.PredecessorEdge != null ? entries.GetOrNull(iterator.PredecessorEdge) : null;
                     }
                     path.Reverse();
                     var tp = (starts[start], path);
@@ -327,10 +340,12 @@ namespace Sandwych.MapMatchingKit.Topology
                 }
             }
 
+            /*
             entries.Clear();
             finishs.Clear();
             reaches.Clear();
             priorities.Clear();
+            */
 
             return paths;
         }

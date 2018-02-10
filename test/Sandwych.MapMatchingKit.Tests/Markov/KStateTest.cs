@@ -13,7 +13,7 @@ namespace Sandwych.MapMatchingKit.Tests.Markov
         {
         }
 
-        private class MockElem : AbstractStateCandidate<MockElem, MockStateTransition, Sample>
+        private class MockElem : AbstractStateCandidate<MockElem, MockStateTransition, MockSample>
         {
             private readonly int _id;
 
@@ -64,11 +64,11 @@ namespace Sandwych.MapMatchingKit.Tests.Markov
             elements.Add(1, new MockElem(1, Math.Log10(0.2), 0.2, null));
             elements.Add(2, new MockElem(2, Math.Log10(0.5), 0.5, null));
 
-            var state = new KState<MockElem, MockStateTransition, Sample>();
+            var state = new KState<MockElem, MockStateTransition, MockSample>();
             {
                 var vector = new HashSet<MockElem>(new MockElem[] { elements[0], elements[1], elements[2] });
 
-                state.Update(vector, new Sample(0));
+                state.Update(vector, new MockSample(0));
 
                 Assert.Equal(3, state.Count);
                 Assert.Equal(2, state.Estimate().Id);
@@ -83,7 +83,7 @@ namespace Sandwych.MapMatchingKit.Tests.Markov
                 var vector = new HashSet<MockElem>(new MockElem[] {
                     elements[3], elements[4], elements[5], elements[6] });
 
-                state.Update(vector, new Sample(1));
+                state.Update(vector, new MockSample(1));
 
                 Assert.Equal(6, state.Count);
                 Assert.Equal(5, state.Estimate().Id);
@@ -105,7 +105,7 @@ namespace Sandwych.MapMatchingKit.Tests.Markov
                     elements[7], elements[8], elements[9], elements[10]
                 });
 
-                state.Update(vector, new Sample(2));
+                state.Update(vector, new MockSample(2));
 
                 Assert.Equal(7, state.Count);
                 Assert.Equal(9, state.Estimate().Id);
@@ -130,7 +130,7 @@ namespace Sandwych.MapMatchingKit.Tests.Markov
                     elements[14]
                 });
 
-                state.Update(vector, new Sample(3));
+                state.Update(vector, new MockSample(3));
 
                 Assert.Equal(8, state.Count);
                 Assert.Equal(13, state.Estimate().Id);
@@ -144,7 +144,7 @@ namespace Sandwych.MapMatchingKit.Tests.Markov
             {
                 var vector = new HashSet<MockElem>();
 
-                state.Update(vector, new Sample(4));
+                state.Update(vector, new MockSample(4));
 
                 Assert.Equal(8, state.Count);
                 Assert.Equal(13, state.Estimate().Id);
@@ -164,23 +164,23 @@ namespace Sandwych.MapMatchingKit.Tests.Markov
             // Tests only 'no transitions', no emissions is empty vector and, hence, input to update
             // operation.
 
-            var state = new KState<MockElem, MockStateTransition, Sample>();
+            var state = new KState<MockElem, MockStateTransition, MockSample>();
             var elements = new Dictionary<int, MockElem>();
             elements[0] = new MockElem(0, Math.Log10(0.4), 0.4, null);
             {
                 var vector = new HashSet<MockElem>() { elements[0] };
-                state.Update(vector, new Sample(0));
+                state.Update(vector, new MockSample(0));
             }
             elements[1] = new MockElem(1, Math.Log(0.7), 0.6, null);
             elements[2] = new MockElem(2, Math.Log(0.3), 0.4, elements[0]);
             {
                 var vector = new HashSet<MockElem>() { elements[1], elements[2] };
-                state.Update(vector, new Sample(1));
+                state.Update(vector, new MockSample(1));
             }
             elements[3] = new MockElem(3, Math.Log(0.5), 0.6, null);
             {
                 var vector = new HashSet<MockElem> { elements[3] };
-                state.Update(vector, new Sample(2));
+                state.Update(vector, new MockSample(2));
             }
             var seq = state.Sequence();
             Assert.Equal(0, seq.ElementAt(0).Id);
@@ -196,13 +196,13 @@ namespace Sandwych.MapMatchingKit.Tests.Markov
             elements.Add(1, new MockElem(1, Math.Log10(0.2), 0.2, null));
             elements.Add(2, new MockElem(2, Math.Log10(0.5), 0.5, null));
 
-            var state = new KState<MockElem, MockStateTransition, Sample>(1, -1);
+            var state = new KState<MockElem, MockStateTransition, MockSample>(1, -1);
             {
                 var vector = new HashSet<MockElem>() {
                     elements[0], elements[1], elements[2]
                 };
 
-                state.Update(vector, new Sample(0));
+                state.Update(vector, new MockSample(0));
 
                 Assert.Equal(3, state.Count);
                 Assert.Equal(2, state.Estimate().Id);
@@ -217,7 +217,7 @@ namespace Sandwych.MapMatchingKit.Tests.Markov
                 var vector = new HashSet<MockElem>() {
                     elements[3], elements[4], elements[5], elements[6] };
 
-                state.Update(vector, new Sample(1));
+                state.Update(vector, new MockSample(1));
 
                 Assert.Equal(6, state.Count);
                 Assert.Equal(5, state.Estimate().Id);
@@ -238,7 +238,7 @@ namespace Sandwych.MapMatchingKit.Tests.Markov
                 var vector = new HashSet<MockElem>() {
                     elements[7], elements[8], elements[9], elements[10] };
 
-                state.Update(vector, new Sample(2));
+                state.Update(vector, new MockSample(2));
 
                 Assert.Equal(6, state.Count);
                 Assert.Equal(9, state.Estimate().Id);
@@ -259,7 +259,7 @@ namespace Sandwych.MapMatchingKit.Tests.Markov
                 var vector = new HashSet<MockElem>() {
                     elements[11], elements[12], elements[13], elements[14] };
 
-                state.Update(vector, new Sample(3));
+                state.Update(vector, new MockSample(3));
 
                 Assert.Equal(5, state.Count);
                 Assert.Equal(13, state.Estimate().Id);
@@ -273,7 +273,7 @@ namespace Sandwych.MapMatchingKit.Tests.Markov
             {
                 var vector = new HashSet<MockElem>();
 
-                state.Update(vector, new Sample(4));
+                state.Update(vector, new MockSample(4));
 
                 Assert.Equal(5, state.Count);
                 Assert.Equal(13, state.Estimate().Id);
@@ -294,11 +294,11 @@ namespace Sandwych.MapMatchingKit.Tests.Markov
             elements.Add(1, new MockElem(1, Math.Log10(0.2), 0.2, null));
             elements.Add(2, new MockElem(2, Math.Log10(0.5), 0.5, null));
 
-            var state = new KState<MockElem, MockStateTransition, Sample>(-1, 1);
+            var state = new KState<MockElem, MockStateTransition, MockSample>(-1, 1);
             {
                 var vector = new HashSet<MockElem>() { elements[0], elements[1], elements[2] };
 
-                state.Update(vector, new Sample(0));
+                state.Update(vector, new MockSample(0));
 
                 Assert.Equal(3, state.Count);
                 Assert.Equal(2, state.Estimate().Id);
@@ -313,7 +313,7 @@ namespace Sandwych.MapMatchingKit.Tests.Markov
                 var vector = new HashSet<MockElem>() {
                     elements[3], elements[4], elements[5], elements[6] };
 
-                state.Update(vector, new Sample(1));
+                state.Update(vector, new MockSample(1));
 
                 Assert.Equal(6, state.Count);
                 Assert.Equal(5, state.Estimate().Id);
@@ -334,7 +334,7 @@ namespace Sandwych.MapMatchingKit.Tests.Markov
                 var vector = new HashSet<MockElem>() {
                     elements[7], elements[8], elements[9], elements[10] };
 
-                state.Update(vector, new Sample(2));
+                state.Update(vector, new MockSample(2));
 
                 Assert.Equal(6, state.Count);
                 Assert.Equal(9, state.Estimate().Id);
@@ -355,7 +355,7 @@ namespace Sandwych.MapMatchingKit.Tests.Markov
                 var vector = new HashSet<MockElem>() {
                     elements[11], elements[12], elements[13], elements[14] };
 
-                state.Update(vector, new Sample(3));
+                state.Update(vector, new MockSample(3));
 
                 Assert.Equal(5, state.Count);
                 Assert.Equal(13, state.Estimate().Id);
@@ -369,7 +369,7 @@ namespace Sandwych.MapMatchingKit.Tests.Markov
             {
                 var vector = new HashSet<MockElem>();
 
-                state.Update(vector, new Sample(4));
+                state.Update(vector, new MockSample(4));
 
                 Assert.Equal(5, state.Count);
                 Assert.Equal(13, state.Estimate().Id);

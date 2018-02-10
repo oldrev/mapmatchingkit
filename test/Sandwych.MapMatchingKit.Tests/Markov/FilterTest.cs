@@ -12,7 +12,7 @@ namespace Sandwych.MapMatchingKit.Tests.Markov
         {
         }
 
-        private class MockElement : AbstractStateCandidate<MockElement, MockStateTransition, Sample>
+        private class MockElement : AbstractStateCandidate<MockElement, MockStateTransition, MockSample>
         {
             public int Id { get; }
 
@@ -119,7 +119,7 @@ namespace Sandwych.MapMatchingKit.Tests.Markov
             }
         };
 
-        private class MockFilter : AbstractFilter<MockElement, MockStateTransition, Sample>
+        private class MockFilter : AbstractFilter<MockElement, MockStateTransition, MockSample>
         {
             private readonly MockStates states;
 
@@ -128,7 +128,7 @@ namespace Sandwych.MapMatchingKit.Tests.Markov
                 this.states = states;
             }
 
-            protected override (MockElement, double)[] Candidates(ISet<MockElement> predecessors, in Sample sample)
+            protected override (MockElement, double)[] Candidates(ISet<MockElement> predecessors, in MockSample sample)
             {
                 var candidates = new List<(MockElement, double)>();
                 for (int c = 0; c < states.NumCandidates; ++c)
@@ -139,8 +139,8 @@ namespace Sandwych.MapMatchingKit.Tests.Markov
             }
 
 
-            protected override (MockStateTransition, double) Transition(in (Sample, MockElement) predecessor,
-                    in (Sample, MockElement) candidate)
+            protected override (MockStateTransition, double) Transition(in (MockSample, MockElement) predecessor,
+                    in (MockSample, MockElement) candidate)
             {
                 return (new MockStateTransition(),
                         states.Transition(predecessor.Item2.Id, candidate.Item2.Id));
@@ -154,7 +154,7 @@ namespace Sandwych.MapMatchingKit.Tests.Markov
                     var pred = states.Predecessor(p);
                     predecessors.Add(new MockElement(p, pred.Item1, pred.Item2));
                 }
-                return Execute(predecessors, new Sample(0), new Sample(1));
+                return Execute(predecessors, new MockSample(0), new MockSample(1));
             }
         }
 

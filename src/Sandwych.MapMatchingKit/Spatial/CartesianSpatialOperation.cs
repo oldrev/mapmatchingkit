@@ -11,6 +11,9 @@ namespace Sandwych.MapMatchingKit.Spatial
 {
     public class CartesianSpatialOperation : ISpatialOperation
     {
+        private const double TwoPi = Math.PI * 2;
+        private const double Rad2Deg = 180.0 / Math.PI;
+
         private static readonly Lazy<ISpatialOperation> s_instance = new Lazy<ISpatialOperation>(() => new CartesianSpatialOperation(), true);
 
         public static ISpatialOperation Instance => s_instance.Value;
@@ -66,8 +69,9 @@ namespace Sandwych.MapMatchingKit.Spatial
 
         public double Azimuth(in Coordinate2D a, in Coordinate2D b, double f)
         {
-            var radians = Math.Atan2(b.Y - a.Y, b.X - a.X);
-            return (radians * 180.0 / Math.PI);
+            var dx = b.X - a.X;
+            var dy = b.Y - a.Y;
+            return 90.0 - Rad2Deg * Math.Atan2(dy, dx);
         }
 
         public double Azimuth(ILineString path, double f)

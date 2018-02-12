@@ -4,6 +4,7 @@ using System.Linq;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using GeoAPI.Geometries;
 using System.Text;
 
 namespace Sandwych.MapMatchingKit.Spatial.Geometries
@@ -53,6 +54,8 @@ namespace Sandwych.MapMatchingKit.Spatial.Geometries
         }
 
         public bool IsNan => double.IsNaN(this.X) || double.IsNaN(this.Y);
+
+        public double this[Ordinate index] { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
 
         public int CompareTo(Coordinate2D other) =>
             this.CompareTo<Coordinate2D>(other);
@@ -108,5 +111,6 @@ namespace Sandwych.MapMatchingKit.Spatial.Geometries
             var d2 = this.Y - other.Y;
             return Math.Sqrt(d1 * d1 + d2 * d2);
         }
+
     }
 }

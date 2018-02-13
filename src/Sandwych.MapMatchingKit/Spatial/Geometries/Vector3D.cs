@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Text;
 
-namespace Sandwych.MapMatchingKit.Spatial
+namespace Sandwych.MapMatchingKit.Spatial.Geometries
 {
     public readonly struct Vector3D
     {

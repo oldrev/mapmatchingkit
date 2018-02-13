@@ -8,8 +8,12 @@ using GeographicLib;
 
 namespace Sandwych.MapMatchingKit.Spatial
 {
-    public class GeographySpatialOperation : ISpatialOperation
+    public sealed class GeographySpatialOperation : ISpatialOperation
     {
+        private static readonly Lazy<ISpatialOperation> s_instance = new Lazy<ISpatialOperation>(() => new CartesianSpatialOperation(), true);
+
+        public static ISpatialOperation Instance => s_instance.Value;
+
         public double Azimuth(in Coordinate2D a, in Coordinate2D b, double f)
         {
             double azi = 0;

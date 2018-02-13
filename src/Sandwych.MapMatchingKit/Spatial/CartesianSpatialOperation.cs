@@ -9,7 +9,7 @@ using Sandwych.MapMatchingKit.Spatial.Geometries;
 
 namespace Sandwych.MapMatchingKit.Spatial
 {
-    public class CartesianSpatialOperation : ISpatialOperation
+    public sealed class CartesianSpatialOperation : ISpatialOperation
     {
         private const double TwoPi = Math.PI * 2;
         private const double Rad2Deg = 180.0 / Math.PI;

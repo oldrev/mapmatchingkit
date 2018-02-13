@@ -19,11 +19,11 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using GeographicLib;
+using Sandwych.MapMatchingKit.Spatial.Geometries;
 
 namespace Sandwych.MapMatchingKit.Spatial
 {
     /*
- * Geodesic interception.
  * <p>
  * <i>Note: Intercept.java has been ported to Java from its C++ equivalent Intercept.cpp, authored
  * by C. F. F. Karney and licensed under MIT/X11 license. The following documentation is mostly the
@@ -53,6 +53,9 @@ namespace Sandwych.MapMatchingKit.Spatial
  * </ul>
  */
 
+    /// <summary>
+    /// Geodesic interception.
+    /// </summary>
     public readonly struct GeodesicInterception
     {
 

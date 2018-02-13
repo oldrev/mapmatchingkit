@@ -22,7 +22,7 @@ install:
   - dotnet restore
 
 script:
-  - dotnet build src/Sandwych.Hmm -f netstandard2.0
+  - dotnet build src/Sandwych.Hmm -f netstandard1.1
   - dotnet build src/Sandwych.MapMatchingKit -f netstandard2.0
   - dotnet test test/Sandwych.Hmm.Tests/Sandwych.Hmm.Tests.csproj
   - dotnet test test/Sandwych.MapMatchingKit.Tests/Sandwych.MapMatchingKit.Tests.csproj

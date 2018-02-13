@@ -43,16 +43,6 @@ namespace Sandwych.MapMatchingKit.Spatial.Geometries
             this.Y = coords[1];
         }
 
-        public Coordinate2D(ReadOnlySpan<double> span)
-        {
-            if (span.Length != 2)
-            {
-                throw new ArgumentOutOfRangeException(nameof(span));
-            }
-            this.X = span[0];
-            this.Y = span[1];
-        }
-
         public bool IsNan => double.IsNaN(this.X) || double.IsNaN(this.Y);
 
         public double this[Ordinate index] { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }

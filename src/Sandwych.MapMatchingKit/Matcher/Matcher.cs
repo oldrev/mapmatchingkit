@@ -88,7 +88,7 @@ namespace Sandwych.MapMatchingKit.Matcher
         public double MaxDistance { get; set; } = 15000.0;
 
 
-        protected override (MatcherCandidate<TSampleId>, double)[] Candidates(
+        public override (MatcherCandidate<TSampleId>, double)[] Candidates(
             ISet<MatcherCandidate<TSampleId>> predecessors, in MatcherSample<TSampleId> sample)
         {
             var points_ = this._map.Radius(sample.Coordinate, this.MaxRadius);
@@ -141,13 +141,13 @@ namespace Sandwych.MapMatchingKit.Matcher
             return candidates.ToArray();
         }
 
-        protected override (MatcherTransition, double) Transition(
+        public override (MatcherTransition, double) Transition(
                 in (MatcherSample<TSampleId>, MatcherCandidate<TSampleId>) predecessor, in (MatcherSample<TSampleId>, MatcherCandidate<TSampleId>) candidate)
         {
             throw new NotSupportedException();
         }
 
-        protected override IDictionary<MatcherCandidate<TSampleId>, IDictionary<MatcherCandidate<TSampleId>, (MatcherTransition, double)>> Transitions(
+        public override IDictionary<MatcherCandidate<TSampleId>, IDictionary<MatcherCandidate<TSampleId>, (MatcherTransition, double)>> Transitions(
                 in (MatcherSample<TSampleId>, ISet<MatcherCandidate<TSampleId>>) predecessors,
                 in (MatcherSample<TSampleId>, ISet<MatcherCandidate<TSampleId>>) candidates)
         {

@@ -21,17 +21,17 @@ namespace Sandwych.MapMatchingKit.Roads
 
         public IEnumerable<Road> Edges => GetEdges(this.StartPoint, this.EndPoint, this._edges);
 
-        public float Distance { get; }
+        public float Length { get; }
 
         public Route(in RoadPoint startPoint, in RoadPoint endPoint, IEnumerable<Road> edges)
         {
             _startPoint = startPoint;
             _endPoint = endPoint;
             _edges = edges;
-            this.Distance = ComputeDistance(startPoint, endPoint, edges);
+            this.Length = ComputeLength(startPoint, endPoint, edges);
         }
 
-        private static float ComputeDistance(in RoadPoint startPoint, in RoadPoint endPoint, in IEnumerable<Road> edges)
+        private static float ComputeLength(in RoadPoint startPoint, in RoadPoint endPoint, in IEnumerable<Road> edges)
         {
             var edges_ = GetEdges(startPoint, endPoint, edges);
             var totalLength = edges_.Sum(r => r.Length);

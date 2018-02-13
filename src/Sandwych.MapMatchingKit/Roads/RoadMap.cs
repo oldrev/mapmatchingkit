@@ -12,20 +12,21 @@ namespace Sandwych.MapMatchingKit.Roads
 {
     public class RoadMap : AbstractGraph<Road>
     {
-        public ISpatialIndex<Road> Index { get; }
+        public ISpatialIndex<RoadInfo> Index { get; }
         private readonly ISpatialOperation _spatial;
 
         public RoadMap(IEnumerable<Road> roads, ISpatialOperation spatial) : base(roads)
         {
             _spatial = spatial;
-            this.Index = new QuadtreeIndex<Road>(roads, spatial, r => r.Geometry);
+
+            this.Index = new QuadtreeIndex<RoadInfo>(roads.Select(x => x.RoadInfo), spatial, r => r.Geometry);
         }
 
         public RoadMap(IEnumerable<Road> roads) : this(roads, GeographySpatialOperation.Instance)
         {
         }
 
-        private IEnumerable<RoadPoint> Split(IEnumerable<(Road road, double distance)> points)
+        private IEnumerable<RoadPoint> Split(IEnumerable<(RoadInfo road, double distance)> points)
         {
             /*
              * This uses the road

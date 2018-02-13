@@ -11,7 +11,7 @@ namespace Sandwych.MapMatchingKit.Topology
         ref readonly TPoint StartPoint { get; }
         ref readonly TPoint EndPoint { get; }
         IEnumerable<TEdge> Edges { get; }
-        float Distance { get; }
+        float Length { get; }
         double Cost(Func<TEdge, double> costFunc);
     }
 }

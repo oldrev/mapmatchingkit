@@ -128,7 +128,7 @@ namespace Sandwych.MapMatchingKit.Tests.Markov
                 this.states = states;
             }
 
-            protected override (MockElement, double)[] Candidates(ISet<MockElement> predecessors, in MockSample sample)
+            public override (MockElement, double)[] Candidates(ISet<MockElement> predecessors, in MockSample sample)
             {
                 var candidates = new List<(MockElement, double)>();
                 for (int c = 0; c < states.NumCandidates; ++c)
@@ -139,7 +139,7 @@ namespace Sandwych.MapMatchingKit.Tests.Markov
             }
 
 
-            protected override (MockStateTransition, double) Transition(in (MockSample, MockElement) predecessor,
+            public override (MockStateTransition, double) Transition(in (MockSample, MockElement) predecessor,
                     in (MockSample, MockElement) candidate)
             {
                 return (new MockStateTransition(),

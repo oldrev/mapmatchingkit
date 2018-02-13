@@ -69,8 +69,8 @@ namespace Sandwych.MapMatchingKit.Matcher
 
             foreach (var candidate in candidates)
             {
-                map.Add(candidate.Edge.Id, candidate);
-                misses.Add(candidate.Edge.Id, 0);
+                map[candidate.Edge.Id] = candidate;
+                misses[candidate.Edge.Id] = 0;
             }
 
             foreach (var candidate in candidates)

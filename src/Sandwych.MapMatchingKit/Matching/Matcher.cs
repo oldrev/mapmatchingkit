@@ -96,17 +96,17 @@ namespace Sandwych.MapMatchingKit.Matching
             var map = new Dictionary<long, RoadPoint>();
             foreach (var point in points)
             {
-                map.Add(point.Edge.Id, point);
+                map.Add(point.Road.Id, point);
             }
 
             foreach (var predecessor in predecessors)
             {
-                var pointExisted = map.TryGetValue(predecessor.RoadPoint.Edge.Id, out var point);
-                if (pointExisted && point.Edge != null
+                var pointExisted = map.TryGetValue(predecessor.RoadPoint.Road.Id, out var point);
+                if (pointExisted && point.Road != null
                         && _spatial.Distance(point.Coordinate, predecessor.RoadPoint.Coordinate) < this.GetSigma()
-                        && ((point.Edge.Headeing == Heading.Forward
+                        && ((point.Road.Headeing == Heading.Forward
                                 && point.Fraction < predecessor.RoadPoint.Fraction)
-                                || (point.Edge.Headeing == Heading.Backward
+                                || (point.Road.Headeing == Heading.Backward
                                         && point.Fraction > predecessor.RoadPoint.Fraction)))
                 {
                     points.Remove(point);

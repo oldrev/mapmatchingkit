@@ -10,7 +10,7 @@ namespace Sandwych.MapMatchingKit.Roads
 {
     public readonly struct RoadPoint : IEdgePoint<Road>
     {
-        public Road Edge { get; }
+        public Road Road { get; }
 
         public double Fraction { get; }
 
@@ -18,33 +18,33 @@ namespace Sandwych.MapMatchingKit.Roads
 
         public float Azimuth { get; }
 
-        public RoadPoint(in Road edge, double fraction, float azimuth, ISpatialOperation spatial)
+        public RoadPoint(in Road road, double fraction, float azimuth, ISpatialOperation spatial)
         {
-            this.Edge = edge;
+            this.Road = road;
             this.Fraction = fraction;
             this.Azimuth = azimuth;
-            this.Coordinate = spatial.Interpolate(this.Edge.Geometry, this.Fraction);
+            this.Coordinate = spatial.Interpolate(this.Road.Geometry, this.Fraction);
         }
 
-        public RoadPoint(in Road edge, double fraction, float azimuth) : this(edge, fraction, azimuth, GeographySpatialOperation.Instance)
+        public RoadPoint(in Road road, double fraction, float azimuth) : this(road, fraction, azimuth, GeographySpatialOperation.Instance)
         {
         }
 
-        public RoadPoint(in Road edge, double fraction, ISpatialOperation spatial)
+        public RoadPoint(in Road road, double fraction, ISpatialOperation spatial)
         {
-            this.Edge = edge;
+            this.Road = road;
             this.Fraction = fraction;
-            this.Azimuth = (float)spatial.Azimuth(edge.Geometry, fraction);
-            this.Coordinate = spatial.Interpolate(this.Edge.Geometry, this.Fraction);
+            this.Azimuth = (float)spatial.Azimuth(road.Geometry, fraction);
+            this.Coordinate = spatial.Interpolate(this.Road.Geometry, this.Fraction);
         }
 
-        public RoadPoint(in Road edge, double fraction) : this(edge, fraction, GeographySpatialOperation.Instance)
+        public RoadPoint(in Road road, double fraction) : this(road, fraction, GeographySpatialOperation.Instance)
         {
 
         }
 
         public override int GetHashCode() =>
-            (this.Edge, this.Fraction, this.Coordinate, this.Azimuth).GetHashCode();
+            (this.Road, this.Fraction, this.Coordinate, this.Azimuth).GetHashCode();
 
     }
 }

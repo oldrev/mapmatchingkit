@@ -57,7 +57,7 @@ namespace Sandwych.MapMatchingKit.Tests.Matching
 
         private void AssertCandidate(in (MatcherCandidate, Double) candidate, Coordinate2D sample)
         {
-            var polyline = _map.GetEdge(candidate.Item1.RoadPoint.Edge.Id).Geometry;
+            var polyline = _map.GetEdge(candidate.Item1.RoadPoint.Road.Id).Geometry;
             var f = _spatial.Intercept(polyline, sample);
             var i = _spatial.Interpolate(polyline, f);
             var l = _spatial.Distance(i, sample);
@@ -79,8 +79,8 @@ namespace Sandwych.MapMatchingKit.Tests.Matching
             var route = new Route(source.Item1.RoadPoint, target.Item1.RoadPoint, edges);
 
             AssertEquals(route.Length, transition.Item1.Route.Length, 10E-6);
-            Assert.Equal(route.StartPoint.Edge.Id, transition.Item1.Route.StartPoint.Edge.Id);
-            Assert.Equal(route.EndPoint.Edge.Id, transition.Item1.Route.EndPoint.Edge.Id);
+            Assert.Equal(route.StartPoint.Road.Id, transition.Item1.Route.StartPoint.Road.Id);
+            Assert.Equal(route.EndPoint.Road.Id, transition.Item1.Route.EndPoint.Road.Id);
 
             double beta = lambda == 0 ? (2.0 * (target.Item2.Time - source.Item2.Time) / 1000)
                     : 1 / lambda;
@@ -132,9 +132,9 @@ namespace Sandwych.MapMatchingKit.Tests.Matching
 
                 foreach (var candidate in candidates)
                 {
-                    Assert.Contains(candidate.Item1.RoadPoint.Edge.Id, refset);
+                    Assert.Contains(candidate.Item1.RoadPoint.Road.Id, refset);
                     AssertCandidate(candidate, sample);
-                    set.Add(candidate.Item1.RoadPoint.Edge.Id);
+                    set.Add(candidate.Item1.RoadPoint.Road.Id);
                 }
 
                 Assert.Equal(refset, set);
@@ -152,9 +152,9 @@ namespace Sandwych.MapMatchingKit.Tests.Matching
 
                 foreach (var candidate in candidates)
                 {
-                    Assert.Contains(candidate.Item1.RoadPoint.Edge.Id, refset);
+                    Assert.Contains(candidate.Item1.RoadPoint.Road.Id, refset);
                     AssertCandidate(candidate, sample);
-                    set.Add(candidate.Item1.RoadPoint.Edge.Id);
+                    set.Add(candidate.Item1.RoadPoint.Road.Id);
                 }
 
                 Assert.Equal(refset, set);

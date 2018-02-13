@@ -69,14 +69,14 @@ namespace Sandwych.MapMatchingKit.Matching
 
             foreach (var candidate in candidates)
             {
-                map[candidate.Edge.Id] = candidate;
-                misses[candidate.Edge.Id] = 0;
+                map[candidate.Road.Id] = candidate;
+                misses[candidate.Road.Id] = 0;
             }
 
             foreach (var candidate in candidates)
             {
-                var successors = candidate.Edge.Successors;
-                var id = candidate.Edge.Id;
+                var successors = candidate.Road.Successors;
+                var id = candidate.Road.Id;
 
                 foreach (var successor in successors)
                 {
@@ -95,7 +95,7 @@ namespace Sandwych.MapMatchingKit.Matching
 
             foreach (var candidate in candidates)
             {
-                var id = candidate.Edge.Id;
+                var id = candidate.Road.Id;
                 if (map.ContainsKey(id) && !removes.Contains(id) && Round(candidate.Fraction) == 1 && misses[id] == 0)
                 {
                     removes.Add(id);

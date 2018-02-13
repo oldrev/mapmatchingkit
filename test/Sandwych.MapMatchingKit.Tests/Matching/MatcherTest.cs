@@ -1,6 +1,6 @@
 ﻿using GeoAPI.Geometries;
 using NetTopologySuite.IO;
-using Sandwych.MapMatchingKit.Matcher;
+using Sandwych.MapMatchingKit.Matching;
 using Sandwych.MapMatchingKit.Roads;
 using Sandwych.MapMatchingKit.Spatial;
 using Sandwych.MapMatchingKit.Spatial.Geometries;
@@ -11,7 +11,7 @@ using System.Linq;
 using System.Text;
 using Xunit;
 
-namespace Sandwych.MapMatchingKit.Tests.Matcher
+namespace Sandwych.MapMatchingKit.Tests.Matching
 {
     public class MatcherTest : TestBase
     {
@@ -22,7 +22,6 @@ namespace Sandwych.MapMatchingKit.Tests.Matcher
 
         class MockedRoadReader
         {
-            private readonly ISpatialOperation _spatial;
             private readonly List<RoadInfo> _roads = new List<RoadInfo>();
             private readonly (long, long, long, bool, string)[] _entries = new(long, long, long, bool, string)[]
             {
@@ -39,12 +38,11 @@ namespace Sandwych.MapMatchingKit.Tests.Matcher
 
             public MockedRoadReader(ISpatialOperation spatial)
             {
-                _spatial = spatial;
                 var wktRdr = new WKTReader();
                 foreach (var e in _entries)
                 {
                     var geom = wktRdr.Read(e.Item5) as ILineString;
-                    _roads.Add(new RoadInfo(e.Item1, e.Item2, e.Item3, e.Item1, e.Item4, (short)0, 1.0f, 100f, 100f, (float)_spatial.Length(geom), geom));
+                    _roads.Add(new RoadInfo(e.Item1, e.Item2, e.Item3, e.Item1, e.Item4, (short)0, 1.0f, 100f, 100f, (float)spatial.Length(geom), geom));
                 }
                 _enumerator = _roads.GetEnumerator();
             }
@@ -57,7 +55,7 @@ namespace Sandwych.MapMatchingKit.Tests.Matcher
             _map = roadMapBuilder.AddRoads(reader.Roads).Build();
         }
 
-        private void AssertCandidate(in (MatcherCandidate<long>, Double) candidate, Coordinate2D sample)
+        private void AssertCandidate(in (MatcherCandidate, Double) candidate, Coordinate2D sample)
         {
             var polyline = _map.GetEdge(candidate.Item1.RoadPoint.Edge.Id).Geometry;
             var f = _spatial.Intercept(polyline, sample);
@@ -72,8 +70,8 @@ namespace Sandwych.MapMatchingKit.Tests.Matcher
         }
 
         private void assertTransition(in (MatcherTransition, Double) transition,
-                in (MatcherCandidate<long>, MatcherSample<long>) source,
-                in (MatcherCandidate<long>, MatcherSample<long>) target, double lambda)
+                in (MatcherCandidate, MatcherSample) source,
+                in (MatcherCandidate, MatcherSample) target, double lambda)
         {
             var edges = _router.Route(source.Item1.RoadPoint, target.Item1.RoadPoint, _cost);
             Assert.NotNull(edges);
@@ -113,23 +111,23 @@ namespace Sandwych.MapMatchingKit.Tests.Matcher
         [Fact]
         public void TestCandidates()
         {
-            var filter = new Matcher<long>(_map, _router, _cost, _spatial);
+            var filter = new Matcher(_map, _router, _cost, _spatial);
             {
-                filter.MaxRadius = 100;
+                filter.MaxRadius = 100D;
                 var sample = new Coordinate2D(11.001, 48.001);
 
-                var candidates = filter.Candidates(new HashSet<MatcherCandidate<long>>(), new MatcherSample<long>(0, 0, sample));
+                var candidates = filter.Candidates(new HashSet<MatcherCandidate>(), new MatcherSample(0, 0, sample));
 
                 Assert.Empty(candidates);
             }
             {
-                double radius = 200;
+                double radius = 200D;
                 filter.MaxRadius = radius;
                 var sample = new Coordinate2D(11.001, 48.001);
 
-                var candidates = filter.Candidates(new HashSet<MatcherCandidate<long>>(), new MatcherSample<long>(0, 0, sample));
+                var candidates = filter.Candidates(new HashSet<MatcherCandidate>(), new MatcherSample(0, 0, sample));
 
-                var refset = new HashSet<long>() { 0L, 1L };
+                var refset = new long[] { 0L, 1L };
                 var set = new HashSet<long>();
 
                 foreach (var candidate in candidates)
@@ -142,14 +140,14 @@ namespace Sandwych.MapMatchingKit.Tests.Matcher
                 Assert.Equal(refset, set);
             }
             {
-                double radius = 200;
+                double radius = 200D;
                 filter.MaxRadius = radius;
                 var sample = new Coordinate2D(11.010, 48.000);
 
                 var candidates = filter
-                        .Candidates(new HashSet<MatcherCandidate<long>>(), new MatcherSample<long>(0, 0, sample));
+                        .Candidates(new HashSet<MatcherCandidate>(), new MatcherSample(0, 0, sample));
 
-                var refset = new HashSet<long>() { 0L, 3L };
+                var refset = new long[] { 0L, 3L };
                 var set = new HashSet<long>();
 
                 foreach (var candidate in candidates)

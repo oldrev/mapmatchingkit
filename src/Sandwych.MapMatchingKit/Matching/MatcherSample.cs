@@ -6,21 +6,20 @@ using NetTopologySuite.Geometries;
 using Sandwych.MapMatchingKit.Markov;
 using Sandwych.MapMatchingKit.Spatial.Geometries;
 
-namespace Sandwych.MapMatchingKit.Matcher
+namespace Sandwych.MapMatchingKit.Matching
 {
     /// <summary>
     /// Measurement sample for Hidden Markov Model (HMM) map matching which is a position measurement,
     /// e.g. measured with a GPS device.
     /// </summary>
-    /// <typeparam name="TSampleId"></typeparam>
-    public readonly struct MatcherSample<TSampleId> : ISample
+    public readonly struct MatcherSample : ISample
     {
-        public TSampleId Id { get; }
+        public long Id { get; }
         public long Time { get; }
         public float Azimuth { get; }
         public Coordinate2D Coordinate { get; }
 
-        public MatcherSample(TSampleId id, long time, double lng, double lat, float azimuth = float.NaN)
+        public MatcherSample(long id, long time, double lng, double lat, float azimuth = float.NaN)
         {
             this.Id = id;
             this.Time = time;
@@ -28,7 +27,7 @@ namespace Sandwych.MapMatchingKit.Matcher
             this.Azimuth = NormAzimuth(azimuth);
         }
 
-        public MatcherSample(TSampleId id, long time, Coordinate2D point, float azimuth = float.NaN)
+        public MatcherSample(long id, long time, Coordinate2D point, float azimuth = float.NaN)
         {
             this.Id = id;
             this.Time = time;

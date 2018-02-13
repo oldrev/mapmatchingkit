@@ -128,7 +128,7 @@ namespace Sandwych.MapMatchingKit.Tests.Markov
                 this.states = states;
             }
 
-            public override (MockElement, double)[] Candidates(ISet<MockElement> predecessors, in MockSample sample)
+            public override (MockElement, double)[] Candidates(IEnumerable<MockElement> predecessors, in MockSample sample)
             {
                 var candidates = new List<(MockElement, double)>();
                 for (int c = 0; c < states.NumCandidates; ++c)

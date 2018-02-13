@@ -27,7 +27,7 @@ namespace Sandwych.MapMatchingKit.Markov
         /// <param name="predecessors">Predecessor state candidate <i>s<sub>t-1</sub></i>.</param>
         /// <param name="sample">Measurement sample.</param>
         /// <returns>Set of tuples consisting of a {@link StateCandidate} and its emission probability.</returns>
-        public abstract (TCandidate, double)[] Candidates(ISet<TCandidate> predecessors, in TSample sample);
+        public abstract (TCandidate, double)[] Candidates(IEnumerable<TCandidate> predecessors, in TSample sample);
 
 
         /// <summary>
@@ -65,7 +65,7 @@ namespace Sandwych.MapMatchingKit.Markov
         /// transition probability, or null if there no transition.
         /// </returns>
         public virtual IDictionary<TCandidate, IDictionary<TCandidate, (TTransition, double)>> Transitions(
-            in (TSample, ISet<TCandidate>) predecessors, in (TSample, ISet<TCandidate>) candidates)
+            in (TSample, IEnumerable<TCandidate>) predecessors, in (TSample, IEnumerable<TCandidate>) candidates)
         {
             TSample sample = candidates.Item1;
             TSample previous = predecessors.Item1;

@@ -4,12 +4,12 @@ using System.Linq;
 using GeoAPI.Geometries;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.IO;
-using Sandwych.MapMatchingKit.Matcher;
+using Sandwych.MapMatchingKit.Matching;
 using Sandwych.MapMatchingKit.Roads;
 using Sandwych.MapMatchingKit.Spatial;
 using Xunit;
 
-namespace Sandwych.MapMatchingKit.Tests.Matcher
+namespace Sandwych.MapMatchingKit.Tests.Matching
 {
 
     public class MinsetTest : TestBase

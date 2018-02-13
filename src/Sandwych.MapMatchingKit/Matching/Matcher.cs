@@ -7,14 +7,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Sandwych.MapMatchingKit.Matcher
+namespace Sandwych.MapMatchingKit.Matching
 {
     /// <summary>
     /// Matcher filter for Hidden Markov Model (HMM) map matching. It is a HMM filter (<see cref="IFilter{TCandidate, TTransition, TSample}"/>)
     /// and determines emission and transition probabilities for map matching with HMM.
     /// </summary>
-    /// <typeparam name="TSampleId"></typeparam>
-    public class Matcher<TSampleId> : AbstractFilter<MatcherCandidate<TSampleId>, MatcherTransition, MatcherSample<TSampleId>>
+    public class Matcher : AbstractFilter<MatcherCandidate, MatcherTransition, MatcherSample>
     {
         private readonly RoadMap _map;
         private readonly IGraphRouter<Road, RoadPoint> _router;
@@ -88,8 +87,8 @@ namespace Sandwych.MapMatchingKit.Matcher
         public double MaxDistance { get; set; } = 15000.0;
 
 
-        public override (MatcherCandidate<TSampleId>, double)[] Candidates(
-            ISet<MatcherCandidate<TSampleId>> predecessors, in MatcherSample<TSampleId> sample)
+        public override (MatcherCandidate, double)[] Candidates(
+            IEnumerable<MatcherCandidate> predecessors, in MatcherSample sample)
         {
             var points_ = this._map.Radius(sample.Coordinate, this.MaxRadius);
             var points = Minset.Minimize(points_);
@@ -100,25 +99,22 @@ namespace Sandwych.MapMatchingKit.Matcher
                 map.Add(point.Edge.Id, point);
             }
 
-            /*
             foreach (var predecessor in predecessors)
             {
-                var point = map.get(predecessor.RoadPoint.Edge.Id);
-                if (point != null && point.edge() != null
-                        && spatial.distance(point.geometry(),
-                                predecessor.RoadPoint.Geometry) < getSigma()
-                        && ((point.edge().heading() == Heading.forward
-                                && point.fraction() < predecessor.point().fraction())
-                                || (point.edge().heading() == Heading.backward
-                                        && point.fraction() > predecessor.point().fraction())))
+                var pointExisted = map.TryGetValue(predecessor.RoadPoint.Edge.Id, out var point);
+                if (pointExisted && point.Edge != null
+                        && _spatial.Distance(point.Coordinate, predecessor.RoadPoint.Coordinate) < this.GetSigma()
+                        && ((point.Edge.Headeing == Heading.Forward
+                                && point.Fraction < predecessor.RoadPoint.Fraction)
+                                || (point.Edge.Headeing == Heading.Backward
+                                        && point.Fraction > predecessor.RoadPoint.Fraction)))
                 {
                     points.Remove(point);
                     points.Add(predecessor.RoadPoint);
                 }
             }
-            */
 
-            var candidates = new List<(MatcherCandidate<TSampleId>, double)>();
+            var candidates = new List<(MatcherCandidate, double)>();
 
             foreach (var point in points)
             {
@@ -134,7 +130,7 @@ namespace Sandwych.MapMatchingKit.Matcher
                     emission *= Math.Max(1E-2, 1 / _sqrt_2pi_sigA * Math.Exp((-1) * da / (2 * _sigA)));
                 }
 
-                var candidate = new MatcherCandidate<TSampleId>(point);
+                var candidate = new MatcherCandidate(point);
                 candidates.Add((candidate, emission));
             }
 
@@ -142,14 +138,14 @@ namespace Sandwych.MapMatchingKit.Matcher
         }
 
         public override (MatcherTransition, double) Transition(
-                in (MatcherSample<TSampleId>, MatcherCandidate<TSampleId>) predecessor, in (MatcherSample<TSampleId>, MatcherCandidate<TSampleId>) candidate)
+                in (MatcherSample, MatcherCandidate) predecessor, in (MatcherSample, MatcherCandidate) candidate)
         {
             throw new NotSupportedException();
         }
 
-        public override IDictionary<MatcherCandidate<TSampleId>, IDictionary<MatcherCandidate<TSampleId>, (MatcherTransition, double)>> Transitions(
-                in (MatcherSample<TSampleId>, ISet<MatcherCandidate<TSampleId>>) predecessors,
-                in (MatcherSample<TSampleId>, ISet<MatcherCandidate<TSampleId>>) candidates)
+        public override IDictionary<MatcherCandidate, IDictionary<MatcherCandidate, (MatcherTransition, double)>> Transitions(
+                in (MatcherSample, IEnumerable<MatcherCandidate>) predecessors,
+                in (MatcherSample, IEnumerable<MatcherCandidate>) candidates)
         {
 
             var targets = new HashSet<RoadPoint>();
@@ -158,13 +154,13 @@ namespace Sandwych.MapMatchingKit.Matcher
                 targets.Add(candidate.RoadPoint);
             }
 
-            var transitions = new Dictionary<MatcherCandidate<TSampleId>, IDictionary<MatcherCandidate<TSampleId>, (MatcherTransition, double)>>();
+            var transitions = new Dictionary<MatcherCandidate, IDictionary<MatcherCandidate, (MatcherTransition, double)>>();
             var base_ = 1.0 * _spatial.Distance(predecessors.Item1.Coordinate, candidates.Item1.Coordinate) / 60.0;
             var bound = Math.Max(1000.0, Math.Min(this.MaxDistance, ((candidates.Item1.Time - predecessors.Item1.Time) / 1000.0) * 100.0));
 
             foreach (var predecessor in predecessors.Item2)
             {
-                var map = new Dictionary<MatcherCandidate<TSampleId>, (MatcherTransition, double)>();
+                var map = new Dictionary<MatcherCandidate, (MatcherTransition, double)>();
                 //TODO check return
                 var routes = _router.Route(predecessor.RoadPoint, targets, _cost, Costs.DistanceCost, bound);
 

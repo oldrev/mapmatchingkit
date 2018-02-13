@@ -4,10 +4,10 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Sandwych.MapMatchingKit.Matcher
+namespace Sandwych.MapMatchingKit.Matching
 {
-    public class MatcherCandidate<TSampleId> :
-        AbstractStateCandidate<MatcherCandidate<TSampleId>, MatcherTransition, MatcherSample<TSampleId>>
+    public class MatcherCandidate :
+        AbstractStateCandidate<MatcherCandidate, MatcherTransition, MatcherSample>
     {
         public RoadPoint RoadPoint { get; }
 

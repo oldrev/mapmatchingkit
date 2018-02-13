@@ -65,7 +65,6 @@ namespace Sandwych.MapMatchingKit.Spatial
          * usually converge before reaching the maximum number of iterations. The default is 10.)
          */
         public static int _maxit = 10;
-        private readonly Geodesic _earth;
         private readonly Gnomonic _gnom;
 
         /**
@@ -77,8 +76,7 @@ namespace Sandwych.MapMatchingKit.Spatial
          */
         public GeodesicInterception(Geodesic earth)
         {
-            this._earth = earth;
-            this._gnom = new Gnomonic(this._earth);
+            this._gnom = new Gnomonic(earth);
         }
 
         /**
@@ -105,12 +103,12 @@ namespace Sandwych.MapMatchingKit.Spatial
 
             if (lata1 == lata2 && lona1 == lona2)
             {
-                return _earth.Inverse(latb1, lonb1, lata1, lona1);
+                return _gnom.Earth.Inverse(latb1, lonb1, lata1, lona1);
             }
 
             var inv = Geodesic.WGS84.Inverse(lata1, lona1, lata2, lona2);
             var est = Geodesic.WGS84.Line(inv.lat1, inv.lon1, inv.azi1).Position(inv.s12 * 0.5);
-            double latb2 = est.lat2, latb2_ = Double.NaN, lonb2_ = Double.NaN, lonb2 = est.lon2;
+            double latb2 = est.lat2, latb2_ = double.NaN, lonb2_ = double.NaN, lonb2 = est.lon2;
 
             for (int i = 0; i < _maxit; ++i)
             {
@@ -138,7 +136,7 @@ namespace Sandwych.MapMatchingKit.Spatial
                 }
             }
 
-            return _earth.Inverse(latb1, lonb1, latb2, lonb2);
+            return _gnom.Earth.Inverse(latb1, lonb1, latb2, lonb2);
         }
     }
 

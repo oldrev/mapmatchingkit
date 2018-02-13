@@ -12,6 +12,8 @@ namespace Sandwych.MapMatchingKit.Spatial.Geometries
         public double Z { get; }
 
         public static Vector3D NaN => new Vector3D(double.NaN, double.NaN, double.NaN);
+        public static Vector3D Zero => new Vector3D(0D, 0D, 0D);
+        public static Vector3D One => new Vector3D(1D, 1D, 1D);
 
         public Vector3D(double x, double y, double z)
         {

@@ -11,9 +11,9 @@ namespace Sandwych.MapMatchingKit.Topology
     /// Dijkstra's algorithm implementation of a {@link Router}. The routing functions use the Dijkstra
     /// algorithm for finding shortest paths according to a customizable {@link Cost} function.
     /// </summary>
-    /// <typeparam name="P">{@link Point} type of positions in the network.</typeparam>
     /// <typeparam name="TEdge">Implementation of {@link AbstractEdge} in a directed {@link Graph}.</typeparam>
-    public class DijkstraRouter<P, TEdge>
+    /// <typeparam name="P">{@link Point} type of positions in the network.</typeparam>
+    public class DijkstraRouter<TEdge, P> : IGraphRouter<TEdge, P>
         where TEdge : class, IGraphEdge<TEdge>
         where P : IEdgePoint<TEdge>
     {

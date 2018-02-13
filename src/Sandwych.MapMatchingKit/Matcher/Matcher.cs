@@ -166,33 +166,29 @@ namespace Sandwych.MapMatchingKit.Matcher
             {
                 var map = new Dictionary<MatcherCandidate<TSampleId>, (MatcherTransition, double)>();
                 //TODO check return
-                _router.TryRoute(predecessor.RoadPoint, targets, _cost, Costs.DistanceCost, bound, out var routes);
+                var routes = _router.Route(predecessor.RoadPoint, targets, _cost, Costs.DistanceCost, bound);
 
                 foreach (var candidate in candidates.Item2)
                 {
-                    var edges = routes[candidate.RoadPoint];
-
-                    if (edges == null)
+                    if (routes.TryGetValue(candidate.RoadPoint, out var edges))
                     {
-                        continue;
+                        var route = new Route(predecessor.RoadPoint, candidate.RoadPoint, edges);
+
+                        // According to Newson and Krumm 2009, transition probability is lambda *
+                        // Math.exp((-1.0) * lambda * Math.abs(dt - route.length())), however, we
+                        // experimentally choose lambda * Math.exp((-1.0) * lambda * Math.max(0,
+                        // route.length() - dt)) to avoid unnecessary routes in case of u-turns.
+
+                        var beta = this.Lambda == 0D
+                                ? (2.0 * Math.Max(1d,
+                                        candidates.Item1.Time - predecessors.Item1.Time) / 1000D)
+                                : 1D / this.Lambda;
+
+                        var transition = (1D / beta) * Math.Exp(
+                                (-1.0) * Math.Max(0D, route.Cost(_cost) - base_) / beta);
+
+                        map.Add(candidate, (new MatcherTransition(route), transition));
                     }
-
-                    var route = new Route(predecessor.RoadPoint, candidate.RoadPoint, edges);
-
-                    // According to Newson and Krumm 2009, transition probability is lambda *
-                    // Math.exp((-1.0) * lambda * Math.abs(dt - route.length())), however, we
-                    // experimentally choose lambda * Math.exp((-1.0) * lambda * Math.max(0,
-                    // route.length() - dt)) to avoid unnecessary routes in case of u-turns.
-
-                    var beta = this.Lambda == 0D
-                            ? (2.0 * Math.Max(1d,
-                                    candidates.Item1.Time - predecessors.Item1.Time) / 1000D)
-                            : 1D / this.Lambda;
-
-                    var transition = (1D / beta) * Math.Exp(
-                            (-1.0) * Math.Max(0D, route.Cost(_cost) - base_) / beta);
-
-                    map.Add(candidate, (new MatcherTransition(route), transition));
                 }
 
                 transitions.Add(predecessor, map);

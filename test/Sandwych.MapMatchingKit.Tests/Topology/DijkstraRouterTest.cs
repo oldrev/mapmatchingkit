@@ -59,7 +59,7 @@ namespace Sandwych.MapMatchingKit.Tests.Topology
             };
             var map = new Graph(roads);
 
-            var router = new DijkstraRouter<RoadPoint, Road>();
+            var router = new DijkstraRouter<Road, RoadPoint>();
             router.Logger = new ConsoleLogger();
             {
                 var sources = new RoadPoint[] { new RoadPoint(map.Edges[0L], 0.3) };
@@ -143,7 +143,7 @@ namespace Sandwych.MapMatchingKit.Tests.Topology
                 new Road(1, 0, 0, 100),
             };
             var map = new Graph(roads);
-            var router = new DijkstraRouter<RoadPoint, Road>();
+            var router = new DijkstraRouter<Road, RoadPoint>();
             {
                 var sources = new RoadPoint[] { new RoadPoint(map.GetEdge(0), 0.3) };
                 var targets = new RoadPoint[] { new RoadPoint(map.GetEdge(0), 0.7) };
@@ -256,7 +256,7 @@ namespace Sandwych.MapMatchingKit.Tests.Topology
                 new Road(17, 5, 4, 60),
             };
             var map = new Graph(roads);
-            var router = new DijkstraRouter<RoadPoint, Road>();
+            var router = new DijkstraRouter<Road, RoadPoint>();
             {
                 // (0.7, 100) + 50 + 40 + 60 + (0.3, 200) = 280
 

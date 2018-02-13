@@ -57,30 +57,43 @@ namespace Sandwych.MapMatchingKit.Spatial.Geometries
 
         public double this[Ordinate index] { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public int CompareTo(Coordinate2D other) =>
             this.CompareTo<Coordinate2D>(other);
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public int CompareTo(ICoordinate2D other) =>
             this.CompareTo<ICoordinate2D>(other);
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool Equals(Coordinate2D other) =>
             this.CompareTo<Coordinate2D>(other) == 0;
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Coordinate2D operator +(in Coordinate2D a, in Coordinate2D b) =>
             new Coordinate2D(a.X + b.X, a.Y + b.Y);
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Coordinate2D operator -(in Coordinate2D a, in Coordinate2D b) =>
             new Coordinate2D(a.X - b.X, a.Y - b.Y);
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Coordinate2D operator -(in Coordinate2D a) =>
+            new Coordinate2D(-a.X, -a.Y);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Coordinate2D operator +(in Coordinate2D a, double f) =>
             new Coordinate2D(a.X + f, a.Y + f);
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Coordinate2D operator -(in Coordinate2D a, double f) =>
             new Coordinate2D(a.X - f, a.Y - f);
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Coordinate2D operator *(in Coordinate2D a, double f) =>
             new Coordinate2D(a.X * f, a.Y * f);
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Coordinate2D operator /(in Coordinate2D a, double f) =>
             new Coordinate2D(a.X / f, a.Y / f);
 
@@ -98,6 +111,7 @@ namespace Sandwych.MapMatchingKit.Spatial.Geometries
             }
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public double[] ToArray() => new double[2] { this.X, this.Y };
 
         /// <summary>
@@ -105,6 +119,7 @@ namespace Sandwych.MapMatchingKit.Spatial.Geometries
         /// </summary>
         /// <param name="other">Other coordinate to compute distance</param>
         /// <returns></returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public double CartesianDistance(in Coordinate2D other)
         {
             var d1 = this.X - other.X;

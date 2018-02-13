@@ -46,9 +46,9 @@ namespace Sandwych.MapMatchingKit.Spatial
         /// </summary>
         /// <param name="a"></param>
         /// <param name="b"></param>
-        /// <param name="p"></param>
+        /// <param name="c"></param>
         /// <returns></returns>
-        double Intercept(in Coordinate2D a, in Coordinate2D b, in Coordinate2D p);
+        double Intercept(in Coordinate2D a, in Coordinate2D b, in Coordinate2D c);
 
         /// <summary>
         /// 

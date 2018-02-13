@@ -23,10 +23,10 @@ namespace Sandwych.MapMatchingKit.Roads
             this.Edge = edge;
             this.Fraction = fraction;
             this.Azimuth = azimuth;
-            this.Coordinate = spatial.Interpolate(this.Edge.Geometry, this.Fraction); 
+            this.Coordinate = spatial.Interpolate(this.Edge.Geometry, this.Fraction);
         }
 
-        public RoadPoint(in Road edge, double fraction, float azimuth) : this(edge, fraction, azimuth, CartesianSpatialOperation.Instance)
+        public RoadPoint(in Road edge, double fraction, float azimuth) : this(edge, fraction, azimuth, GeographySpatialOperation.Instance)
         {
         }
 
@@ -35,10 +35,10 @@ namespace Sandwych.MapMatchingKit.Roads
             this.Edge = edge;
             this.Fraction = fraction;
             this.Azimuth = (float)spatial.Azimuth(edge.Geometry, fraction);
-            this.Coordinate = spatial.Interpolate(this.Edge.Geometry, this.Fraction); 
+            this.Coordinate = spatial.Interpolate(this.Edge.Geometry, this.Fraction);
         }
 
-        public RoadPoint(in Road edge, double fraction) : this(edge, fraction, CartesianSpatialOperation.Instance)
+        public RoadPoint(in Road edge, double fraction) : this(edge, fraction, GeographySpatialOperation.Instance)
         {
 
         }

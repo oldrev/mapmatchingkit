@@ -21,7 +21,7 @@ namespace Sandwych.MapMatchingKit.Roads
             this.Index = new QuadtreeIndex<Road>(roads, spatial, r => r.Geometry);
         }
 
-        public RoadMap(IEnumerable<Road> roads) : this(roads, CartesianSpatialOperation.Instance)
+        public RoadMap(IEnumerable<Road> roads) : this(roads, GeographySpatialOperation.Instance)
         {
         }
 

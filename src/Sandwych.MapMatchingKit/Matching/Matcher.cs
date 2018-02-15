@@ -42,28 +42,18 @@ namespace Sandwych.MapMatchingKit.Matching
         }
 
         /// <summary>
-        /// Gets standard deviation in meters of gaussian distribution that defines emission probabilities.
-        /// </summary>
-        /// <returns>Standard deviation in meters of gaussian distribution that defines emission probabilities.</returns>
-        public double GetSigma()
-        {
-            return Math.Sqrt(this._sig2);
-        }
-
-
-        /// <summary>
-        /// Sets standard deviation in meters of gaussian distribution for defining emission
+        /// Gets or sets standard deviation in meters of gaussian distribution for defining emission
         /// probabilities (default is 5 meters).
         /// </summary>
-        /// <param name="sigma">Standard deviation in meters of gaussian distribution for defining emission
-        /// probabilities (default is 5 meters).
-        /// </param>
-        public void SetSigma(double sigma)
+        public double Sigma
         {
-            this._sig2 = Math.Pow(sigma, 2);
-            this._sqrt_2pi_sig2 = Math.Sqrt(2d * Math.PI * _sig2);
+            get => Math.Sqrt(this._sig2);
+            set
+            {
+                this._sig2 = Math.Pow(value, 2);
+                this._sqrt_2pi_sig2 = Math.Sqrt(2d * Math.PI * _sig2);
+            }
         }
-
 
         /// <summary>
         /// <para>
@@ -103,7 +93,7 @@ namespace Sandwych.MapMatchingKit.Matching
             {
                 var pointExisted = map.TryGetValue(predecessor.RoadPoint.Edge.Id, out var point);
                 if (pointExisted && point.Edge != null
-                        && _spatial.Distance(point.Coordinate, predecessor.RoadPoint.Coordinate) < this.GetSigma()
+                        && _spatial.Distance(point.Coordinate, predecessor.RoadPoint.Coordinate) < this.Sigma
                         && ((point.Edge.Headeing == Heading.Forward
                                 && point.Fraction < predecessor.RoadPoint.Fraction)
                                 || (point.Edge.Headeing == Heading.Backward

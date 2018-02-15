@@ -102,7 +102,7 @@ namespace Sandwych.MapMatchingKit.Markov
         /// <param name="previous">Previous measurement sample <i>z<sub>t-1</sub></i>.</param>
         /// <param name="sample">Measurement sample <i>z<sub>t</sub></i>.</param>
         /// <returns>State vector <i>S<sub>t</sub></i>, which may be empty if an HMM break occured.</returns>
-        public ISet<TCandidate> Execute(IEnumerable<TCandidate> predecessors, in TSample previous, in TSample sample)
+        public virtual ISet<TCandidate> Execute(IEnumerable<TCandidate> predecessors, in TSample previous, in TSample sample)
         {
             if (predecessors == null)
             {

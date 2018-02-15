@@ -120,6 +120,7 @@ namespace Sandwych.MapMatchingKit.Tests.Matching
 
                 Assert.Empty(candidates);
             }
+
             void assertCandidate(double radius, Coordinate2D sample, IEnumerable<long> refsetIds)
             {
                 filter.MaxRadius = radius;
@@ -138,6 +139,7 @@ namespace Sandwych.MapMatchingKit.Tests.Matching
 
                 Assert.Equal(refset, set);
             }
+
             assertCandidate(200D, new Coordinate2D(11.001, 48.001), new long[] { 0L, 1L });
             assertCandidate(200D, new Coordinate2D(11.010, 48.000), new long[] { 0L, 3L });
             assertCandidate(200D, new Coordinate2D(11.011, 48.001), new long[] { 0L, 2L, 3L });
@@ -146,5 +148,88 @@ namespace Sandwych.MapMatchingKit.Tests.Matching
             assertCandidate(200D, new Coordinate2D(11.019, 48.001), new long[] { 2L, 3L, 5L, 10L });
         }
 
-    }
-}
+        [Fact]
+        public void TestTransitions()
+        {
+            var filter = new Matcher(_map, _router, _cost, _spatial);
+            filter.MaxRadius = 200D;
+            {
+                MatcherSample sample1 = new MatcherSample(0, 0, new Coordinate2D(11.001, 48.001));
+                MatcherSample sample2 = new MatcherSample(1, 60000, new Coordinate2D(11.019, 48.001));
+
+                var predecessors = new HashSet<MatcherCandidate>();
+                var candidates = new HashSet<MatcherCandidate>();
+
+                foreach (var candidate in filter.Candidates(new HashSet<MatcherCandidate>(), sample1))
+                {
+                    predecessors.Add(candidate.Item1);
+                }
+
+                foreach (var candidate in filter.Candidates(new HashSet<MatcherCandidate>(), sample2))
+                {
+                    candidates.Add(candidate.Item1);
+                }
+
+                Assert.Equal(2, predecessors.Count);
+                Assert.Equal(4, candidates.Count);
+
+                var transitions = filter.Transitions((sample1, predecessors), (sample2, candidates));
+
+                Assert.Equal(2, transitions.Count);
+
+                foreach (var source in transitions)
+                {
+                    Assert.Equal(4, source.Value.Count);
+
+                    foreach (var target in source.Value)
+                    {
+                        AssertTransition(target.Value, (source.Key, sample1), (target.Key, sample2), filter.Lambda);
+                    }
+
+                }
+            }
+            {
+                var sample1 = new MatcherSample(0, 0, new Coordinate2D(11.019, 48.001));
+                var sample2 = new MatcherSample(1, 60000, new Coordinate2D(11.001, 48.001));
+
+                var predecessors = new HashSet<MatcherCandidate>();
+                var candidates = new HashSet<MatcherCandidate>();
+
+                foreach (var candidate in filter.Candidates(new HashSet<MatcherCandidate>(), sample1))
+                {
+                    predecessors.Add(candidate.Item1);
+                }
+
+                foreach (var candidate in filter.Candidates(new HashSet<MatcherCandidate>(), sample2))
+                {
+                    candidates.Add(candidate.Item1);
+                }
+
+                Assert.Equal(4, predecessors.Count);
+                Assert.Equal(2, candidates.Count);
+
+                var transitions = filter.Transitions((sample1, predecessors), (sample2, candidates));
+
+                Assert.Equal(4, transitions.Count);
+
+                foreach (var source in transitions)
+                {
+                    if (source.Key.RoadPoint.Road.Id == 10)
+                    {
+                        Assert.Equal(0, source.Value.Count);
+                    }
+                    else
+                    {
+                        Assert.Equal(2, source.Value.Count);
+                    }
+
+                    foreach (var target in source.Value)
+                    {
+                        AssertTransition(target.Value, (source.Key, sample1), (target.Key, sample2), filter.Lambda);
+                    }
+                }
+            }
+        } //end function TestTransitions
+
+    } //end class
+} //end namespace

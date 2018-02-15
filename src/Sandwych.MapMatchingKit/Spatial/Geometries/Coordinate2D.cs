@@ -12,9 +12,13 @@ namespace Sandwych.MapMatchingKit.Spatial.Geometries
     [StructLayout(LayoutKind.Sequential)]
     public readonly struct Coordinate2D : ICoordinate2D, IComparable<Coordinate2D>, IEquatable<Coordinate2D>
     {
-        private static readonly Coordinate2D s_nan = new Coordinate2D(double.NaN, double.NaN);
+        public static Coordinate2D NaN => new Coordinate2D(double.NaN, double.NaN);
 
-        public static ref readonly Coordinate2D NaN => ref s_nan;
+        public static Coordinate2D Origin => new Coordinate2D(0D, 0D);
+
+        public static Coordinate2D Zero => Origin;
+
+        public static Coordinate2D One => new Coordinate2D(1D, 1D);
 
         public double X { get; }
 
@@ -34,6 +38,11 @@ namespace Sandwych.MapMatchingKit.Spatial.Geometries
 
         public Coordinate2D(double[] coords)
         {
+            if (coords == null)
+            {
+                throw new ArgumentNullException(nameof(coords));
+            }
+
             if (coords.Length != 2)
             {
                 throw new ArgumentOutOfRangeException(nameof(coords));
@@ -48,16 +57,40 @@ namespace Sandwych.MapMatchingKit.Spatial.Geometries
         public double this[Ordinate index] { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public int CompareTo(Coordinate2D other) =>
-            this.CompareTo<Coordinate2D>(other);
+        public int CompareTo(Coordinate2D other)
+        {
+            if (X < other.X)
+            {
+                return -1;
+            }
+            if (X > other.X)
+            {
+                return 1;
+            }
+            if (Y < other.Y)
+            {
+                return -1;
+            }
+            return Y > other.Y ? 1 : 0;
+        }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public int CompareTo(ICoordinate2D other) =>
-            this.CompareTo<ICoordinate2D>(other);
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool Equals(Coordinate2D other) =>
-            this.CompareTo<Coordinate2D>(other) == 0;
+        public int CompareTo(ICoordinate2D other)
+        {
+            if (X < other.X)
+            {
+                return -1;
+            }
+            if (X > other.X)
+            {
+                return 1;
+            }
+            if (Y < other.Y)
+            {
+                return -1;
+            }
+            return Y > other.Y ? 1 : 0;
+        }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Coordinate2D operator +(in Coordinate2D a, in Coordinate2D b) =>
@@ -87,6 +120,21 @@ namespace Sandwych.MapMatchingKit.Spatial.Geometries
         public static Coordinate2D operator /(in Coordinate2D a, double f) =>
             new Coordinate2D(a.X / f, a.Y / f);
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool operator ==(in Coordinate2D a, in Coordinate2D b) =>
+            a.Equals(b);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool operator !=(in Coordinate2D a, in Coordinate2D b) =>
+            !a.Equals(b);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public bool Equals(Coordinate2D other) =>
+            this.CompareTo<Coordinate2D>(other) == 0;
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public override bool Equals(object obj) => obj is Coordinate2D p && this.Equals(p);
+
         public double this[int index]
         {
             get
@@ -100,6 +148,10 @@ namespace Sandwych.MapMatchingKit.Spatial.Geometries
                 }
             }
         }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public override int GetHashCode() =>
+            (X, Y).GetHashCode();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public double[] ToArray() => new double[2] { this.X, this.Y };
@@ -117,5 +169,7 @@ namespace Sandwych.MapMatchingKit.Spatial.Geometries
             return Math.Sqrt(d1 * d1 + d2 * d2);
         }
 
+        public override string ToString() =>
+            string.Format("Point2D({0}, {1})", X, Y);
     }
 }

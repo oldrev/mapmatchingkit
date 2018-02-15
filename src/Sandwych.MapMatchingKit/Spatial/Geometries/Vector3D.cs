@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Sandwych.MapMatchingKit.Spatial.Geometries
 {
-    public readonly struct Vector3D
+    public readonly struct Vector3D : IEquatable<Vector3D>
     {
         public double X { get; }
         public double Y { get; }
@@ -20,6 +20,23 @@ namespace Sandwych.MapMatchingKit.Spatial.Geometries
             this.X = x;
             this.Y = y;
             this.Z = z;
+        }
+
+        public Vector3D(double[] array)
+        {
+            if (array == null)
+            {
+                throw new ArgumentNullException(nameof(array));
+            }
+
+            if (array.Length != 3)
+            {
+                throw new ArgumentOutOfRangeException(nameof(array));
+            }
+
+            this.X = array[0];
+            this.Y = array[1];
+            this.Z = array[2];
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -53,5 +70,43 @@ namespace Sandwych.MapMatchingKit.Spatial.Geometries
         public double Product(in Vector3D other) =>
             X * other.X + Y * other.Y + Z * other.Z;
 
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool operator ==(in Vector3D a, in Vector3D b) => a.Equals(b);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool operator !=(in Vector3D a, in Vector3D b) => !a.Equals(b);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public bool Equals(Vector3D other) =>
+            this.X == other.X && this.Y == other.Y && this.Z == other.Z;
+
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public override bool Equals(object obj) => obj is Coordinate2D p && this.Equals(p);
+
+        public double this[int index]
+        {
+            get
+            {
+                switch (index)
+                {
+                    case 0: return X;
+                    case 1: return Y;
+                    case 2: return Z;
+                    default:
+                        throw new InvalidOperationException();
+                }
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public override int GetHashCode() => (X, Y, Z).GetHashCode();
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public double[] ToArray() => new double[3] { X, Y, Z };
+
+        public override string ToString() =>
+            string.Format("Vector3D({0}, {1}, {2})", X, Y, Z);
     }
 }

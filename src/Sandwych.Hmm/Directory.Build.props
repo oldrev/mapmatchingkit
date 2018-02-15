@@ -6,9 +6,6 @@
     <Summary>A general purpose utility library implements Hidden Markov Models (HMM) for time-inhomogeneous Markov processes</Summary>
     <Description>
     A general purpose utility library implements Hidden Markov Models (HMM) for time-inhomogeneous Markov processes for .NET.
-    This library provides an implementation of
-        * The Viterbi algorithm, which computes the most likely sequence of states.
-        * The forward-backward algorithm, which computes the probability of all state candidates given the entire sequence of observations. This process is also called smoothing.
     </Description>
     <PackageTags>map-matching;markov;hmm;viterbi</PackageTags>
     <VersionPrefix>0.1.0</VersionPrefix>

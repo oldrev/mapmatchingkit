@@ -9,7 +9,7 @@ namespace Sandwych.MapMatchingKit.Tests.Topology
 {
     public class DijkstraRouterTest
     {
-        class Road : AbstractGraphEdge<Road>
+        private class Road : AbstractGraphEdge<Road>
         {
             public float Weight { get; }
 
@@ -22,7 +22,7 @@ namespace Sandwych.MapMatchingKit.Tests.Topology
                 (this.Id, this.Weight).GetHashCode();
         }
 
-        class Graph : AbstractGraph<Road>
+        private class Graph : AbstractGraph<Road>
         {
             public Graph(IEnumerable<Road> roads) : base(roads)
             {
@@ -30,7 +30,7 @@ namespace Sandwych.MapMatchingKit.Tests.Topology
             }
         }
 
-        class RoadPoint : IEdgePoint<Road>
+        private readonly struct RoadPoint : IEdgePoint<Road>
         {
             public Road Edge { get; }
             public double Fraction { get; }

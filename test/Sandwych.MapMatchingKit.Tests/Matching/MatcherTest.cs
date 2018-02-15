@@ -41,7 +41,7 @@ namespace Sandwych.MapMatchingKit.Tests.Matching
                 var wktRdr = new WKTReader();
                 foreach (var e in _entries)
                 {
-                    var geom = wktRdr.Read(e.Item5) as ILineString;
+                    var geom = wktRdr.Read("SRID=4326;" + e.Item5) as ILineString;
                     _roads.Add(new RoadInfo(e.Item1, e.Item2, e.Item3, e.Item1, e.Item4, (short)0, 1.0f, 100f, 100f, (float)spatial.Length(geom), geom));
                 }
                 _enumerator = _roads.GetEnumerator();
@@ -69,7 +69,7 @@ namespace Sandwych.MapMatchingKit.Tests.Matching
             AssertEquals(p, candidate.Item2, 10E-6);
         }
 
-        private void assertTransition(in (MatcherTransition, Double) transition,
+        private void AssertTransition(in (MatcherTransition, Double) transition,
                 in (MatcherCandidate, MatcherSample) source,
                 in (MatcherCandidate, MatcherSample) target, double lambda)
         {
@@ -116,18 +116,17 @@ namespace Sandwych.MapMatchingKit.Tests.Matching
                 filter.MaxRadius = 100D;
                 var sample = new Coordinate2D(11.001, 48.001);
 
-                var candidates = filter.Candidates(new HashSet<MatcherCandidate>(), new MatcherSample(0, 0, sample));
+                var candidates = filter.Candidates(new MatcherCandidate[] { }, new MatcherSample(0, 0, sample));
 
                 Assert.Empty(candidates);
             }
+            void assertCandidate(double radius, Coordinate2D sample, IEnumerable<long> refsetIds)
             {
-                double radius = 200D;
                 filter.MaxRadius = radius;
-                var sample = new Coordinate2D(11.001, 48.001);
 
-                var candidates = filter.Candidates(new HashSet<MatcherCandidate>(), new MatcherSample(0, 0, sample));
+                var candidates = filter.Candidates(new MatcherCandidate[] { }, new MatcherSample(0, 0, sample));
 
-                var refset = new long[] { 0L, 1L };
+                var refset = new HashSet<long>(refsetIds);
                 var set = new HashSet<long>();
 
                 foreach (var candidate in candidates)
@@ -139,94 +138,12 @@ namespace Sandwych.MapMatchingKit.Tests.Matching
 
                 Assert.Equal(refset, set);
             }
-            {
-                double radius = 200D;
-                filter.MaxRadius = radius;
-                var sample = new Coordinate2D(11.010, 48.000);
-
-                var candidates = filter
-                        .Candidates(new HashSet<MatcherCandidate>(), new MatcherSample(0, 0, sample));
-
-                var refset = new long[] { 0L, 3L };
-                var set = new HashSet<long>();
-
-                foreach (var candidate in candidates)
-                {
-                    Assert.Contains(candidate.Item1.RoadPoint.Road.Id, refset);
-                    AssertCandidate(candidate, sample);
-                    set.Add(candidate.Item1.RoadPoint.Road.Id);
-                }
-
-                Assert.Equal(refset, set);
-            }
-            /*
-            {
-                double radius = 200;
-                filter.setMaxRadius(radius);
-                Point sample = new Point(11.011, 48.001);
-
-                Set<Tuple<MatcherCandidate, Double>> candidates = filter
-                        .candidates(new HashSet<MatcherCandidate>(), new MatcherSample(0, sample));
-
-                Set<Long> refset = new HashSet<>(Arrays.asList(0L, 2L, 3L));
-                Set<Long> set = new HashSet<>();
-
-                for (Tuple<MatcherCandidate, Double> candidate : candidates)
-                {
-                    assertTrue(Long.toString(candidate.one().point().edge().id()),
-                            refset.contains(candidate.one().point().edge().id()));
-                    assertCandidate(candidate, sample);
-                    set.add(candidate.one().point().edge().id());
-                }
-
-                assertEquals(refset.size(), candidates.size());
-                assertTrue(set.containsAll(refset));
-            }
-            {
-                double radius = 300;
-                filter.setMaxRadius(radius);
-                Point sample = new Point(11.011, 48.001);
-
-                Set<Tuple<MatcherCandidate, Double>> candidates = filter
-                        .candidates(new HashSet<MatcherCandidate>(), new MatcherSample(0, sample));
-
-                Set<Long> refset = new HashSet<>(Arrays.asList(0L, 2L, 3L, 8L));
-                Set<Long> set = new HashSet<>();
-
-                for (Tuple<MatcherCandidate, Double> candidate : candidates)
-                {
-                    assertTrue(Long.toString(candidate.one().point().edge().id()),
-                            refset.contains(candidate.one().point().edge().id()));
-                    assertCandidate(candidate, sample);
-                    set.add(candidate.one().point().edge().id());
-                }
-
-                assertEquals(refset.size(), candidates.size());
-                assertTrue(set.containsAll(refset));
-            }
-            {
-                double radius = 200;
-                filter.setMaxRadius(radius);
-                Point sample = new Point(11.019, 48.001);
-
-                Set<Tuple<MatcherCandidate, Double>> candidates = filter
-                        .candidates(new HashSet<MatcherCandidate>(), new MatcherSample(0, sample));
-
-                Set<Long> refset = new HashSet<>(Arrays.asList(2L, 3L, 5L, 10L));
-                Set<Long> set = new HashSet<>();
-
-                for (Tuple<MatcherCandidate, Double> candidate : candidates)
-                {
-                    assertTrue(Long.toString(candidate.one().point().edge().id()),
-                            refset.contains(candidate.one().point().edge().id()));
-                    assertCandidate(candidate, sample);
-                    set.add(candidate.one().point().edge().id());
-                }
-
-                assertEquals(refset.size(), candidates.size());
-                assertTrue(set.containsAll(refset));
-            }
-            */
+            assertCandidate(200D, new Coordinate2D(11.001, 48.001), new long[] { 0L, 1L });
+            assertCandidate(200D, new Coordinate2D(11.010, 48.000), new long[] { 0L, 3L });
+            assertCandidate(200D, new Coordinate2D(11.011, 48.001), new long[] { 0L, 2L, 3L });
+            assertCandidate(300D, new Coordinate2D(11.011, 48.001), new long[] { 0L, 2L, 3L, 8L });
+            assertCandidate(300D, new Coordinate2D(11.011, 48.001), new long[] { 0L, 2L, 3L, 8L });
+            assertCandidate(200D, new Coordinate2D(11.019, 48.001), new long[] { 2L, 3L, 5L, 10L });
         }
 
     }

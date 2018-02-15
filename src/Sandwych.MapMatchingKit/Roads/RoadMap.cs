@@ -35,9 +35,10 @@ namespace Sandwych.MapMatchingKit.Roads
             {
                 yield return new RoadPoint(this.Edges[point.road.Id * 2], point.Item2, _spatial);
 
-                if (this.Edges.ContainsKey(point.road.Id * 2 + 1))
+                var backwardRoadId = point.road.Id * 2 + 1;
+                if (this.Edges.TryGetValue(backwardRoadId, out var road))
                 {
-                    yield return new RoadPoint(this.Edges[point.road.Id * 2 + 1], 1.0 - point.Item2, _spatial);
+                    yield return new RoadPoint(road, 1.0 - point.Item2, _spatial);
                 }
             }
         }

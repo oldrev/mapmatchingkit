@@ -9,6 +9,7 @@ namespace Sandwych.MapMatchingKit.Tests.Spatial
 {
     public abstract class AbstractSpatialOperationTest : TestBase
     {
+        protected ISpatialOperation Geography { get; } = new GeographySpatialOperation();
         protected abstract ISpatialOperation Spatial { get; }
 
         protected (Coordinate2D, double, double) Intercept(Coordinate2D a, Coordinate2D b, Coordinate2D c)
@@ -25,7 +26,6 @@ namespace Sandwych.MapMatchingKit.Tests.Spatial
 
                 if (s < res.Item2)
                 {
-
                     res.Item1 = p;
                     res.Item2 = s;
                     res.Item3 = (double)f / iter;

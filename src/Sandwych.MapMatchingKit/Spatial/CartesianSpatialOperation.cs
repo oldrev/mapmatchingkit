@@ -9,6 +9,8 @@ using Sandwych.MapMatchingKit.Spatial.Geometries;
 
 namespace Sandwych.MapMatchingKit.Spatial
 {
+
+#if CARTESIAN_SPATIAL
     public sealed class CartesianSpatialOperation : ISpatialOperation
     {
         private const double TwoPi = Math.PI * 2;
@@ -28,17 +30,21 @@ namespace Sandwych.MapMatchingKit.Spatial
         public double Intercept(ILineString p, in Coordinate2D c)
         {
             var d = Double.MaxValue;
-            var a = p.GetCoordinate2DAt(0);
-            double s = 0, sf = 0, ds = 0;
+            var a = p.GetPointN(0).ToCoordinate2D();
+            var s = 0D;
+            var sf = 0D;
+            var ds = 0D;
 
             for (int i = 1; i < p.NumPoints; ++i)
             {
-                var b = p.GetCoordinate2DAt(i);
-                ds = a.CartesianDistance(b);
+                var b = p.GetPointN(i).ToCoordinate2D();
+
+                ds = this.Distance(a, b);
+
                 var f_ = this.Intercept(a, b, c);
                 f_ = (f_ > 1) ? 1 : (f_ < 0) ? 0 : f_;
                 var x = this.Interpolate(a, b, f_);
-                var d_ = c.CartesianDistance(x);
+                double d_ = this.Distance(c, x);
 
                 if (d_ < d)
                 {
@@ -49,29 +55,22 @@ namespace Sandwych.MapMatchingKit.Spatial
                 s = s + ds;
                 a = b;
             }
-
             return s == 0 ? 0 : sf / s;
         }
 
         public double Intercept(in Coordinate2D a, in Coordinate2D b, in Coordinate2D p)
         {
-            // use comp.graphics.algorithms Frequently Asked Questions method
-            /*(2)
-                            (Ay-Cy)(Bx-Ax)-(Ax-Cx)(By-Ay)
-                        s = -----------------------------
-                                         Curve^2
-                        Then the distance from C to Point = |s|*Curve.
-            */
-            var len2 = ((b.X - a.X) * (b.X - a.X) + (b.Y - a.Y) * (b.Y - a.Y));
-            var s = ((a.Y - p.Y) * (b.X - a.X) - (a.X - p.X) * (b.Y - a.Y)) / len2;
-            return Math.Abs(s) * Math.Sqrt(len2);
+            var d_ab = a.CartesianDistance(b);
+            var d_ap = a.CartesianDistance(p);
+            var d_abp = GeometryMath.DistancePointLinePerpendicular(p, a, b);
+            var d = Math.Sqrt(d_ap * d_ap - d_abp * d_abp);
+            return d / d_ab;
         }
 
         public double Azimuth(in Coordinate2D a, in Coordinate2D b, double f)
         {
-            var dx = b.X - a.X;
-            var dy = b.Y - a.Y;
-            return 90.0 - Rad2Deg * Math.Atan2(dy, dx);
+            var d = b - a;
+            return 90d - (180d / Math.PI * Math.Atan2(d.Y, d.X));
         }
 
         public double Azimuth(ILineString path, double f)
@@ -110,25 +109,26 @@ namespace Sandwych.MapMatchingKit.Spatial
             {
                 throw new ArgumentOutOfRangeException(nameof(f));
             }
+            var p0 = path.GetPointN(0).ToCoordinate2D();
 
-            var a = path.GetCoordinate2DAt(0);
+            var a = p0;
             double d = l * f;
             double s = 0, ds = 0;
 
             if (f < 0 + 1E-10)
             {
-                return a;
+                return p0;
             }
 
             if (f > 1 - 1E-10)
             {
-                return path.GetCoordinate2DAt(path.NumPoints - 1);
+                return path.GetPointN(path.NumPoints - 1).ToCoordinate2D();
             }
 
             for (int i = 1; i < path.NumPoints; ++i)
             {
-                var b = path.GetCoordinate2DAt(i);
-                ds = a.CartesianDistance(b);
+                var b = path.GetPointN(i).ToCoordinate2D();
+                ds = this.Distance(a, b);
 
                 if ((s + ds) >= d)
                 {
@@ -146,7 +146,7 @@ namespace Sandwych.MapMatchingKit.Spatial
         {
             var l = a.CartesianDistance(b);
             var d = l * f;
-            return new Coordinate2D(a.X + d, a.Y + d);
+            return a + d;
         }
 
 
@@ -158,5 +158,9 @@ namespace Sandwych.MapMatchingKit.Spatial
             return new Envelope(bottomLeft.x, topRight.x, bottomLeft.y, topRight.y);
         }
 
+
+
     }
+
+#endif
 }

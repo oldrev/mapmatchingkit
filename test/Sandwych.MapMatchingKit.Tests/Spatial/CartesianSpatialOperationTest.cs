@@ -13,6 +13,8 @@ using NetTopologySuite.IO;
 
 namespace Sandwych.MapMatchingKit.Tests.Spatial
 {
+#if CARTESIAN_SPATIAL
+
     public class CartesianSpatialOperationTest : AbstractSpatialOperationTest
     {
         protected override ISpatialOperation Spatial => new CartesianSpatialOperation();
@@ -120,45 +122,40 @@ namespace Sandwych.MapMatchingKit.Tests.Spatial
 
                 var s = Spatial.Distance(p, c);
 
-                /*
-                var s_esri = this.DistanceEpsg4326(p, c);
-                */
+                var p_4326 = _transformation3395To4326.Transform(p);
+                var s_esri = this.DistanceEpsg4326(p_4326, c_4326.ToCoordinate2D());
 
                 Assert.InRange(f > 1 ? 1 : f < 0 ? 0 : f, res.Item3 - 0.2, res.Item3 + 0.2);
-                Assert.InRange(p.X, res.Item1.X - 1, res.Item1.X + 1);
-                Assert.InRange(p.Y, res.Item1.Y - 1, res.Item1.Y + 1);
+                Assert.InRange(p.X, res.Item1.X - 50, res.Item1.X + 50);
+                Assert.InRange(p.Y, res.Item1.Y - 50, res.Item1.Y + 50);
 
-                /*
-                assertEquals(s, s_esri, 10E-6);
-                */
+                AssertEquals(s, s_esri, 10E-6);
             }
         }
 
         [Fact]
         public void TestPathInterception1()
         {
-            var point = "POINT(11.410624 48.144161)";
+            var point = "POINT(1270224.85331350634805858 6099029.88927983772009611)";
             var line =
-                    "LINESTRING(11.4047013 48.1402147,11.4047038 48.1402718,11.4047661 48.1403687,11.4053519 48.141055,11.4054617 48.1411901,11.4062664 48.1421968,11.4064586 48.1424479,11.4066449 48.1427372,11.4067254 48.1429028,11.4067864 48.1430673,11.4068647 48.1433303,11.4069456 48.1436822,11.4070524 48.1440368,11.4071569 48.1443314,11.4072635 48.1445915,11.4073887 48.1448641,11.4075228 48.1450729,11.407806 48.1454843,11.4080135 48.1458112,11.4083012 48.1463167,11.4086211 48.1469061,11.4087461 48.1471386,11.4088719 48.1474078,11.4089422 48.1476014,11.409028 48.1478353,11.409096 48.1480701,11.4091568 48.1483459,11.4094282 48.1498536)";
+                   "LINESTRING(1269565.54136538505554199 6098373.51875618938356638, 1269565.81966411229223013 6098383.01558326091617346, 1269572.754868388408795 6098399.13193933106958866, 1269637.96582609508186579 6098513.27786348387598991, 1269650.18870618427172303 6098535.74797636084258556, 1269739.76750042568892241 6098703.18628658913075924, 1269761.16310655628331006 6098744.95074261073023081, 1269781.90192769095301628 6098793.06910624075680971, 1269790.86314669973216951 6098820.61295877024531364, 1269797.6536356380674988 6098847.97393942717462778, 1269806.36995176738128066 6098891.71842609904706478, 1269815.37569857249036431 6098950.24989991821348667, 1269827.26462018908932805 6099009.23087266180664301, 1269838.89750697719864547 6099058.23229711316525936, 1269850.76416469551622868 6099101.49550071079283953, 1269864.70136494282633066 6099146.8381030410528183, 1269879.62930865841917694 6099181.56877079606056213, 1269911.15498845116235316 6099249.99924759287387133, 1269934.25378279038704932 6099304.37475735601037741, 1269966.2804002920165658 6099388.45871089026331902, 1270001.89150539645925164 6099486.49949030112475157, 1270015.80644174572080374 6099525.17384527251124382, 1270029.81043368740938604 6099569.95314655639231205, 1270037.63619389035739005 6099602.15712890867143869, 1270047.18740620044991374 6099641.06489250250160694, 1270054.7571315742097795 6099680.12254473380744457, 1270061.5253566144965589 6099726.00054469797760248, 1270091.73746641585603356 6099976.80355287436395884)";
 
             var wktReader = new WKTReader();
-            var c_4326 = wktReader.Read(point) as IPoint;
-            var ab_4326 = wktReader.Read(line) as ILineString;
+            var c = (wktReader.Read(point) as IPoint).ToCoordinate2D();
+            var ab = wktReader.Read(line) as ILineString;
 
-            /*
-            var f = spatial.Intercept(ab, c);
-            var l = spatial.Length(ab);
-            var p = spatial.Interpolate(ab, l, f);
-            var d = spatial.Distance(p, c);
-            */
+            var l = Spatial.Length(ab);
+            var f = Spatial.Intercept(ab, c);
+            var p = Spatial.Interpolate(ab, l, f);
+            var d = Spatial.Distance(p, c);
 
-            /*
-            assertEquals(p.getX(), 11.407547966254612, 10E-6);
-            assertEquals(p.getY(), 48.14510945890138, 10E-6);
-            assertEquals(f, 0.5175157549609246, 10E-6);
-            assertEquals(l, 1138.85464239099, 10E-6);
-            assertEquals(d, 252.03375312704165, 10E-6);
-            */
+            var expectedDistance = 1704.0;
+            AssertEquals(l, expectedDistance, 1);
+            var expectedP = new Coordinate2D(1269882.4308033068664372, 6099187.64979622885584831);
+            AssertEquals(p.X, expectedP.X, 10);
+            AssertEquals(p.Y, expectedP.Y, 10);
+            AssertEquals(f, 0.5175157549609246, 10E-6);
+            AssertEquals(d, 252.03375312704165, 10E-6);
 
         }
 
@@ -239,14 +236,12 @@ namespace Sandwych.MapMatchingKit.Tests.Spatial
             return azi < 0 ? azi + 360 : azi;
         }
 
-        private double DistanceEpsg4326(Point a, Point b)
+        private double DistanceEpsg4326(Coordinate2D a, Coordinate2D b)
         {
-            if (a.SRID != 4326 || b.SRID != 4326)
-            {
-                throw new ArgumentException();
-            }
-            return a.Distance(b) * 111320;
+            return Geodesic.WGS84.Inverse(a.Y, a.X, b.Y, b.X).s12;
         }
 
     }
+
+#endif
 }

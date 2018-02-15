@@ -10,7 +10,7 @@ namespace Sandwych.MapMatchingKit.Spatial
 {
     public sealed class GeographySpatialOperation : ISpatialOperation
     {
-        private static readonly Lazy<ISpatialOperation> s_instance = new Lazy<ISpatialOperation>(() => new CartesianSpatialOperation(), true);
+        private static readonly Lazy<ISpatialOperation> s_instance = new Lazy<ISpatialOperation>(() => new GeographySpatialOperation(), true);
 
         public static ISpatialOperation Instance => s_instance.Value;
 
@@ -148,13 +148,14 @@ namespace Sandwych.MapMatchingKit.Spatial
                 throw new ArgumentOutOfRangeException(nameof(f));
             }
 
-            var a = path.GetPointN(0).ToCoordinate2D();
+            var p0 = path.GetPointN(0).ToCoordinate2D();
+            var a = p0;
             double d = l * f;
             double s = 0, ds = 0;
 
             if (f < 0 + 1E-10)
             {
-                return path.GetPointN(0).ToCoordinate2D();
+                return p0;
             }
 
             if (f > 1 - 1E-10)

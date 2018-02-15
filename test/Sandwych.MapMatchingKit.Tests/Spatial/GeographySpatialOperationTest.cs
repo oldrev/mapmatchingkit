@@ -17,13 +17,9 @@ namespace Sandwych.MapMatchingKit.Tests.Spatial
     {
         protected override ISpatialOperation Spatial => new GeographySpatialOperation();
 
-        private readonly static ICoordinateTransformation _transformation4326To3395 = new Epsg4326To3395CoordinateTransformation();
-
-        private static double Distance(Coordinate2D a, Coordinate2D b)
+        private double Distance(in Coordinate2D a, in Coordinate2D b)
         {
-            var p1 = _transformation4326To3395.Transform(a).ToGeoAPIPoint();
-            var p2 = _transformation4326To3395.Transform(b).ToGeoAPIPoint();
-            return p1.Distance(p2);
+            return this.Spatial.Distance(a, b);
         }
 
         [Fact]
@@ -33,8 +29,8 @@ namespace Sandwych.MapMatchingKit.Tests.Spatial
             var berl = new Coordinate2D(13.408056, 52.518611);
             var mosk = new Coordinate2D(37.616667, 55.75);
 
-            double dist_geog = Spatial.Distance(mosk, reyk);
-            double dist_esri = Distance(mosk, reyk);
+            var dist_geog = Spatial.Distance(mosk, reyk);
+            var dist_esri = Distance(mosk, reyk);
 
             AssertEquals(dist_geog, dist_esri, 10E-6);
             dist_geog = Spatial.Distance(berl, reyk);
@@ -49,10 +45,8 @@ namespace Sandwych.MapMatchingKit.Tests.Spatial
             var berl = new Coordinate2D(13.408056, 52.518611);
             var mosk = new Coordinate2D(37.616667, 55.75);
 
-            double f = Spatial.Intercept(reyk, mosk, berl);
-
+            var f = Spatial.Intercept(reyk, mosk, berl);
             var p = Spatial.Interpolate(reyk, mosk, f);
-
             var res = Intercept(reyk, mosk, berl);
 
             AssertEquals(f, res.Item3, 0.1);
@@ -85,11 +79,9 @@ namespace Sandwych.MapMatchingKit.Tests.Spatial
 
                 var f = Spatial.Intercept(a, b, c);
                 var p = Spatial.Interpolate(a, b, f);
-
                 var res = Intercept(a, b, c);
-
-                double s = Spatial.Distance(p, c);
-                double s_esri = Distance(p, c);
+                var s = Spatial.Distance(p, c);
+                var s_esri = Distance(p, c);
 
                 AssertEquals(f > 1 ? 1 : f < 0 ? 0 : f, res.Item3, 0.2);
                 AssertEquals(p.X, res.Item1.X, 10E-2);
@@ -102,12 +94,12 @@ namespace Sandwych.MapMatchingKit.Tests.Spatial
         private static double Azimuth(Coordinate2D a, Coordinate2D b, bool left)
         {
             var geod = Geodesic.WGS84.Inverse(a.Y, a.X, b.Y, b.X);
-            double azi = left ? geod.azi1 : geod.azi2;
+            var azi = left ? geod.azi1 : geod.azi2;
             return azi < 0 ? azi + 360 : azi;
         }
 
         [Fact]
-        public void testLineAzimuth()
+        public void TestLineAzimuth()
         {
             var reyk = new Coordinate2D(-21.933333, 64.15);
             var berl = new Coordinate2D(13.408056, 52.518611);
@@ -131,14 +123,10 @@ namespace Sandwych.MapMatchingKit.Tests.Spatial
             var c = (wktReader.Read(point) as IPoint).ToCoordinate2D();
             var ab = wktReader.Read(line) as ILineString;
 
-            double f = Spatial.Intercept(ab, c);
-
-            double l = Spatial.Length(ab);
-
+            var f = Spatial.Intercept(ab, c);
+            var l = Spatial.Length(ab);
             var p = Spatial.Interpolate(ab, l, f);
-
-            double d = Spatial.Distance(p, c);
-
+            var d = Spatial.Distance(p, c);
             AssertEquals(p.X, 11.407547966254612, 10E-6);
             AssertEquals(p.Y, 48.14510945890138, 10E-6);
             AssertEquals(f, 0.5175157549609246, 10E-6);
@@ -158,11 +146,8 @@ namespace Sandwych.MapMatchingKit.Tests.Spatial
             var ab = wktReader.Read(line) as ILineString;
 
             var f = Spatial.Intercept(ab, c);
-
             var l = Spatial.Length(ab);
-
             var p = Spatial.Interpolate(ab, l, f);
-
             var d = Spatial.Distance(p, c);
 
             AssertEquals(p.X, 11.585274842230357, 10E-6);
@@ -189,9 +174,11 @@ namespace Sandwych.MapMatchingKit.Tests.Spatial
             AssertEquals(Azimuth(mosk, reyk, false), Spatial.Azimuth(p, 1f), 1E-9);
             AssertEquals(Azimuth(berl, mosk, false),
                     Spatial.Azimuth(p, Spatial.Distance(berl, mosk) / Spatial.Length(p)), 1E-9);
+
             var c = Spatial.Interpolate(berl, mosk, 0.5);
             AssertEquals(Azimuth(berl, c, false),
                     Spatial.Azimuth(p, Spatial.Distance(berl, c) / Spatial.Length(p)), 1E-9);
+
             var d = Spatial.Interpolate(mosk, reyk, 0.5);
             AssertEquals(Azimuth(mosk, d, false), Spatial.Azimuth(p,
                     (Spatial.Distance(berl, mosk) + Spatial.Distance(mosk, d)) / Spatial.Length(p)),

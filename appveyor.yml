@@ -18,3 +18,12 @@ test_script:
 artifacts:
   - path: 'src\Sandwych.Hmm\**\*.nupkg'
   - path: 'src\Sandwych.MapMatchingKit\**\*.nupkg'
+deploy:
+  - provider: NuGet
+    on:
+      branch: master
+    server: https://www.nuget.org/api/v2/package
+    api_key:
+      secure: GYFVozbTBotULJAyI55cVaH4d4TS5HDZ7lHUZabYUkZzrbvueLp2jxYXE2Jpr05V
+    skip_symbols: true
+    artifact: /.*\.nupkg/  

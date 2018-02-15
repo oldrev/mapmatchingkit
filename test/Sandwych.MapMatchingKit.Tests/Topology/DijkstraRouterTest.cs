@@ -32,17 +32,17 @@ namespace Sandwych.MapMatchingKit.Tests.Topology
 
         class RoadPoint : IEdgePoint<Road>
         {
-            public Road Road { get; }
+            public Road Edge { get; }
             public double Fraction { get; }
 
             public RoadPoint(Road road, double fraction)
             {
-                this.Road = road;
+                this.Edge = road;
                 this.Fraction = fraction;
             }
 
             public override int GetHashCode() =>
-                (this.Road, this.Fraction).GetHashCode();
+                (this.Edge, this.Fraction).GetHashCode();
         }
 
         [Fact]
@@ -67,7 +67,7 @@ namespace Sandwych.MapMatchingKit.Tests.Topology
                 var route = routes[targets.First()];
                 var path = new long[] { 0L };
 
-                Assert.Equal(path.First(), route.Item1.Road.Id);
+                Assert.Equal(path.First(), route.Item1.Edge.Id);
                 Assert.Equal(path.Length, route.Item2.Count());
 
                 int i = 0;
@@ -84,7 +84,7 @@ namespace Sandwych.MapMatchingKit.Tests.Topology
                 var route = routes[targets.First()];
                 var path = new long[] { 0L };
 
-                Assert.Equal(path.First(), route.Item1.Road.Id);
+                Assert.Equal(path.First(), route.Item1.Edge.Id);
                 Assert.Equal(path.Length, route.Item2.Count());
 
                 int i = 0;
@@ -101,7 +101,7 @@ namespace Sandwych.MapMatchingKit.Tests.Topology
                 var route = routes[targets.First()];
                 var path = new long[] { 0L, 1L, 0L };
 
-                Assert.Equal(path.First(), route.Item1.Road.Id);
+                Assert.Equal(path.First(), route.Item1.Edge.Id);
                 Assert.Equal(path.Length, route.Item2.Count());
 
                 int i = 0;
@@ -121,7 +121,7 @@ namespace Sandwych.MapMatchingKit.Tests.Topology
                 var route = routes[targets.First()];
                 var path = new long[] { 1L, 0L };
 
-                Assert.Equal(path.First(), route.Item1.Road.Id);
+                Assert.Equal(path.First(), route.Item1.Edge.Id);
                 Assert.Equal(path.Length, route.Item2.Count());
 
                 int i = 0;
@@ -150,7 +150,7 @@ namespace Sandwych.MapMatchingKit.Tests.Topology
                 var route = routes[targets.First()];
                 var path = new long[] { 0L };
 
-                Assert.Equal(path.First(), route.Item1.Road.Id);
+                Assert.Equal(path.First(), route.Item1.Edge.Id);
                 Assert.Equal(path.Length, route.Item2.Count());
 
                 int i = 0;
@@ -172,7 +172,7 @@ namespace Sandwych.MapMatchingKit.Tests.Topology
                 var route = routes[targets.First()];
                 var path = new long[] { 0L, 0L };
 
-                Assert.Equal(path.First(), route.Item1.Road.Id);
+                Assert.Equal(path.First(), route.Item1.Edge.Id);
                 Assert.Equal(path.Length, route.Item2.Count());
 
                 int i = 0;
@@ -195,7 +195,7 @@ namespace Sandwych.MapMatchingKit.Tests.Topology
                 var route = routes[targets.First()];
                 var path = new long[] { 0L, 0L };
 
-                Assert.Equal(path.First(), route.Item1.Road.Id);
+                Assert.Equal(path.First(), route.Item1.Edge.Id);
                 Assert.Equal(path.Length, route.Item2.Count());
 
                 int i = 0;
@@ -218,7 +218,7 @@ namespace Sandwych.MapMatchingKit.Tests.Topology
                 var route = routes[targets.First()];
                 var path = new long[] { 1L, 0L };
 
-                Assert.Equal(path.First(), route.Item1.Road.Id);
+                Assert.Equal(path.First(), route.Item1.Edge.Id);
                 Assert.Equal(path.Length, route.Item2.Count());
 
                 int i = 0;
@@ -279,11 +279,11 @@ namespace Sandwych.MapMatchingKit.Tests.Topology
                 foreach (var pair in routes)
                 {
                     var route = pair.Value.Item2;
-                    Assert.NotNull(paths[pair.Key.Road.Id]);
-                    var path = paths[pair.Key.Road.Id];
+                    Assert.NotNull(paths[pair.Key.Edge.Id]);
+                    var path = paths[pair.Key.Edge.Id];
 
                     Assert.NotNull(route);
-                    Assert.Equal(path.First(), pair.Value.Item1.Road.Id);
+                    Assert.Equal(path.First(), pair.Value.Item1.Edge.Id);
                     Assert.Equal(path.Count(), route.Count());
 
                     int i = 0;
@@ -318,10 +318,10 @@ namespace Sandwych.MapMatchingKit.Tests.Topology
                 foreach (var pair in routes)
                 {
                     var route = pair.Value;
-                    Assert.NotNull(paths[pair.Key.Road.Id]);
-                    var path = paths[pair.Key.Road.Id];
+                    Assert.NotNull(paths[pair.Key.Edge.Id]);
+                    var path = paths[pair.Key.Edge.Id];
 
-                    Assert.Equal(path[0], pair.Value.Item1.Road.Id);
+                    Assert.Equal(path[0], pair.Value.Item1.Edge.Id);
                     Assert.Equal(path.Count(), route.Item2.Count());
 
                     int i = 0;
@@ -370,10 +370,10 @@ namespace Sandwych.MapMatchingKit.Tests.Topology
                 foreach (var pair in routes)
                 {
                     var route = pair.Value.Item2;
-                    var path = paths[pair.Key.Road.Id];
+                    var path = paths[pair.Key.Edge.Id];
 
                     Assert.NotNull(route);
-                    Assert.Equal(path[0], pair.Value.Item1.Road.Id);
+                    Assert.Equal(path[0], pair.Value.Item1.Edge.Id);
                     Assert.Equal(path.Count(), route.Count());
 
                     int i = 0;

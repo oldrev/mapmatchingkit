@@ -126,15 +126,15 @@ namespace Sandwych.MapMatchingKit.Topology
                 if (this.Logger.IsEnabled(LogLevel.Debug))
                 {
                     this.Logger.LogDebug("initialize target {0} with edge {1} and fraction {2}",
-                        target, target.Road.Id, target.Fraction);
+                        target, target.Edge.Id, target.Fraction);
                 }
-                if (!targetEdges.ContainsKey(target.Road))
+                if (!targetEdges.ContainsKey(target.Edge))
                 {
-                    targetEdges[target.Road] = new HashSet<P>() { target };
+                    targetEdges[target.Edge] = new HashSet<P>() { target };
                 }
                 else
                 {
-                    targetEdges[target.Road].Add(target);
+                    targetEdges[target.Edge].Add(target);
                 }
             }
 
@@ -153,16 +153,16 @@ namespace Sandwych.MapMatchingKit.Topology
             foreach (var source in sources)
             {
                 // initialize sources as start edges
-                var startcost = source.Road.Cost(1.0 - source.Fraction, cost); //cost.cost(source.Edge, 1 - source.Fraction);
-                var startbound = bound != null ? source.Road.Cost(1.0 - source.Fraction, bound) : 0D;  //bound.cost(source.Edge.Cost(), 1 - source.Fraction) : 0.0;
+                var startcost = source.Edge.Cost(1.0 - source.Fraction, cost); //cost.cost(source.Edge, 1 - source.Fraction);
+                var startbound = bound != null ? source.Edge.Cost(1.0 - source.Fraction, bound) : 0D;  //bound.cost(source.Edge.Cost(), 1 - source.Fraction) : 0.0;
 
                 if (this.Logger.IsEnabled(LogLevel.Debug))
                 {
                     this.Logger.LogDebug("init source {0} with start edge {1} and fraction {2} with {3} cost",
-                        source, source.Road.Id, source.Fraction, startcost);
+                        source, source.Edge.Id, source.Fraction, startcost);
                 }
 
-                if (targetEdges.TryGetValue(source.Road, out var targetsMap))
+                if (targetEdges.TryGetValue(source.Edge, out var targetsMap))
                 {
                     // start edge reaches target edge
                     foreach (var target in targetsMap)
@@ -171,32 +171,32 @@ namespace Sandwych.MapMatchingKit.Topology
                         {
                             continue;
                         }
-                        var reachcost = startcost - source.Road.Cost(1.0 - target.Fraction, cost); // cost.cost(source.Edge, 1 - target.Fraction);
-                        var reachbound = bound != null ? startcost - source.Road.Cost(1.0 - target.Fraction, bound) : 0D; //, // bound.cost(source.Edge, 1 - target.Fraction) : 0.0;
+                        var reachcost = startcost - source.Edge.Cost(1.0 - target.Fraction, cost); // cost.cost(source.Edge, 1 - target.Fraction);
+                        var reachbound = bound != null ? startcost - source.Edge.Cost(1.0 - target.Fraction, bound) : 0D; //, // bound.cost(source.Edge, 1 - target.Fraction) : 0.0;
 
                         if (this.Logger.IsEnabled(LogLevel.Debug))
                         {
                             this.Logger.LogDebug("reached target {0} with start edge {1} from {2} to {3} with {4} cost",
-                                target, source.Road.Id, source.Fraction, target.Fraction, reachcost);
+                                target, source.Edge.Id, source.Fraction, target.Fraction, reachcost);
 
                         }
 
-                        var reach = new Mark(source.Road, null, reachcost, reachbound);
+                        var reach = new Mark(source.Edge, null, reachcost, reachbound);
                         reaches.Add(reach, target);
                         starts.Add(reach, source);
                         priorities.Enqueue(reach);
                     }
                 }
 
-                if (!entries.TryGetValue(source.Road, out var start))
+                if (!entries.TryGetValue(source.Edge, out var start))
                 {
                     if (this.Logger.IsEnabled(LogLevel.Debug))
                     {
                         this.Logger.LogDebug("add source {0} with start edge {1} and fraction {2} with {3} cost",
-                            source, source.Road.Id, source.Fraction, startcost);
+                            source, source.Edge.Id, source.Fraction, startcost);
                     }
-                    start = new Mark(source.Road, null, startcost, startbound);
-                    entries[source.Road] = start;
+                    start = new Mark(source.Edge, null, startcost, startbound);
+                    entries[source.Edge] = start;
                     starts[start] = source;
                     priorities.Enqueue(start);
                 }
@@ -207,10 +207,10 @@ namespace Sandwych.MapMatchingKit.Topology
                         if (this.Logger.IsEnabled(LogLevel.Debug))
                         {
                             this.Logger.LogDebug("update source {0} with start edge {1} and fraction {2} with {3} cost",
-                                source, source.Road.Id, source.Fraction, startcost);
+                                source, source.Edge.Id, source.Fraction, startcost);
                         }
-                        start = new Mark(source.Road, null, startcost, startbound);
-                        entries[source.Road] = start;
+                        start = new Mark(source.Edge, null, startcost, startbound);
+                        entries[source.Edge] = start;
                         starts[start] = source;
                         priorities.Remove(start);
                         priorities.Enqueue(start);

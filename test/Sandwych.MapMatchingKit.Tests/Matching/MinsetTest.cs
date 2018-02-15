@@ -91,7 +91,7 @@ namespace Sandwych.MapMatchingKit.Tests.Matching
                 var minset = Minset.Minimize(candidates);
 
                 Assert.Equal(1, minset.Count);
-                Assert.Equal(4, minset.First().Road.Id);
+                Assert.Equal(4, minset.First().Edge.Id);
             }
             {
                 var candidates = new HashSet<RoadPoint>() {
@@ -108,8 +108,8 @@ namespace Sandwych.MapMatchingKit.Tests.Matching
                 var set = new HashSet<long>();
                 foreach (RoadPoint element in minset)
                 {
-                    Assert.Contains(element.Road.Id, refset);
-                    set.Add(element.Road.Id);
+                    Assert.Contains(element.Edge.Id, refset);
+                    set.Add(element.Edge.Id);
                 }
 
                 Assert.Equal(refset, set);
@@ -128,8 +128,8 @@ namespace Sandwych.MapMatchingKit.Tests.Matching
                 var set = new HashSet<long>();
                 foreach (var element in minset)
                 {
-                    Assert.Contains(element.Road.Id, refset);
-                    set.Add(element.Road.Id);
+                    Assert.Contains(element.Edge.Id, refset);
+                    set.Add(element.Edge.Id);
                 }
 
                 Assert.Equal(refset, set);
@@ -150,8 +150,8 @@ namespace Sandwych.MapMatchingKit.Tests.Matching
                 var set = new HashSet<long>();
                 foreach (var element in minset)
                 {
-                    Assert.Contains(element.Road.Id, refset);
-                    set.Add(element.Road.Id);
+                    Assert.Contains(element.Edge.Id, refset);
+                    set.Add(element.Edge.Id);
                 }
 
                 Assert.Equal(refset, set);
@@ -179,8 +179,8 @@ namespace Sandwych.MapMatchingKit.Tests.Matching
                 var set = new HashSet<long>();
                 foreach (RoadPoint element in minset)
                 {
-                    Assert.Contains(element.Road.Id, refset);
-                    set.Add(element.Road.Id);
+                    Assert.Contains(element.Edge.Id, refset);
+                    set.Add(element.Edge.Id);
                 }
 
                 Assert.Equal(refset, set);
@@ -201,8 +201,8 @@ namespace Sandwych.MapMatchingKit.Tests.Matching
                 var set = new HashSet<long>();
                 foreach (RoadPoint element in minset)
                 {
-                    Assert.Contains(element.Road.Id, refset);
-                    set.Add(element.Road.Id);
+                    Assert.Contains(element.Edge.Id, refset);
+                    set.Add(element.Edge.Id);
                 }
 
                 Assert.Equal(refset, set);
@@ -223,8 +223,8 @@ namespace Sandwych.MapMatchingKit.Tests.Matching
                 var set = new HashSet<long>();
                 foreach (RoadPoint element in minset)
                 {
-                    Assert.Contains(element.Road.Id, refset);
-                    set.Add(element.Road.Id);
+                    Assert.Contains(element.Edge.Id, refset);
+                    set.Add(element.Edge.Id);
                 }
 
                 Assert.Equal(refset, set);

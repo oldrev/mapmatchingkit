@@ -21,11 +21,6 @@ namespace Sandwych.MapMatchingKit.Roads
         public float MaxSpeedBackward { get; }
         public float Length { get; }
 
-        public RoadInfo(ILineString geometry)
-        {
-            this.Geometry = geometry;
-        }
-
         public RoadInfo(long id, long source, long target, bool oneway, short type,
                 float priority, float maxspeedForward, float maxspeedBackward, float length,
                 ILineString geometry)

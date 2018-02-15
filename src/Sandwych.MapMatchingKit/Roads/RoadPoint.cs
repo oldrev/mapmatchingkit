@@ -10,7 +10,7 @@ namespace Sandwych.MapMatchingKit.Roads
 {
     public readonly struct RoadPoint : IEdgePoint<Road>
     {
-        public Road Road { get; }
+        public Road Edge { get; }
 
         public double Fraction { get; }
 
@@ -20,10 +20,10 @@ namespace Sandwych.MapMatchingKit.Roads
 
         public RoadPoint(in Road road, double fraction, float azimuth, ISpatialOperation spatial)
         {
-            this.Road = road;
+            this.Edge = road;
             this.Fraction = fraction;
             this.Azimuth = azimuth;
-            this.Coordinate = spatial.Interpolate(this.Road.Geometry, this.Fraction);
+            this.Coordinate = spatial.Interpolate(this.Edge.Geometry, this.Fraction);
         }
 
         public RoadPoint(in Road road, double fraction, float azimuth) : this(road, fraction, azimuth, GeographySpatialOperation.Instance)
@@ -32,10 +32,10 @@ namespace Sandwych.MapMatchingKit.Roads
 
         public RoadPoint(in Road road, double fraction, ISpatialOperation spatial)
         {
-            this.Road = road;
+            this.Edge = road;
             this.Fraction = fraction;
             this.Azimuth = (float)spatial.Azimuth(road.Geometry, fraction);
-            this.Coordinate = spatial.Interpolate(this.Road.Geometry, this.Fraction);
+            this.Coordinate = spatial.Interpolate(this.Edge.Geometry, this.Fraction);
         }
 
         public RoadPoint(in Road road, double fraction) : this(road, fraction, GeographySpatialOperation.Instance)
@@ -44,7 +44,7 @@ namespace Sandwych.MapMatchingKit.Roads
         }
 
         public override int GetHashCode() =>
-            (this.Road, this.Fraction, this.Coordinate, this.Azimuth).GetHashCode();
+            (this.Edge, this.Fraction, this.Coordinate, this.Azimuth).GetHashCode();
 
     }
 }

@@ -35,18 +35,18 @@ namespace Sandwych.MapMatchingKit.Roads
         {
             var edges_ = GetEdges(startPoint, endPoint, edges);
             var totalLength = edges_.Sum(r => r.Length);
-            var d = totalLength - (startPoint.Fraction * startPoint.Road.Length) - ((1.0 - endPoint.Fraction) * endPoint.Road.Length);
+            var d = totalLength - (startPoint.Fraction * startPoint.Edge.Length) - ((1.0 - endPoint.Fraction) * endPoint.Edge.Length);
             return (float)d;
         }
 
         private static IEnumerable<Road> GetEdges(RoadPoint startPoint, RoadPoint endPoint, IEnumerable<Road> edges)
         {
-            yield return startPoint.Road;
+            yield return startPoint.Edge;
             foreach (var edge in edges)
             {
                 yield return edge;
             }
-            yield return endPoint.Road;
+            yield return endPoint.Edge;
         }
 
         public IMultiLineString ToGeometry()
@@ -58,14 +58,14 @@ namespace Sandwych.MapMatchingKit.Roads
 
         public double Cost(Func<Road, double> costFunc)
         {
-            var value = Costs.Cost(this.StartPoint.Road, 1.0 - this.StartPoint.Fraction, costFunc);
+            var value = Costs.Cost(this.StartPoint.Edge, 1.0 - this.StartPoint.Fraction, costFunc);
 
             foreach (var e in _edges)
             {
                 value += costFunc(e);
             }
 
-            value -= Costs.Cost(this.EndPoint.Road, 1.0 - this.EndPoint.Fraction, costFunc);
+            value -= Costs.Cost(this.EndPoint.Edge, 1.0 - this.EndPoint.Fraction, costFunc);
 
             return value;
         }

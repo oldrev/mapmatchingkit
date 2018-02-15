@@ -102,10 +102,12 @@ namespace Sandwych.MapMatchingKit.Markov
         /// <param name="previous">Previous measurement sample <i>z<sub>t-1</sub></i>.</param>
         /// <param name="sample">Measurement sample <i>z<sub>t</sub></i>.</param>
         /// <returns>State vector <i>S<sub>t</sub></i>, which may be empty if an HMM break occured.</returns>
-        public ISet<TCandidate> Execute(ISet<TCandidate> predecessors, in TSample previous, in TSample sample)
+        public ISet<TCandidate> Execute(IEnumerable<TCandidate> predecessors, in TSample previous, in TSample sample)
         {
-            //assert(predecessors != null);
-            //assert(sample != null);
+            if (predecessors == null)
+            {
+                throw new ArgumentNullException(nameof(predecessors));
+            }
 
             var result = new HashSet<TCandidate>();
             var candidates = this.Candidates(predecessors, sample);
@@ -130,57 +132,26 @@ namespace Sandwych.MapMatchingKit.Markov
 
                     foreach (var predecessor in predecessors)
                     {
-                        var transition = transitions[predecessor][candidate_];
-
-                        //if (transition == null || transition.Item2 == 0)
-                        if (transition.Item2 == 0)
+                        if (transitions[predecessor].TryGetValue(candidate_, out var transition))
                         {
-                            continue;
-                        }
-
-                        candidate_.Filtprob = candidate_.Filtprob + (transition.Item2 * predecessor.Filtprob);
-
-                        var seqprob = predecessor.Seqprob + Math.Log10(transition.Item2) + Math.Log10(candidate.Item2);
-
-                        /*
-                        if (logger.isTraceEnabled())
-                        {
-                            try
+                            //if (transition == null || transition.Item2 == 0)
+                            if (transition.Item2 == 0D)
                             {
-                                logger.trace("state transition {} -> {} ({}, {}, {}) {}",
-                                        predecessor.id(), candidate_.id(), predecessor.seqprob(),
-                                        Math.log10(transition.two()), Math.log10(candidate.two()),
-                                        transition.one().toJSON().toString());
+                                continue;
                             }
-                            catch (JSONException e)
+
+                            candidate_.Filtprob = candidate_.Filtprob + (transition.Item2 * predecessor.Filtprob);
+
+                            var seqprob = predecessor.Seqprob + Math.Log10(transition.Item2) + Math.Log10(candidate.Item2);
+
+                            if (seqprob > candidate_.Seqprob)
                             {
-                                logger.trace("state transition (not JSON parsable transition: {})",
-                                        e.getMessage());
+                                candidate_.Predecessor = predecessor;
+                                candidate_.Transition = transition.Item1;
+                                candidate_.Seqprob = seqprob;
                             }
                         }
-                        */
-
-                        if (seqprob > candidate_.Seqprob)
-                        {
-                            candidate_.Predecessor = predecessor;
-                            candidate_.Transition = transition.Item1;
-                            candidate_.Seqprob = seqprob;
-                        }
                     }
-
-                    /*
-                    if (candidate_.predecessor() != null)
-                    {
-                        logger.trace("state candidate {} -> {} ({}, {})", candidate_.predecessor().id(),
-                                candidate_.id(), candidate_.filtprob(), candidate_.seqprob());
-                    }
-                    else
-                    {
-                        logger.trace("state candidate - -> {} ({}, {})", candidate_.id(),
-                                candidate_.filtprob(), candidate_.seqprob());
-                    }
-                    */
-
 
                     if (candidate_.Filtprob == 0)
                     {
@@ -194,12 +165,10 @@ namespace Sandwych.MapMatchingKit.Markov
                 }
             }
 
-            /*
-            if (!candidates.isEmpty() && result.isEmpty() && !predecessors.isEmpty())
+            if (this.Logger.IsEnabled(LogLevel.Debug) && candidates.Count() > 0 && result.Count == 0 && predecessors.Count() > 0)
             {
-                logger.info("HMM break - no state transitions");
+                this.Logger.LogDebug("HMM break - no state transitions");
             }
-            */
 
             if (result.Count == 0 || predecessors.Count() == 0)
             {
@@ -214,40 +183,23 @@ namespace Sandwych.MapMatchingKit.Markov
                     candidate_.Filtprob = candidate.Item2;
                     candidate_.Seqprob = Math.Log10(candidate.Item2);
                     result.Add(candidate_);
-
-                    /*
-                    if (logger.isTraceEnabled())
-                    {
-                        try
-                        {
-                            logger.trace("state candidate {} ({}) {}", candidate_.id(), candidate.two(),
-                                    candidate_.toJSON().toString());
-                        }
-                        catch (JSONException e)
-                        {
-                            logger.trace("state candidate (not JSON parsable candidate: {})",
-                                    e.getMessage());
-                        }
-                    }
-                    */
                 }
             }
 
-            /*
-            if (result.isEmpty())
+            if (this.Logger.IsEnabled(LogLevel.Debug) && result.Count == 0)
             {
-                logger.info("HMM break - no state emissions");
+                this.Logger.LogDebug("HMM break - no state emissions");
             }
-            */
 
             foreach (TCandidate candidate in result)
             {
                 candidate.Filtprob = candidate.Filtprob / normsum;
             }
 
-            /*
-            logger.trace("{} state candidates for state update", result.size());
-            */
+            if (this.Logger.IsEnabled(LogLevel.Trace))
+            {
+                this.Logger.LogTrace("{0} state candidates for state update", result.Count);
+            }
             return result;
         }
     }

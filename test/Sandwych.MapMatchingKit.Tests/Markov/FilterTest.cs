@@ -148,7 +148,7 @@ namespace Sandwych.MapMatchingKit.Tests.Markov
 
             public ISet<MockElement> Execute()
             {
-                var predecessors = new HashSet<MockElement>();
+                var predecessors = new List<MockElement>();
                 for (int p = 0; p < states.NumPredecessors; ++p)
                 {
                     var pred = states.Predecessor(p);

@@ -1,6 +1,7 @@
 ﻿using Sandwych.MapMatchingKit.Roads;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace Sandwych.MapMatchingKit.Matching
@@ -60,11 +61,11 @@ namespace Sandwych.MapMatchingKit.Matching
         /// </summary>
         /// <param name="candidates">candidates Set of matching candidates as <see cref="RoadPoint"> objects.</param>
         /// <returns>Minimized (reduced) set of matching candidates as <see cref="RoadPoint"/> objects</returns>
-        public static ISet<RoadPoint> Minimize(IEnumerable<RoadPoint> candidates)
+        public static ICollection<RoadPoint> Minimize(IEnumerable<RoadPoint> candidates)
         {
 
-            var map = new Dictionary<long, RoadPoint>();
-            var misses = new Dictionary<long, int>();
+            var map = new Dictionary<long, RoadPoint>(candidates.Count());
+            var misses = new Dictionary<long, int>(candidates.Count());
             var removes = new HashSet<long>();
 
             foreach (var candidate in candidates)
@@ -107,7 +108,7 @@ namespace Sandwych.MapMatchingKit.Matching
                 map.Remove(id);
             }
 
-            return new HashSet<RoadPoint>(map.Values);
+            return map.Values;
         }
     }
 }

@@ -14,7 +14,6 @@ namespace Sandwych.MapMatchingKit.Roads
         public string ToWkt() => this.Geometry.AsText();
         public long Source { get; }
         public long Target { get; }
-        public long RefId { get; }
         public bool OneWay { get; }
         public short Type { get; }
         public float Priority { get; }
@@ -27,14 +26,13 @@ namespace Sandwych.MapMatchingKit.Roads
             this.Geometry = geometry;
         }
 
-        public RoadInfo(long id, long source, long target, long refid, bool oneway, short type,
+        public RoadInfo(long id, long source, long target, bool oneway, short type,
                 float priority, float maxspeedForward, float maxspeedBackward, float length,
                 ILineString geometry)
         {
             this.Id = id;
             this.Source = source;
             this.Target = target;
-            this.RefId = refid;
             this.OneWay = oneway;
             this.Type = type;
             this.Priority = priority;

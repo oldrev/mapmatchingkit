@@ -5,21 +5,17 @@ using System.Text;
 
 namespace Sandwych.MapMatchingKit.Roads
 {
-    public class RoadMapBuilder
+    public class RoadMapBuilder : IRoadMapBuilder
     {
         private IDictionary<long, RoadInfo> _roads = new Dictionary<long, RoadInfo>();
 
-        public RoadMapBuilder AddRoad(RoadInfo road)
+        public IRoadMapBuilder AddRoad(RoadInfo road)
         {
-            if (_roads.ContainsKey(road.Id))
-            {
-                throw new ArgumentOutOfRangeException(nameof(road));
-            }
             _roads.Add(road.Id, road);
             return this;
         }
 
-        public RoadMapBuilder AddRoads(IEnumerable<RoadInfo> roads)
+        public IRoadMapBuilder AddRoads(IEnumerable<RoadInfo> roads)
         {
             foreach (var r in roads)
             {

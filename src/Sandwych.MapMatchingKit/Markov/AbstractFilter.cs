@@ -2,7 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Castle.Core.Logging;
+using Sandwych.MapMatchingKit.Utility;
+using Microsoft.Extensions.Logging;
 
 namespace Sandwych.MapMatchingKit.Markov
 {
@@ -18,7 +19,7 @@ namespace Sandwych.MapMatchingKit.Markov
         IFilter<TCandidate, TTransition, TSample>
         where TCandidate : IStateCandidate<TCandidate, TTransition, TSample>
     {
-        private readonly static ILogger logger = NullLogger.Instance;
+        public ILogger Logger { get; set; } = NullLogger.Instance;
 
         /// <summary>
         /// Gets state vector, which is a set of {@link StateCandidate} objects and with its emission

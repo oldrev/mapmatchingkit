@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Castle.Core.Logging;
 using Sandwych.MapMatchingKit.Topology;
 using Xunit;
 
@@ -10,7 +9,6 @@ namespace Sandwych.MapMatchingKit.Tests.Topology
 {
     public class DijkstraRouterTest
     {
-
         class Road : AbstractGraphEdge<Road>
         {
             public float Weight { get; }
@@ -60,7 +58,6 @@ namespace Sandwych.MapMatchingKit.Tests.Topology
             var map = new Graph(roads);
 
             var router = new DijkstraRouter<Road, RoadPoint>();
-            router.Logger = new ConsoleLogger();
             {
                 var sources = new RoadPoint[] { new RoadPoint(map.Edges[0L], 0.3) };
                 var targets = new RoadPoint[] { new RoadPoint(map.Edges[0L], 0.3) };

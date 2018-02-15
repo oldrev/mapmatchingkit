@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <Copyright>2017 BinaryStars Technologies Yunnan LLC. and Contributors</Copyright>
-    <Authors>Wei Li</Authors>
+    <Authors>Wei "oldrev" Li</Authors>
     <PackageProjectUrl>https://github.com/oldrev/mapmatchingkit</PackageProjectUrl>
     <PackageLicenseUrl>https://github.com/oldrev/mapmatchingkit/blob/master/LICENSE</PackageLicenseUrl>
     <TargetFrameworks>netstandard2.0</TargetFrameworks>

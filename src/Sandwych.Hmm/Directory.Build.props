@@ -2,7 +2,8 @@
 
   <PropertyGroup>
     <PackageId>Sandwych.Hmm</PackageId>
-    <Title>A general purpose utility library implements Hidden Markov Models (HMM) for time-inhomogeneous Markov processes for .NET.</Title>
+    <Title>A general purpose utility library implements Hidden Markov Models (HMM)</Title>
+    <Summary>A general purpose utility library implements Hidden Markov Models (HMM) for time-inhomogeneous Markov processes</Summary>
     <Description>
     A general purpose utility library implements Hidden Markov Models (HMM) for time-inhomogeneous Markov processes for .NET.
     This library provides an implementation of

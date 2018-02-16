@@ -3,21 +3,14 @@
   <PropertyGroup>
     <TargetFrameworks>netstandard1.6;netstandard2.0;net45;net461;</TargetFrameworks>
     <LangVersion>latest</LangVersion>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|netstandard2.0|AnyCPU'">
-    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netstandard2.0|AnyCPU'">
     <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="NetTopologySuite" Version="1.15.0-pre037" />
+    <PackageReference Include="NetTopologySuite" Version="1.15.0-pre040" />
     <PackageReference Include="Nito.Collections.Deque" Version="1.0.4" />
     <PackageReference Include="ProjNET4GeoAPI" Version="1.3.2-pre004" />
-    <PackageReference Include="Sandwych.GeographicLib" Version="1.49.1" />
+    <PackageReference Include="Sandwych.GeographicLib" Version="1.49.2" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="1.1.2" />
   </ItemGroup>
 

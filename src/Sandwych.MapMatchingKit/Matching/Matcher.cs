@@ -77,21 +77,21 @@ namespace Sandwych.MapMatchingKit.Matching
         public double MaxDistance { get; set; } = 15000.0;
 
 
-        public override (MatcherCandidate, double)[] Candidates(
+        public override IReadOnlyCollection<(MatcherCandidate, double)> Candidates(
             IEnumerable<MatcherCandidate> predecessors, in MatcherSample sample)
         {
             var points_ = this._map.Radius(sample.Coordinate, this.MaxRadius);
             var points = Minset.Minimize(points_);
 
-            var map = new Dictionary<long, RoadPoint>();
+            var dict = new Dictionary<long, RoadPoint>(points.Count);
             foreach (var point in points)
             {
-                map.Add(point.Edge.Id, point);
+                dict.Add(point.Edge.Id, point);
             }
 
             foreach (var predecessor in predecessors)
             {
-                var pointExisted = map.TryGetValue(predecessor.RoadPoint.Edge.Id, out var point);
+                var pointExisted = dict.TryGetValue(predecessor.RoadPoint.Edge.Id, out var point);
                 if (pointExisted && point.Edge != null
                         && _spatial.Distance(point.Coordinate, predecessor.RoadPoint.Coordinate) < this.Sigma
                         && ((point.Edge.Headeing == Heading.Forward
@@ -104,7 +104,7 @@ namespace Sandwych.MapMatchingKit.Matching
                 }
             }
 
-            var candidates = new List<(MatcherCandidate, double)>();
+            var candidates = new List<(MatcherCandidate, double)>(points.Count);
 
             foreach (var point in points)
             {
@@ -124,7 +124,7 @@ namespace Sandwych.MapMatchingKit.Matching
                 candidates.Add((candidate, emission));
             }
 
-            return candidates.ToArray();
+            return candidates;
         }
 
         public override (MatcherTransition, double) Transition(
@@ -137,12 +137,7 @@ namespace Sandwych.MapMatchingKit.Matching
                 in (MatcherSample, IEnumerable<MatcherCandidate>) predecessors,
                 in (MatcherSample, IEnumerable<MatcherCandidate>) candidates)
         {
-
-            var targets = new HashSet<RoadPoint>();
-            foreach (var candidate in candidates.Item2)
-            {
-                targets.Add(candidate.RoadPoint);
-            }
+            var targets = candidates.Item2.Select(c => c.RoadPoint);
 
             var transitions = new Dictionary<MatcherCandidate, IDictionary<MatcherCandidate, (MatcherTransition, double)>>();
             var base_ = 1.0 * _spatial.Distance(predecessors.Item1.Coordinate, candidates.Item1.Coordinate) / 60.0;

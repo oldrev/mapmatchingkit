@@ -57,5 +57,6 @@ namespace Sandwych.MapMatchingKit.Spatial
                 this.Add(item);
             }
         }
+
     }
 }

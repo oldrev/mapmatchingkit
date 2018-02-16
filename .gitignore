@@ -21,6 +21,8 @@ src/TestResults
 src/*.vsmdi
 artifacts
 *.vsp
+*.vspx
+*.psess
 project.lock.json
 *.mdb
 .vs/

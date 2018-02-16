@@ -28,7 +28,7 @@ namespace Sandwych.MapMatchingKit.Markov
         /// <param name="predecessors">Predecessor state candidate <i>s<sub>t-1</sub></i>.</param>
         /// <param name="sample">Measurement sample.</param>
         /// <returns>Set of tuples consisting of a {@link StateCandidate} and its emission probability.</returns>
-        public abstract (TCandidate, double)[] Candidates(IEnumerable<TCandidate> predecessors, in TSample sample);
+        public abstract IReadOnlyCollection<(TCandidate, double)> Candidates(IEnumerable<TCandidate> predecessors, in TSample sample);
 
 
         /// <summary>
@@ -102,7 +102,7 @@ namespace Sandwych.MapMatchingKit.Markov
         /// <param name="previous">Previous measurement sample <i>z<sub>t-1</sub></i>.</param>
         /// <param name="sample">Measurement sample <i>z<sub>t</sub></i>.</param>
         /// <returns>State vector <i>S<sub>t</sub></i>, which may be empty if an HMM break occured.</returns>
-        public virtual ISet<TCandidate> Execute(IEnumerable<TCandidate> predecessors, in TSample previous, in TSample sample)
+        public virtual ICollection<TCandidate> Execute(IEnumerable<TCandidate> predecessors, in TSample previous, in TSample sample)
         {
             if (predecessors == null)
             {

@@ -128,7 +128,7 @@ namespace Sandwych.MapMatchingKit.Tests.Markov
                 this.states = states;
             }
 
-            public override (MockElement, double)[] Candidates(IEnumerable<MockElement> predecessors, in MockSample sample)
+            public override IReadOnlyCollection<(MockElement, double)> Candidates(IEnumerable<MockElement> predecessors, in MockSample sample)
             {
                 var candidates = new List<(MockElement, double)>();
                 for (int c = 0; c < states.NumCandidates; ++c)
@@ -146,7 +146,7 @@ namespace Sandwych.MapMatchingKit.Tests.Markov
                         states.Transition(predecessor.Item2.Id, candidate.Item2.Id));
             }
 
-            public ISet<MockElement> Execute()
+            public ICollection<MockElement> Execute()
             {
                 var predecessors = new List<MockElement>();
                 for (int p = 0; p < states.NumPredecessors; ++p)

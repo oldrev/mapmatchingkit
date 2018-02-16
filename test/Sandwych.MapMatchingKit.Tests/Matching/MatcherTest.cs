@@ -51,7 +51,7 @@ namespace Sandwych.MapMatchingKit.Tests.Matching
         public MatcherTest()
         {
             var reader = new MockedRoadReader(_spatial);
-            var roadMapBuilder = new RoadMapBuilder();
+            var roadMapBuilder = new RoadMapBuilder(_spatial);
             _map = roadMapBuilder.AddRoads(reader.Roads).Build();
         }
 

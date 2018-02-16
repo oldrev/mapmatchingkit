@@ -21,7 +21,7 @@ namespace Sandwych.MapMatchingKit.Examples.HelloWorldApp
         static void Main(string[] args)
         {
             var spatial = new GeographySpatialOperation();
-            var mapBuilder = new RoadMapBuilder();
+            var mapBuilder = new RoadMapBuilder(spatial);
 
             Console.WriteLine("Loading road map...");
             var roads = ReadRoads(spatial);

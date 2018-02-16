@@ -76,7 +76,8 @@ namespace Sandwych.MapMatchingKit.Tests.Matching
         public void TestMinset1()
         {
             var reader = new MockedRoadReader1();
-            var roadMapBuilder = new RoadMapBuilder();
+            var spatial = new GeographySpatialOperation();
+            var roadMapBuilder = new RoadMapBuilder(spatial);
             var map = roadMapBuilder.AddRoads(reader.Roads).Build();
             {
                 var candidates = new HashSet<RoadPoint>() {
@@ -162,7 +163,8 @@ namespace Sandwych.MapMatchingKit.Tests.Matching
         public void TestMinset2()
         {
             var reader = new MockedRoadReader2();
-            var roadMapBuilder = new RoadMapBuilder();
+            var spatial = new GeographySpatialOperation();
+            var roadMapBuilder = new RoadMapBuilder(spatial);
             var map = roadMapBuilder.AddRoads(reader.Roads).Build();
             {
                 var candidates = new HashSet<RoadPoint>() {

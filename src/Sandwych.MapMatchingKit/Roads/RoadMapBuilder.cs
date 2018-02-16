@@ -2,12 +2,21 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Sandwych.MapMatchingKit.Spatial;
 
 namespace Sandwych.MapMatchingKit.Roads
 {
+
     public class RoadMapBuilder : IRoadMapBuilder
     {
-        private IDictionary<long, RoadInfo> _roads = new Dictionary<long, RoadInfo>();
+        private readonly IDictionary<long, RoadInfo> _roads = new Dictionary<long, RoadInfo>();
+        private readonly ISpatialOperation _spatial;
+
+        public RoadMapBuilder(ISpatialOperation spatial)
+        {
+            _spatial = spatial;
+        }
+
 
         public IRoadMapBuilder AddRoad(RoadInfo road)
         {

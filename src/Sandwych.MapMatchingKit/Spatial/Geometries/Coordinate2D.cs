@@ -170,6 +170,6 @@ namespace Sandwych.MapMatchingKit.Spatial.Geometries
         }
 
         public override string ToString() =>
-            string.Format("Point2D({0}, {1})", X, Y);
+            string.Format("Coordinate2D({0}, {1})", X, Y);
     }
 }

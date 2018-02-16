@@ -43,6 +43,7 @@ namespace Sandwych.MapMatchingKit.Examples.HelloWorldApp
             var startedOn = DateTime.Now;
             foreach (var sample in samples)
             {
+                Console.WriteLine("Matching GPS Sample: [ID={0}, Time={1}]", sample.Id, sample.Time);
                 var vector = matcher.Execute(kstate.Vector(), kstate.Sample, sample);
                 kstate.Update(vector, sample);
             }
@@ -54,7 +55,7 @@ namespace Sandwych.MapMatchingKit.Examples.HelloWorldApp
             Console.WriteLine("Results:");
             foreach (var cand in candidatesSequence)
             {
-                Console.WriteLine("Matched: [SampleID={0}, EdgeID={0}]", cand.RoadPoint.Coordinate, cand.RoadPoint.Edge.Id);
+                Console.WriteLine("Matched: [SampleID={0}, EdgeID={1}]", cand.RoadPoint.Coordinate, cand.RoadPoint.Edge.Id);
             }
 
             Console.WriteLine("All done!");

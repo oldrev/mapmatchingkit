@@ -188,7 +188,7 @@ namespace Sandwych.MapMatchingKit.Markov
         {
             if (_sequence.Count == 0)
             {
-                return new List<TCandidate>();
+                return new HashSet<TCandidate>();
             }
             else
             {

@@ -84,7 +84,7 @@ namespace Sandwych.MapMatchingKit.Spatial
             var ymin = Geodesic.WGS84.Direct(c.Y, c.X, -180, radius).lat2;
             var xmax = Geodesic.WGS84.Direct(c.Y, c.X, 90, radius).lon2;
             var xmin = Geodesic.WGS84.Direct(c.Y, c.X, -90, radius).lon2;
-            return new Envelope(xmin, ymin, xmax, ymax);
+            return new Envelope(xmin, xmax, ymin, ymax);
         }
 
         public double Intercept(ILineString p, in Coordinate2D c)

@@ -10,6 +10,6 @@ namespace Sandwych.MapMatchingKit.Tests.Spatial.Index
     public class QuadtreeIndexTest : AbstractSpatialIndexTest
     {
         protected override ISpatialIndex<ILineString> CreateSpatialIndex() =>
-            new QuadtreeIndex<ILineString>(this.Geometries, this.Spatial, x => x);
+            new QuadtreeIndex<ILineString>(this.Geometries, this.Spatial, x => x, x => this.Spatial.Length(x));
     }
 }

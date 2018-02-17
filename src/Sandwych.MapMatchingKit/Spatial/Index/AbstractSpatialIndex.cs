@@ -11,11 +11,14 @@ namespace Sandwych.MapMatchingKit.Spatial.Index
     {
         protected abstract NetTopologySuite.Index.ISpatialIndex<TItem> Index { get; }
         protected ISpatialOperation Spatial { get; }
-        protected Func<TItem, IGeometry> ItemGeometryGetter { get; }
+        protected Func<TItem, ILineString> ItemGeometryGetter { get; }
+        protected Func<TItem, double> ItemLengthGetter { get; }
 
-        protected AbstractSpatialIndex(IEnumerable<TItem> items, ISpatialOperation spatialService, Func<TItem, IGeometry> geometryGetter)
+        public AbstractSpatialIndex(IEnumerable<TItem> items, ISpatialOperation spatialService, 
+            Func<TItem, ILineString> geometryGetter, Func<TItem, double> lengthGetter)
         {
             this.ItemGeometryGetter = geometryGetter;
+            this.ItemLengthGetter = lengthGetter;
             this.Spatial = spatialService;
             this.AddRange(items);
         }
@@ -27,9 +30,9 @@ namespace Sandwych.MapMatchingKit.Spatial.Index
 
             var visitor = new IndexItemVisitor<TItem>(item =>
             {
-                var geometry = this.ItemGeometryGetter(item) as ILineString;
+                var geometry = this.ItemGeometryGetter(item);
                 var f = this.Spatial.Intercept(geometry, c);
-                var p = this.Spatial.Interpolate(geometry, this.Spatial.Length(geometry), f);
+                var p = this.Spatial.Interpolate(geometry, this.ItemLengthGetter(item), f);
                 var d = this.Spatial.Distance(p, c);
 
                 if (d < radius)

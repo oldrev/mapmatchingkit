@@ -1,8 +1,9 @@
-﻿using Nito.Collections;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Nito.Collections;
+using Sandwych.MapMatchingKit.Utility;
 
 namespace Sandwych.MapMatchingKit.Markov
 {
@@ -65,7 +66,22 @@ namespace Sandwych.MapMatchingKit.Markov
                 }
                 else
                 {
-                    return _sequence.Last().Item2;
+                    return _sequence.PeekLast().Item2;
+                }
+            }
+        }
+
+        public long Time
+        {
+            get
+            {
+                if (_sequence.Count == 0)
+                {
+                    return -1;
+                }
+                else
+                {
+                    return this.Sample.Time;
                 }
             }
         }
@@ -89,7 +105,7 @@ namespace Sandwych.MapMatchingKit.Markov
                 return;
             }
 
-            if (_sequence.Count > 0 && _sequence.Last().Item2.Time > sample.Time)
+            if (_sequence.Count > 0 && _sequence.PeekLast().Item2.Time > sample.Time)
             {
                 throw new InvalidOperationException("out-of-order state update is prohibited");
             }
@@ -100,11 +116,11 @@ namespace Sandwych.MapMatchingKit.Markov
                 _counters[candidate] = 0;
                 if (candidate.Predecessor != null)
                 {
-                    if (!_counters.ContainsKey(candidate.Predecessor) || !_sequence.Last().Item1.Contains(candidate.Predecessor))
+                    if (!_counters.ContainsKey(candidate.Predecessor) || !_sequence.PeekLast().Item1.Contains(candidate.Predecessor))
                     {
                         throw new InvalidOperationException("Inconsistent update vector.");
                     }
-                    _counters[candidate.Predecessor] = _counters[candidate.Predecessor] + 1;
+                    _counters[candidate.Predecessor] += 1; // _counters[candidate.Predecessor] + 1;
                 }
                 if (kestimate == null || candidate.Seqprob > kestimate.Seqprob)
                 {
@@ -114,8 +130,8 @@ namespace Sandwych.MapMatchingKit.Markov
 
             if (_sequence.Count > 0)
             {
-                var last = _sequence.Last();
-                var deletes = new HashSet<TCandidate>();
+                var last = _sequence.PeekLast();
+                var deletes = new List<TCandidate>();
 
                 foreach (TCandidate candidate in last.Item1)
                 {
@@ -125,7 +141,7 @@ namespace Sandwych.MapMatchingKit.Markov
                     }
                 }
 
-                var size = _sequence.Last().Item1.Count;
+                var size = _sequence.PeekLast().Item1.Count;
 
                 foreach (TCandidate candidate in deletes)
                 {
@@ -138,10 +154,10 @@ namespace Sandwych.MapMatchingKit.Markov
 
             _sequence.AddToBack((vector, sample, kestimate));
 
-            while ((_t > 0 && sample.Time - _sequence.First().Item2.Time > _t)
+            while ((_t > 0 && sample.Time - _sequence.PeekFirst().Item2.Time > _t)
                     || (_k >= 0 && _sequence.Count > _k + 1))
             {
-                var deletes = _sequence.First().Item1;
+                var deletes = _sequence.PeekFirst().Item1;
                 _sequence.RemoveFromFront();
 
                 foreach (TCandidate candidate in deletes)
@@ -149,7 +165,7 @@ namespace Sandwych.MapMatchingKit.Markov
                     _counters.Remove(candidate);
                 }
 
-                foreach (TCandidate candidate in _sequence.First().Item1)
+                foreach (TCandidate candidate in _sequence.PeekFirst().Item1)
                 {
                     candidate.Predecessor = null;
                 }
@@ -204,7 +220,7 @@ namespace Sandwych.MapMatchingKit.Markov
             }
 
             TCandidate estimate = null;
-            foreach (TCandidate candidate in _sequence.Last().Item1)
+            foreach (TCandidate candidate in _sequence.PeekLast().Item1)
             {
                 if (estimate == null || candidate.Filtprob > estimate.Filtprob)
                 {
@@ -225,7 +241,7 @@ namespace Sandwych.MapMatchingKit.Markov
             var ksequence = new Deque<TCandidate>(_sequence.Count);
             if (_sequence.Count > 0)
             {
-                TCandidate kestimate = _sequence.Last().Item3;
+                TCandidate kestimate = _sequence.PeekLast().Item3;
 
                 for (int i = _sequence.Count - 1; i >= 0; --i)
                 {

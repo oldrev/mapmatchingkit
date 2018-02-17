@@ -63,10 +63,9 @@ namespace Sandwych.MapMatchingKit.Matching
         /// <returns>Minimized (reduced) set of matching candidates as <see cref="RoadPoint"/> objects</returns>
         public static ICollection<RoadPoint> Minimize(IEnumerable<RoadPoint> candidates)
         {
-
             var map = new Dictionary<long, RoadPoint>(candidates.Count());
             var misses = new Dictionary<long, int>(candidates.Count());
-            var removes = new HashSet<long>();
+            var removes = new List<long>(candidates.Count());
 
             foreach (var candidate in candidates)
             {
@@ -81,12 +80,12 @@ namespace Sandwych.MapMatchingKit.Matching
 
                 foreach (var successor in successors)
                 {
-                    if (!map.ContainsKey(successor.Id))
+                    var mapContainsSuccessorId = map.ContainsKey(successor.Id);
+                    if (!mapContainsSuccessorId)
                     {
                         misses[id] = misses[id] + 1;
                     }
-
-                    if (map.ContainsKey(successor.Id) && Round(map[successor.Id].Fraction) == 0)
+                    if (mapContainsSuccessorId && Round(map[successor.Id].Fraction) == 0)
                     {
                         removes.Add(successor.Id);
                         misses[id] = misses[id] + 1;

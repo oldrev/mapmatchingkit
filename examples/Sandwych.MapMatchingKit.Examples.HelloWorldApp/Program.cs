@@ -51,7 +51,7 @@ namespace Sandwych.MapMatchingKit.Examples.HelloWorldApp
             var candidatesSequence = kstate.Sequence();
             var timeElapsed = DateTime.Now - startedOn;
             Console.WriteLine("Map-matching elapsed time: {0}, Speed={1} samples/second", timeElapsed, samples.Length / timeElapsed.TotalSeconds);
-            Console.WriteLine("Results:");
+            Console.WriteLine("Results: [count={0}]", candidatesSequence.Count());
             foreach (var cand in candidatesSequence)
             {
                 var roadId = cand.Point.Edge.RoadInfo.Id; // original road id

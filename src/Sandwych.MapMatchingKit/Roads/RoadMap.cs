@@ -19,7 +19,7 @@ namespace Sandwych.MapMatchingKit.Roads
         public RoadMap(IEnumerable<Road> roads, ISpatialOperation spatial) : base(roads)
         {
             _spatial = spatial;
-            this.Index = new RtreeIndex<RoadInfo>(roads.Select(x => x.RoadInfo), spatial, r => r.Geometry);
+            this.Index = new RtreeIndex<RoadInfo>(roads.Select(x => x.RoadInfo), spatial, r => r.Geometry, r => r.Length);
         }
 
         public RoadMap(IEnumerable<Road> roads) : this(roads, GeographySpatialOperation.Instance)

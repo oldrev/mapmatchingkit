@@ -23,7 +23,7 @@ namespace Sandwych.MapMatchingKit.Topology
         /// <summary>
         /// Route mark representation.
         /// </summary>
-        private class Mark : IComparable<Mark>
+        private sealed class Mark : IComparable<Mark>
         {
             public TEdge MarkedEdge { get; }
             public TEdge PredecessorEdge { get; }
@@ -81,20 +81,15 @@ namespace Sandwych.MapMatchingKit.Topology
         }
 
         public IDictionary<P, IEnumerable<TEdge>> Route(P source, IEnumerable<P> targets, Func<TEdge, double> cost,
-            Func<TEdge, double> bound, double max)
+            Func<TEdge, double> bound = null, double max = double.NaN)
         {
             return Ssmt(source, targets, cost, bound, max);
-        }
-
-        public IDictionary<P, (P, IEnumerable<TEdge>)> Route(IEnumerable<P> sources, IEnumerable<P> targets, Func<TEdge, double> cost)
-        {
-            return msmt(sources, targets, cost, null, double.NaN);
         }
 
         public IDictionary<P, (P, IEnumerable<TEdge>)> Route(IEnumerable<P> sources, IEnumerable<P> targets, Func<TEdge, double> cost,
             Func<TEdge, double> bound, double max)
         {
-            return msmt(sources, targets, cost, bound, max);
+            return Msmt(sources, targets, cost, bound, max);
         }
 
         private IEnumerable<TEdge> Ssst(P source, P target, Func<TEdge, double> cost, Func<TEdge, double> bound, double max)
@@ -105,8 +100,8 @@ namespace Sandwych.MapMatchingKit.Topology
 
         private IDictionary<P, IEnumerable<TEdge>> Ssmt(P source, IEnumerable<P> targets, Func<TEdge, double> cost, Func<TEdge, double> bound, double max = double.NaN)
         {
-            var sources = new P[] { source };
-            var map = msmt(sources, targets, cost, bound, max);
+            var sources = new P[1] { source };
+            var map = Msmt(sources, targets, cost, bound, max);
             var result = new Dictionary<P, IEnumerable<TEdge>>(map.Count);
             foreach (var entry in map)
             {
@@ -115,7 +110,7 @@ namespace Sandwych.MapMatchingKit.Topology
             return result;
         }
 
-        private IDictionary<P, (P, IEnumerable<TEdge>)> msmt(IEnumerable<P> sources, IEnumerable<P> targets, Func<TEdge, double> cost,
+        private IDictionary<P, (P, IEnumerable<TEdge>)> Msmt(IEnumerable<P> sources, IEnumerable<P> targets, Func<TEdge, double> cost,
                 Func<TEdge, double> bound, double max)
         {
             /*
@@ -129,6 +124,7 @@ namespace Sandwych.MapMatchingKit.Topology
                     this.Logger.LogDebug("initialize target {0} with edge {1} and fraction {2}",
                         target, target.Edge.Id, target.Fraction);
                 }
+
                 if (!targetEdges.ContainsKey(target.Edge))
                 {
                     targetEdges[target.Edge] = new HashSet<P>() { target };
@@ -179,7 +175,6 @@ namespace Sandwych.MapMatchingKit.Topology
                         {
                             this.Logger.LogDebug("reached target {0} with start edge {1} from {2} to {3} with {4} cost",
                                 target, source.Edge.Id, source.Fraction, target.Fraction, reachcost);
-
                         }
 
                         var reach = new Mark(source.Edge, null, reachcost, reachbound);

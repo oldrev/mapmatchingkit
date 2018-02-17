@@ -26,6 +26,11 @@ namespace Sandwych.MapMatchingKit.Tests.Markov
                 this.Filtprob = filtprob;
                 this.Seqprob = seqprob;
             }
+
+            public override bool Equals(MockElement other)
+            {
+                return this.Id == other.Id;
+            }
         }
 
         private class MockStates
@@ -128,22 +133,24 @@ namespace Sandwych.MapMatchingKit.Tests.Markov
                 this.states = states;
             }
 
-            public override IReadOnlyCollection<(MockElement, double)> Candidates(IEnumerable<MockElement> predecessors, in MockSample sample)
+            public override IReadOnlyCollection<CandidateProbability<MockElement>> Candidates(
+                IEnumerable<MockElement> predecessors, in MockSample sample)
             {
-                var candidates = new List<(MockElement, double)>();
+                var candidates = new List<CandidateProbability<MockElement>>();
                 for (int c = 0; c < states.NumCandidates; ++c)
                 {
-                    candidates.Add((new MockElement(c), states.Emission(c)));
+                    candidates.Add(new CandidateProbability<MockElement>(new MockElement(c), states.Emission(c)));
                 }
                 return candidates.ToArray();
             }
 
 
-            public override (MockStateTransition, double) Transition(in (MockSample, MockElement) predecessor,
+            public override TransitionProbability<MockStateTransition> Transition(
+                    in (MockSample, MockElement) predecessor,
                     in (MockSample, MockElement) candidate)
             {
-                return (new MockStateTransition(),
-                        states.Transition(predecessor.Item2.Id, candidate.Item2.Id));
+                return new TransitionProbability<MockStateTransition>(
+                    new MockStateTransition(), states.Transition(predecessor.Item2.Id, candidate.Item2.Id));
             }
 
             public ICollection<MockElement> Execute()

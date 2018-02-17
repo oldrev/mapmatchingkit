@@ -16,5 +16,7 @@ namespace Sandwych.MapMatchingKit.Markov
         public AbstractStateCandidate()
         {
         }
+
+        public abstract bool Equals(TCandidate other);
     }
 }

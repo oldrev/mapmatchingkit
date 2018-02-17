@@ -8,7 +8,7 @@ using Sandwych.MapMatchingKit.Spatial.Geometries;
 
 namespace Sandwych.MapMatchingKit.Roads
 {
-    public readonly struct RoadPoint : IEdgePoint<Road>
+    public readonly struct RoadPoint : IEdgePoint<Road>, IEquatable<RoadPoint>
     {
         public Road Edge { get; }
 
@@ -46,5 +46,10 @@ namespace Sandwych.MapMatchingKit.Roads
         public override int GetHashCode() =>
             (this.Edge, this.Fraction, this.Coordinate, this.Azimuth).GetHashCode();
 
+
+        public bool Equals(RoadPoint other)
+        {
+            return object.ReferenceEquals(this.Edge, other.Edge) && this.Fraction == other.Fraction && this.Coordinate == other.Coordinate && this.Azimuth == other.Azimuth;
+        }
     }
 }

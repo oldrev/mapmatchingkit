@@ -8,7 +8,7 @@ using GeoAPI.Geometries;
 
 namespace Sandwych.MapMatchingKit.Roads
 {
-    public class Route : IPath<Road, RoadPoint>
+    public sealed class Route : IPath<Road, RoadPoint>, IEquatable<Route>
     {
         private static readonly IEnumerable<Road> EmptyEdges = new Road[] { };
         private readonly IEnumerable<Road> _edges;
@@ -49,13 +49,6 @@ namespace Sandwych.MapMatchingKit.Roads
             yield return endPoint.Edge;
         }
 
-        public IMultiLineString ToGeometry()
-        {
-            var lineStrings = this.Edges.Select(e => e.Geometry).ToArray();
-            var geom = new MultiLineString(lineStrings);
-            return geom;
-        }
-
         public double Cost(Func<Road, double> costFunc)
         {
             var value = Costs.Cost(this.StartPoint.Edge, 1.0 - this.StartPoint.Fraction, costFunc);
@@ -68,6 +61,28 @@ namespace Sandwych.MapMatchingKit.Roads
             value -= Costs.Cost(this.EndPoint.Edge, 1.0 - this.EndPoint.Fraction, costFunc);
 
             return value;
+        }
+
+        public ILineString ToGeometry()
+        {
+            var coords = this.Edges.Select(e => e.Geometry).SelectMany(e => e.Coordinates).ToArray();
+            var geom = new LineString(coords);
+            return geom;
+        }
+
+        public bool Equals(Route other)
+        {
+            if (!this.StartPoint.Equals(other.StartPoint))
+            {
+                return false;
+            }
+
+            if (!this.EndPoint.Equals(other.EndPoint))
+            {
+                return false;
+            }
+
+            return this.Edges.SequenceEqual(other.Edges);
         }
     }
 

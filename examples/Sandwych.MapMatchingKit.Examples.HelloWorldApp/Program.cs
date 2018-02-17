@@ -29,8 +29,8 @@ namespace Sandwych.MapMatchingKit.Examples.HelloWorldApp
             Console.WriteLine("The road map has been loaded");
 
             var matcher = new Matcher(map, new DijkstraRouter<Road, RoadPoint>(), Costs.TimePriorityCost, spatial);
-            matcher.MaxDistance = 500; // set maximum searching distance between two GPS points to 500 meters.
-            matcher.MaxRadius = 100.0; // sets maximum radius for candidate selection to 200 meters
+            matcher.MaxDistance = 1000; // set maximum searching distance between two GPS points to 500 meters.
+            matcher.MaxRadius = 200.0; // sets maximum radius for candidate selection to 200 meters
 
             var kstate = new MatcherKState();
 
@@ -43,7 +43,6 @@ namespace Sandwych.MapMatchingKit.Examples.HelloWorldApp
             var startedOn = DateTime.Now;
             foreach (var sample in samples)
             {
-                Console.WriteLine("Matching GPS Sample: [ID={0}, Time={1}]", sample.Id, sample.Time);
                 var vector = matcher.Execute(kstate.Vector(), kstate.Sample, sample);
                 kstate.Update(vector, sample);
             }
@@ -55,7 +54,15 @@ namespace Sandwych.MapMatchingKit.Examples.HelloWorldApp
             Console.WriteLine("Results:");
             foreach (var cand in candidatesSequence)
             {
-                Console.WriteLine("Matched: [SampleID={0}, EdgeID={1}]", cand.RoadPoint.Coordinate, cand.RoadPoint.Edge.Id);
+                var roadId = cand.Point.Edge.RoadInfo.Id; // original road id
+                var heading = cand.Point.Edge.Headeing; // heading
+                var coord = cand.Point.Coordinate; // GPS position (on the road)
+                Console.WriteLine("RoadID={0}\t\tFraction={1}", roadId, cand.Point.Fraction);
+                if (cand.Transition != null)
+                {
+                    var geom = cand.Transition.Route.ToGeometry(); // path geometry from last matching candidate
+                    Console.WriteLine("fuck");
+                }
             }
 
             Console.WriteLine("All done!");

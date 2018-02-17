@@ -28,7 +28,7 @@ namespace Sandwych.MapMatchingKit.Markov
         /// <param name="predecessors">Predecessor state candidate <i>s<sub>t-1</sub></i>.</param>
         /// <param name="sample">Measurement sample.</param>
         /// <returns>Set of tuples consisting of a {@link StateCandidate} and its emission probability.</returns>
-        public abstract IReadOnlyCollection<(TCandidate, double)> Candidates(IEnumerable<TCandidate> predecessors, in TSample sample);
+        public abstract IReadOnlyCollection<CandidateProbability<TCandidate>> Candidates(IEnumerable<TCandidate> predecessors, in TSample sample);
 
 
         /// <summary>
@@ -44,7 +44,7 @@ namespace Sandwych.MapMatchingKit.Markov
         /// <i>s<sub>t</sub></i> and its transition probability, or null if there is no
         /// transition.
         /// </returns>
-        public abstract (TTransition, double) Transition(in (TSample, TCandidate) predecessor, in (TSample, TCandidate) candidate);
+        public abstract TransitionProbability<TTransition> Transition(in (TSample, TCandidate) predecessor, in (TSample, TCandidate) candidate);
 
 
         /// <summary>
@@ -65,18 +65,17 @@ namespace Sandwych.MapMatchingKit.Markov
         /// all transitions from <i>s<sub>t-1</sub></i> to <i>s<sub>t</sub></i> and its
         /// transition probability, or null if there no transition.
         /// </returns>
-        public virtual IDictionary<TCandidate, IDictionary<TCandidate, (TTransition, double)>> Transitions(
+        public virtual IDictionary<TCandidate, IDictionary<TCandidate, TransitionProbability<TTransition>>> Transitions(
             in (TSample, IEnumerable<TCandidate>) predecessors, in (TSample, IEnumerable<TCandidate>) candidates)
         {
             TSample sample = candidates.Item1;
             TSample previous = predecessors.Item1;
 
-            IDictionary<TCandidate, IDictionary<TCandidate, (TTransition, double)>> map =
-                new Dictionary<TCandidate, IDictionary<TCandidate, (TTransition, double)>>();
+            var map = new Dictionary<TCandidate, IDictionary<TCandidate, TransitionProbability<TTransition>>>();
 
             foreach (TCandidate predecessor in predecessors.Item2)
             {
-                map.Add(predecessor, new Dictionary<TCandidate, (TTransition, double)>());
+                map.Add(predecessor, new Dictionary<TCandidate, TransitionProbability<TTransition>>());
 
                 foreach (TCandidate candidate in candidates.Item2)
                 {
@@ -120,14 +119,14 @@ namespace Sandwych.MapMatchingKit.Markov
                 var states = new HashSet<TCandidate>();
                 foreach (var candidate in candidates)
                 {
-                    states.Add(candidate.Item1);
+                    states.Add(candidate.Candidate);
                 }
 
                 var transitions = this.Transitions((previous, predecessors), (sample, states));
 
                 foreach (var candidate in candidates)
                 {
-                    var candidate_ = candidate.Item1;
+                    var candidate_ = candidate.Candidate;
                     candidate_.Seqprob = Double.NegativeInfinity;
 
                     foreach (var predecessor in predecessors)
@@ -135,19 +134,19 @@ namespace Sandwych.MapMatchingKit.Markov
                         if (transitions[predecessor].TryGetValue(candidate_, out var transition))
                         {
                             //if (transition == null || transition.Item2 == 0)
-                            if (transition.Item2 == 0D)
+                            if (transition.Probability == 0D)
                             {
                                 continue;
                             }
 
-                            candidate_.Filtprob = candidate_.Filtprob + (transition.Item2 * predecessor.Filtprob);
+                            candidate_.Filtprob = candidate_.Filtprob + (transition.Probability * predecessor.Filtprob);
 
-                            var seqprob = predecessor.Seqprob + Math.Log10(transition.Item2) + Math.Log10(candidate.Item2);
+                            var seqprob = predecessor.Seqprob + Math.Log10(transition.Probability) + Math.Log10(candidate.Probability);
 
                             if (seqprob > candidate_.Seqprob)
                             {
                                 candidate_.Predecessor = predecessor;
-                                candidate_.Transition = transition.Item1;
+                                candidate_.Transition = transition.Transition;
                                 candidate_.Seqprob = seqprob;
                             }
                         }
@@ -158,7 +157,7 @@ namespace Sandwych.MapMatchingKit.Markov
                         continue;
                     }
 
-                    candidate_.Filtprob = candidate_.Filtprob * candidate.Item2;
+                    candidate_.Filtprob = candidate_.Filtprob * candidate.Probability;
                     result.Add(candidate_);
 
                     normsum += candidate_.Filtprob;
@@ -174,14 +173,14 @@ namespace Sandwych.MapMatchingKit.Markov
             {
                 foreach (var candidate in candidates)
                 {
-                    if (candidate.Item2 == 0)
+                    if (candidate.Probability == 0)
                     {
                         continue;
                     }
-                    TCandidate candidate_ = candidate.Item1;
-                    normsum += candidate.Item2;
-                    candidate_.Filtprob = candidate.Item2;
-                    candidate_.Seqprob = Math.Log10(candidate.Item2);
+                    TCandidate candidate_ = candidate.Candidate;
+                    normsum += candidate.Probability;
+                    candidate_.Filtprob = candidate.Probability;
+                    candidate_.Seqprob = Math.Log10(candidate.Probability);
                     result.Add(candidate_);
                 }
             }

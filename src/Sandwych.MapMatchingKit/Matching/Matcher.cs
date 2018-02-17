@@ -9,6 +9,10 @@ using System.Text;
 
 namespace Sandwych.MapMatchingKit.Matching
 {
+    using CandidateProbability = CandidateProbability<MatcherCandidate>;
+    using TransitionProbability = TransitionProbability<MatcherTransition>;
+
+
     /// <summary>
     /// Matcher filter for Hidden Markov Model (HMM) map matching. It is a HMM filter (<see cref="IFilter{TCandidate, TTransition, TSample}"/>)
     /// and determines emission and transition probabilities for map matching with HMM.
@@ -77,7 +81,7 @@ namespace Sandwych.MapMatchingKit.Matching
         public double MaxDistance { get; set; } = 15000.0;
 
 
-        public override IReadOnlyCollection<(MatcherCandidate, double)> Candidates(
+        public override IReadOnlyCollection<CandidateProbability> Candidates(
             IEnumerable<MatcherCandidate> predecessors, in MatcherSample sample)
         {
             var points_ = this._map.Radius(sample.Coordinate, this.MaxRadius);
@@ -91,20 +95,20 @@ namespace Sandwych.MapMatchingKit.Matching
 
             foreach (var predecessor in predecessors)
             {
-                var pointExisted = dict.TryGetValue(predecessor.RoadPoint.Edge.Id, out var point);
+                var pointExisted = dict.TryGetValue(predecessor.Point.Edge.Id, out var point);
                 if (pointExisted && point.Edge != null
-                        && _spatial.Distance(point.Coordinate, predecessor.RoadPoint.Coordinate) < this.Sigma
+                        && _spatial.Distance(point.Coordinate, predecessor.Point.Coordinate) < this.Sigma
                         && ((point.Edge.Headeing == Heading.Forward
-                                && point.Fraction < predecessor.RoadPoint.Fraction)
+                                && point.Fraction < predecessor.Point.Fraction)
                                 || (point.Edge.Headeing == Heading.Backward
-                                        && point.Fraction > predecessor.RoadPoint.Fraction)))
+                                        && point.Fraction > predecessor.Point.Fraction)))
                 {
                     points.Remove(point);
-                    points.Add(predecessor.RoadPoint);
+                    points.Add(predecessor.Point);
                 }
             }
 
-            var candidates = new List<(MatcherCandidate, double)>(points.Count);
+            var candidates = new List<CandidateProbability>(points.Count);
 
             foreach (var point in points)
             {
@@ -121,39 +125,39 @@ namespace Sandwych.MapMatchingKit.Matching
                 }
 
                 var candidate = new MatcherCandidate(point);
-                candidates.Add((candidate, emission));
+                candidates.Add(new CandidateProbability(candidate, emission));
             }
 
             return candidates;
         }
 
-        public override (MatcherTransition, double) Transition(
+        public override TransitionProbability Transition(
                 in (MatcherSample, MatcherCandidate) predecessor, in (MatcherSample, MatcherCandidate) candidate)
         {
             throw new NotSupportedException();
         }
 
-        public override IDictionary<MatcherCandidate, IDictionary<MatcherCandidate, (MatcherTransition, double)>> Transitions(
+        public override IDictionary<MatcherCandidate, IDictionary<MatcherCandidate, TransitionProbability>> Transitions(
                 in (MatcherSample, IEnumerable<MatcherCandidate>) predecessors,
                 in (MatcherSample, IEnumerable<MatcherCandidate>) candidates)
         {
-            var targets = candidates.Item2.Select(c => c.RoadPoint);
+            var targets = candidates.Item2.Select(c => c.Point);
 
-            var transitions = new Dictionary<MatcherCandidate, IDictionary<MatcherCandidate, (MatcherTransition, double)>>();
+            var transitions = new Dictionary<MatcherCandidate, IDictionary<MatcherCandidate, TransitionProbability>>();
             var base_ = 1.0 * _spatial.Distance(predecessors.Item1.Coordinate, candidates.Item1.Coordinate) / 60.0;
             var bound = Math.Max(1000.0, Math.Min(this.MaxDistance, ((candidates.Item1.Time - predecessors.Item1.Time) / 1000.0) * 100.0));
 
             foreach (var predecessor in predecessors.Item2)
             {
-                var map = new Dictionary<MatcherCandidate, (MatcherTransition, double)>();
+                var map = new Dictionary<MatcherCandidate, TransitionProbability>();
                 //TODO check return
-                var routes = _router.Route(predecessor.RoadPoint, targets, _cost, Costs.DistanceCost, bound);
+                var routes = _router.Route(predecessor.Point, targets, _cost, Costs.DistanceCost, bound);
 
                 foreach (var candidate in candidates.Item2)
                 {
-                    if (routes.TryGetValue(candidate.RoadPoint, out var edges))
+                    if (routes.TryGetValue(candidate.Point, out var edges))
                     {
-                        var route = new Route(predecessor.RoadPoint, candidate.RoadPoint, edges);
+                        var route = new Route(predecessor.Point, candidate.Point, edges);
 
                         // According to Newson and Krumm 2009, transition probability is lambda *
                         // Math.exp((-1.0) * lambda * Math.abs(dt - route.length())), however, we
@@ -168,7 +172,7 @@ namespace Sandwych.MapMatchingKit.Matching
                         var transition = (1D / beta) * Math.Exp(
                                 (-1.0) * Math.Max(0D, route.Cost(_cost) - base_) / beta);
 
-                        map.Add(candidate, (new MatcherTransition(route), transition));
+                        map.Add(candidate, new TransitionProbability(new MatcherTransition(route), transition));
                     }
                 }
 

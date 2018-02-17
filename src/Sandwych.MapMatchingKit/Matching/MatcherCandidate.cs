@@ -6,17 +6,33 @@ using System.Text;
 
 namespace Sandwych.MapMatchingKit.Matching
 {
-    public class MatcherCandidate :
-        AbstractStateCandidate<MatcherCandidate, MatcherTransition, MatcherSample>
+    public sealed class MatcherCandidate : IStateCandidate<MatcherCandidate, MatcherTransition, MatcherSample>
     {
-        public RoadPoint RoadPoint { get; }
+        private readonly RoadPoint _point;
 
-        public MatcherCandidate(RoadPoint roadPoint)
+        public ref readonly RoadPoint Point => ref _point;
+
+        public double Seqprob { get; set; }
+        public double Filtprob { get; set; }
+        public MatcherCandidate Predecessor { get; set; }
+        public MatcherTransition Transition { get; set; }
+
+        public MatcherCandidate(in RoadPoint point)
         {
-            this.RoadPoint = roadPoint;
+            this._point = point;
         }
 
         public override int GetHashCode() =>
-            (this.RoadPoint, this.Predecessor, this.Transition, this.Filtprob, this.Seqprob).GetHashCode();
+            (this.Point, this.Predecessor, this.Transition, this.Filtprob, this.Seqprob).GetHashCode();
+
+        public bool Equals(MatcherCandidate other)
+        {
+            if (object.ReferenceEquals(this, other))
+            {
+                return true;
+            }
+
+            return this.Point.Equals(other.Point) && this.Predecessor.Equals(other.Predecessor) && this.Transition.Equals(other.Transition);
+        }
     }
 }

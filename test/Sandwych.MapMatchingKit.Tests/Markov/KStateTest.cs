@@ -33,6 +33,11 @@ namespace Sandwych.MapMatchingKit.Tests.Markov
 
             */
             public int Id => _id;
+
+            public override bool Equals(MockElem other)
+            {
+                return this.Id == other.Id;
+            }
         }
 
         /*

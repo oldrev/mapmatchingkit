@@ -1,5 +1,6 @@
 ﻿using GeoAPI.Geometries;
 using NetTopologySuite.IO;
+using Sandwych.MapMatchingKit.Markov;
 using Sandwych.MapMatchingKit.Matching;
 using Sandwych.MapMatchingKit.Roads;
 using Sandwych.MapMatchingKit.Spatial;
@@ -55,9 +56,9 @@ namespace Sandwych.MapMatchingKit.Tests.Matching
             _map = roadMapBuilder.AddRoads(reader.Roads).Build();
         }
 
-        private void AssertCandidate(in (MatcherCandidate, Double) candidate, Coordinate2D sample)
+        private void AssertCandidate(in CandidateProbability<MatcherCandidate> candidate, Coordinate2D sample)
         {
-            var polyline = _map.GetEdge(candidate.Item1.RoadPoint.Edge.Id).Geometry;
+            var polyline = _map.GetEdge(candidate.Candidate.Point.Edge.Id).Geometry;
             var f = _spatial.Intercept(polyline, sample);
             var i = _spatial.Interpolate(polyline, f);
             var l = _spatial.Distance(i, sample);
@@ -65,22 +66,22 @@ namespace Sandwych.MapMatchingKit.Tests.Matching
             var sqrt_2pi_sig2 = Math.Sqrt(2d * Math.PI * sig2);
             var p = 1 / sqrt_2pi_sig2 * Math.Exp((-1) * l * l / (2 * sig2));
 
-            AssertEquals(f, candidate.Item1.RoadPoint.Fraction, 10E-6);
-            AssertEquals(p, candidate.Item2, 10E-6);
+            AssertEquals(f, candidate.Candidate.Point.Fraction, 10E-6);
+            AssertEquals(p, candidate.Probability, 10E-6);
         }
 
-        private void AssertTransition(in (MatcherTransition, Double) transition,
+        private void AssertTransition(in TransitionProbability<MatcherTransition> transition,
                 in (MatcherCandidate, MatcherSample) source,
                 in (MatcherCandidate, MatcherSample) target, double lambda)
         {
-            var edges = _router.Route(source.Item1.RoadPoint, target.Item1.RoadPoint, _cost);
+            var edges = _router.Route(source.Item1.Point, target.Item1.Point, _cost);
             Assert.NotNull(edges);
 
-            var route = new Route(source.Item1.RoadPoint, target.Item1.RoadPoint, edges);
+            var route = new Route(source.Item1.Point, target.Item1.Point, edges);
 
-            AssertEquals(route.Length, transition.Item1.Route.Length, 10E-6);
-            Assert.Equal(route.StartPoint.Edge.Id, transition.Item1.Route.StartPoint.Edge.Id);
-            Assert.Equal(route.EndPoint.Edge.Id, transition.Item1.Route.EndPoint.Edge.Id);
+            AssertEquals(route.Length, transition.Transition.Route.Length, 10E-6);
+            Assert.Equal(route.StartPoint.Edge.Id, transition.Transition.Route.StartPoint.Edge.Id);
+            Assert.Equal(route.EndPoint.Edge.Id, transition.Transition.Route.EndPoint.Edge.Id);
 
             double beta = lambda == 0 ? (2.0 * (target.Item2.Time - source.Item2.Time) / 1000)
                     : 1 / lambda;
@@ -88,7 +89,7 @@ namespace Sandwych.MapMatchingKit.Tests.Matching
             double p = (1 / beta)
                     * Math.Exp((-1.0) * Math.Max(0, route.Cost(Costs.TimePriorityCost) - @base) / beta);
 
-            AssertEquals(transition.Item2, p, 10E-6);
+            AssertEquals(transition.Probability, p, 10E-6);
         }
 
         private ISet<long> RefSet(Coordinate2D sample, double radius)
@@ -132,9 +133,9 @@ namespace Sandwych.MapMatchingKit.Tests.Matching
 
                 foreach (var candidate in candidates)
                 {
-                    Assert.Contains(candidate.Item1.RoadPoint.Edge.Id, refset);
+                    Assert.Contains(candidate.Candidate.Point.Edge.Id, refset);
                     AssertCandidate(candidate, sample);
-                    set.Add(candidate.Item1.RoadPoint.Edge.Id);
+                    set.Add(candidate.Candidate.Point.Edge.Id);
                 }
 
                 Assert.Equal(refset, set);
@@ -162,12 +163,12 @@ namespace Sandwych.MapMatchingKit.Tests.Matching
 
                 foreach (var candidate in filter.Candidates(new HashSet<MatcherCandidate>(), sample1))
                 {
-                    predecessors.Add(candidate.Item1);
+                    predecessors.Add(candidate.Candidate);
                 }
 
                 foreach (var candidate in filter.Candidates(new HashSet<MatcherCandidate>(), sample2))
                 {
-                    candidates.Add(candidate.Item1);
+                    candidates.Add(candidate.Candidate);
                 }
 
                 Assert.Equal(2, predecessors.Count);
@@ -197,12 +198,12 @@ namespace Sandwych.MapMatchingKit.Tests.Matching
 
                 foreach (var candidate in filter.Candidates(new HashSet<MatcherCandidate>(), sample1))
                 {
-                    predecessors.Add(candidate.Item1);
+                    predecessors.Add(candidate.Candidate);
                 }
 
                 foreach (var candidate in filter.Candidates(new HashSet<MatcherCandidate>(), sample2))
                 {
-                    candidates.Add(candidate.Item1);
+                    candidates.Add(candidate.Candidate);
                 }
 
                 Assert.Equal(4, predecessors.Count);
@@ -214,7 +215,7 @@ namespace Sandwych.MapMatchingKit.Tests.Matching
 
                 foreach (var source in transitions)
                 {
-                    if (source.Key.RoadPoint.Edge.Id == 10)
+                    if (source.Key.Point.Edge.Id == 10)
                     {
                         Assert.Equal(0, source.Value.Count);
                     }

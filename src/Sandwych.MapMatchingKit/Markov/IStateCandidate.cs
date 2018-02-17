@@ -11,5 +11,6 @@ namespace Sandwych.MapMatchingKit.Markov
         double Filtprob { get; set; }
         TCandidate Predecessor { get; set; }
         TTransition Transition { get; set; }
+        bool HasTransition { get; }
     }
 }

@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Sandwych.MapMatchingKit.Matching
 {
-    public class MatcherTransition
+    public readonly struct MatcherTransition
     {
         public Route Route { get; }
 

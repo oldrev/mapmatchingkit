@@ -9,7 +9,7 @@ namespace Sandwych.MapMatchingKit.Tests.Markov
 {
     public class KStateTest
     {
-        public class MockStateTransition
+        public struct MockStateTransition
         {
         }
 

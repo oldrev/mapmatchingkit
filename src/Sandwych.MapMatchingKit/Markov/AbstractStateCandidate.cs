@@ -8,15 +8,41 @@ namespace Sandwych.MapMatchingKit.Markov
         IStateCandidate<TCandidate, TTransition, TSample>
         where TCandidate : IStateCandidate<TCandidate, TTransition, TSample>
     {
+        private TTransition _transition;
+
         public double Seqprob { get; set; }
         public double Filtprob { get; set; }
-        public TTransition Transition { get; set; }
         public TCandidate Predecessor { get; set; }
+        public bool HasTransition { get; private set; }
+
+        public TTransition Transition
+        {
+            get
+            {
+                if (!this.HasTransition)
+                {
+                    throw new InvalidOperationException();
+                }
+                return _transition;
+            }
+            set
+            {
+                _transition = value;
+                this.HasTransition = true;
+            }
+        }
 
         public AbstractStateCandidate()
         {
         }
 
-        public abstract bool Equals(TCandidate other);
+        public virtual bool Equals(TCandidate other)
+        {
+            if (object.ReferenceEquals(this, other))
+            {
+                return true;
+            }
+            return Predecessor.Equals(other.Predecessor) && Transition.Equals(other.Transition);
+        }
     }
 }

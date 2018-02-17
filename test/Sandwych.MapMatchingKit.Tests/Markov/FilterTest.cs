@@ -8,7 +8,7 @@ namespace Sandwych.MapMatchingKit.Tests.Markov
 {
     public class FilterTest
     {
-        public class MockStateTransition
+        public struct MockStateTransition
         {
         }
 
@@ -184,12 +184,12 @@ namespace Sandwych.MapMatchingKit.Tests.Markov
                 if (states.Pred(element.Id) == -1)
                 {
                     Assert.Null(element.Predecessor);
-                    Assert.Null(element.Transition);
+                    Assert.False(element.HasTransition);
                 }
                 else
                 {
                     Assert.Equal(states.Pred(element.Id), element.Predecessor.Id);
-                    Assert.Null(element.Transition);
+                    Assert.False(element.HasTransition);
                 }
             }
         }
@@ -215,12 +215,12 @@ namespace Sandwych.MapMatchingKit.Tests.Markov
                 if (states.Pred(element.Id) == -1)
                 {
                     Assert.Null(element.Predecessor);
-                    Assert.Null(element.Transition);
+                    Assert.False(element.HasTransition);
                 }
                 else
                 {
                     Assert.Equal(states.Pred(element.Id), element.Predecessor.Id);
-                    Assert.NotNull(element.Transition);
+                    Assert.True(element.HasTransition);
                 }
             }
         }
@@ -246,12 +246,12 @@ namespace Sandwych.MapMatchingKit.Tests.Markov
                 if (states.Pred(element.Id) == -1)
                 {
                     Assert.Null(element.Predecessor);
-                    Assert.Null(element.Transition);
+                    Assert.False(element.HasTransition);
                 }
                 else
                 {
                     Assert.Equal(states.Pred(element.Id), element.Predecessor.Id);
-                    Assert.NotNull(element.Transition);
+                    Assert.True(element.HasTransition);
                 }
             }
         }
@@ -277,12 +277,12 @@ namespace Sandwych.MapMatchingKit.Tests.Markov
                 if (states.Pred(element.Id) == -1)
                 {
                     Assert.Null(element.Predecessor);
-                    Assert.Null(element.Transition);
+                    Assert.False(element.HasTransition);
                 }
                 else
                 {
                     Assert.Equal(states.Pred(element.Id), element.Predecessor.Id);
-                    Assert.NotNull(element.Transition);
+                    Assert.True(element.HasTransition);
                 }
             }
         }

@@ -58,7 +58,7 @@ namespace Sandwych.MapMatchingKit.Examples.HelloWorldApp
                 var heading = cand.Point.Edge.Headeing; // heading
                 var coord = cand.Point.Coordinate; // GPS position (on the road)
                 Console.WriteLine("RoadID={0}\t\tFraction={1}", roadId, cand.Point.Fraction);
-                if (cand.Transition != null)
+                if (cand.HasTransition)
                 {
                     var geom = cand.Transition.Route.ToGeometry(); // path geometry from last matching candidate
                     Console.WriteLine("fuck");

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using NetTopologySuite.Index;
 
-namespace Sandwych.MapMatchingKit.Spatial
+namespace Sandwych.MapMatchingKit.Spatial.Index
 {
     public readonly struct IndexItemVisitor<T> : IItemVisitor<T>
     {

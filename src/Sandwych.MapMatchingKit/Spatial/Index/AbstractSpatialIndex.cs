@@ -5,7 +5,7 @@ using GeoAPI.Geometries;
 using NetTopologySuite.Index;
 using Sandwych.MapMatchingKit.Spatial.Geometries;
 
-namespace Sandwych.MapMatchingKit.Spatial
+namespace Sandwych.MapMatchingKit.Spatial.Index
 {
     public abstract class AbstractSpatialIndex<TItem> : ISpatialIndex<TItem>
     {

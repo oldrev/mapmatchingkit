@@ -7,6 +7,7 @@ using Sandwych.MapMatchingKit.Spatial;
 using NetTopologySuite.Geometries;
 using GeoAPI.Geometries;
 using Sandwych.MapMatchingKit.Spatial.Geometries;
+using Sandwych.MapMatchingKit.Spatial.Index;
 
 namespace Sandwych.MapMatchingKit.Roads
 {
@@ -18,8 +19,7 @@ namespace Sandwych.MapMatchingKit.Roads
         public RoadMap(IEnumerable<Road> roads, ISpatialOperation spatial) : base(roads)
         {
             _spatial = spatial;
-
-            this.Index = new QuadtreeIndex<RoadInfo>(roads.Select(x => x.RoadInfo), spatial, r => r.Geometry);
+            this.Index = new RtreeIndex<RoadInfo>(roads.Select(x => x.RoadInfo), spatial, r => r.Geometry);
         }
 
         public RoadMap(IEnumerable<Road> roads) : this(roads, GeographySpatialOperation.Instance)

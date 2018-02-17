@@ -29,7 +29,7 @@ namespace Sandwych.MapMatchingKit.Examples.HelloWorldApp
             Console.WriteLine("The road map has been loaded");
 
             var matcher = new Matcher(map, new DijkstraRouter<Road, RoadPoint>(), Costs.TimePriorityCost, spatial);
-            matcher.MaxDistance = 1000; // set maximum searching distance between two GPS points to 500 meters.
+            matcher.MaxDistance = 1000; // set maximum searching distance between two GPS points to 1000 meters.
             matcher.MaxRadius = 200.0; // sets maximum radius for candidate selection to 200 meters
 
             var kstate = new MatcherKState();
@@ -50,18 +50,17 @@ namespace Sandwych.MapMatchingKit.Examples.HelloWorldApp
             Console.WriteLine("Fetching map-matching results...");
             var candidatesSequence = kstate.Sequence();
             var timeElapsed = DateTime.Now - startedOn;
-            Console.WriteLine("Map-matching elapsed time: {0}", timeElapsed);
+            Console.WriteLine("Map-matching elapsed time: {0}, Speed={1} samples/second", timeElapsed, samples.Length / timeElapsed.TotalSeconds);
             Console.WriteLine("Results:");
             foreach (var cand in candidatesSequence)
             {
                 var roadId = cand.Point.Edge.RoadInfo.Id; // original road id
                 var heading = cand.Point.Edge.Headeing; // heading
                 var coord = cand.Point.Coordinate; // GPS position (on the road)
-                Console.WriteLine("RoadID={0}\t\tFraction={1}", roadId, cand.Point.Fraction);
                 if (cand.HasTransition)
                 {
                     var geom = cand.Transition.Route.ToGeometry(); // path geometry from last matching candidate
-                    Console.WriteLine("fuck");
+                    Console.WriteLine("RoadID={0}\t\tFraction={1}", roadId, cand.Point.Fraction);
                 }
             }
 

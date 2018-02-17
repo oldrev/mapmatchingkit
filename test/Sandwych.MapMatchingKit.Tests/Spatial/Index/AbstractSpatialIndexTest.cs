@@ -3,25 +3,29 @@ using NetTopologySuite.Geometries;
 using NetTopologySuite.IO;
 using Sandwych.MapMatchingKit.Spatial;
 using Sandwych.MapMatchingKit.Spatial.Geometries;
-using Sandwych.MapMatchingKit.Spatial.Projection;
+using Sandwych.MapMatchingKit.Spatial.Index;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Xunit;
 
-namespace Sandwych.MapMatchingKit.Tests.Spatial
+namespace Sandwych.MapMatchingKit.Tests.Spatial.Index
 {
-    public class QuadtreeIndexTest : TestBase
+    public abstract class AbstractSpatialIndexTest : TestBase
     {
         private readonly IReadOnlyList<ILineString> _geometries;
+        protected ISpatialOperation Spatial { get; }
+        protected IReadOnlyList<ILineString> Geometries => _geometries;
+        protected abstract ISpatialIndex<ILineString> CreateSpatialIndex();
 
-        public QuadtreeIndexTest()
+        public AbstractSpatialIndexTest()
         {
-            _geometries = this.Geometries();
+            this.Spatial = new GeographySpatialOperation();
+            _geometries = this.MakeGeometries();
         }
 
-        private IReadOnlyList<ILineString> Geometries()
+        private IReadOnlyList<ILineString> MakeGeometries()
         {
             /*
              * (p2) (p3) ----- (e1) : (p1) -> (p2) ----------------------------------------------------
@@ -61,17 +65,16 @@ namespace Sandwych.MapMatchingKit.Tests.Spatial
 
         private void AssertIndexRadius(Coordinate2D c, double r, int expectedNeighborsCount)
         {
-            var spatial = new GeographySpatialOperation();
-            var lines = Geometries();
-            var index = new QuadtreeIndex<ILineString>(lines, spatial, l => l);
+            var lines = this.Geometries;
+            var index = this.CreateSpatialIndex();
 
             var neighbors = new HashSet<int>();
             for (int i = 0; i < lines.Count; ++i)
             {
                 var line = lines[i];
-                var f = spatial.Intercept(line, c);
-                var p = spatial.Interpolate(line, f);
-                var d = spatial.Distance(c, p);
+                var f = this.Spatial.Intercept(line, c);
+                var p = this.Spatial.Interpolate(line, f);
+                var d = this.Spatial.Distance(c, p);
 
                 if (d <= r)
                 {

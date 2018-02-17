@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Sandwych.MapMatchingKit.Spatial
+namespace Sandwych.MapMatchingKit.Spatial.Index
 {
     public interface ISpatialIndex<TItem>
     {

@@ -5,7 +5,7 @@ using NetTopologySuite.Index.Quadtree;
 using NetTopologySuite.Geometries;
 using GeoAPI.Geometries;
 
-namespace Sandwych.MapMatchingKit.Spatial
+namespace Sandwych.MapMatchingKit.Spatial.Index
 {
     public class QuadtreeIndex<TItem> : AbstractSpatialIndex<TItem>
     {

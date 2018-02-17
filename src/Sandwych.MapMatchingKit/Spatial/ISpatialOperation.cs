@@ -111,5 +111,8 @@ namespace Sandwych.MapMatchingKit.Spatial
         /// <returns></returns>
         Envelope Envelope(in Coordinate2D c, double radius);
 
+
+        Envelope Envelope(ILineString line);
+
     }
 }

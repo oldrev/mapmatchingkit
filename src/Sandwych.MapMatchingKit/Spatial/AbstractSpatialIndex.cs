@@ -46,7 +46,7 @@ namespace Sandwych.MapMatchingKit.Spatial
         protected void Add(TItem item)
         {
             var geom = this.ItemGeometryGetter(item);
-            var env = geom.EnvelopeInternal;
+            var env = this.Spatial.Envelope(geom as ILineString);
             this.Index.Insert(env, item);
         }
 

@@ -87,6 +87,11 @@ namespace Sandwych.MapMatchingKit.Spatial
             return new Envelope(xmin, xmax, ymin, ymax);
         }
 
+        public Envelope Envelope(ILineString line)
+        {
+            return line.EnvelopeInternal;
+        }
+
         public double Intercept(ILineString p, in Coordinate2D c)
         {
             var d = Double.MaxValue;

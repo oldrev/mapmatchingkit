@@ -7,11 +7,11 @@ namespace Sandwych.MapMatchingKit.Tests.Markov
 {
     public sealed class MockSample : ISample
     {
-        public long Time { get; }
+        public DateTimeOffset Time { get; }
 
         public MockSample(long time)
         {
-            this.Time = time;
+            this.Time = DateTimeOffset.MinValue.AddMilliseconds(time);
         }
     }
 }

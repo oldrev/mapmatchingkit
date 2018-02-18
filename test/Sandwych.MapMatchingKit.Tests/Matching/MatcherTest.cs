@@ -83,7 +83,7 @@ namespace Sandwych.MapMatchingKit.Tests.Matching
             Assert.Equal(route.StartPoint.Edge.Id, transition.Transition.Route.StartPoint.Edge.Id);
             Assert.Equal(route.EndPoint.Edge.Id, transition.Transition.Route.EndPoint.Edge.Id);
 
-            double beta = lambda == 0 ? (2.0 * (target.Item2.Time - source.Item2.Time) / 1000)
+            double beta = lambda == 0 ? (2.0 * (target.Item2.Time - source.Item2.Time).TotalSeconds)
                     : 1 / lambda;
             double @base = 1.0 * _spatial.Distance(source.Item2.Coordinate, target.Item2.Coordinate) / 60;
             double p = (1 / beta)

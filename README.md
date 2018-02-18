@@ -16,27 +16,16 @@ The map-matching library.
 
 A general purpose utility library implements Hidden Markov Models (HMM) for time-inhomogeneous Markov processes for .NET.
 
-This library provides an implementation of
-
-* The Viterbi algorithm, which computes the most likely sequence of states.
-* The forward-backward algorithm, which computes the probability of all state candidates given the entire sequence of observations. This process is also called smoothing.
-
 # Roadmap and Current Status
 
 **Working in progress.**
 
 # Requirements
 
-* .NET Standard 2.0 or .NET Standard 4.6.1
-
-# Applications
-
-This library was initially created for HMM-based map matching according to the paper
-"NEWSON, Paul; KRUMM, John. Hidden Markov map matching through noise and sparseness.
-In: Proceedings of the 17th ACM SIGSPATIAL international conference on advances in geographic
-information systems. ACM, 2009. S. 336-343."
-
-Besides map matching, the hmm-lib can also be used for other applications.
+* Microsoft Visual Studio 15.5 With C# 7.2
+* .NET Standard 1.6
+* .NET Framework 4.6.1
+* DocFX to generate API documents (Optional)
 
 # License
 
@@ -48,13 +37,15 @@ This library is licensed under the [Apache 2.0 license](http://www.apache.org/li
 # Contribute
 
 Contributions are always welcome! For bug reports, please create an issue. 
+
 For code contributions (e.g. new features or bugfixes), please create a pull request.
 
 # Credits
 
 * "barefoot" from BMW Car IT GmbH: [https://github.com/bmwcarit/barefoot](https://github.com/bmwcarit/barefoot)
-* "map-matching" from GraphHopper Project: [https://github.com/graphhopper/map-matching](https://github.com/graphhopper/map-matching)
 * "hmm-lib" from BMW Car IT GmbH: [https://github.com/bmwcarit/hmm-lib](https://github.com/bmwcarit/hmm-lib)
+* "GeographicLib" from Charles Karney: [https://github.com/oldrev/GeographicLib](https://github.com/oldrev/GeographicLib)
 * "Nito.Collections.Deque" from Stephen Cleary: [https://github.com/StephenCleary/Deque](https://github.com/StephenCleary/Deque)
 * "NetTopologySuite & ProjNET4GeoAPI" from NetTopologySuite Project: [https://github.com/NetTopologySuite](https://github.com/NetTopologySuite)
 * PriorityQueue class from Rx.NET Project: [https://github.com/Reactive-Extensions/Rx.NET](https://github.com/Reactive-Extensions/Rx.NET)
+* The UBODT(upper-bounded origin destination table) algroithm from Can Yang: [https://github.com/cyang-kth/fmm](https://github.com/cyang-kth/fmm)

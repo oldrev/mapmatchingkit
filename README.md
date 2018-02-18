@@ -18,7 +18,9 @@ A general purpose utility library implements Hidden Markov Models (HMM) for time
 
 # Roadmap and Current Status
 
-**Working in progress.**
+**Alpha** - Basic functions works. 
+
+The API can and will change frequently, do not use it for production.
 
 # Requirements
 

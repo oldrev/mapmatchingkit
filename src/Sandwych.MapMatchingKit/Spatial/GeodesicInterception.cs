@@ -64,7 +64,7 @@ namespace Sandwych.MapMatchingKit.Spatial
          * Maximum number of iterations for calculation of interception point. (The solution should
          * usually converge before reaching the maximum number of iterations. The default is 10.)
          */
-        public static int _maxit = 10;
+        public const int Maxit = 10;
         private readonly Gnomonic _gnom;
 
         /**
@@ -74,7 +74,7 @@ namespace Sandwych.MapMatchingKit.Spatial
          * @param earth the {@link Geodesic} object to use for geodesic calculations. By default the
          *        WGS84 ellipsoid should be used.
          */
-        public GeodesicInterception(Geodesic earth)
+        public GeodesicInterception(in Geodesic earth)
         {
             this._gnom = new Gnomonic(earth);
         }
@@ -110,7 +110,7 @@ namespace Sandwych.MapMatchingKit.Spatial
             var est = Geodesic.WGS84.Line(inv.lat1, inv.lon1, inv.azi1).Position(inv.s12 * 0.5);
             double latb2 = est.lat2, latb2_ = double.NaN, lonb2_ = double.NaN, lonb2 = est.lon2;
 
-            for (int i = 0; i < _maxit; ++i)
+            for (int i = 0; i < Maxit; ++i)
             {
                 var xa1 = _gnom.Forward(latb2, lonb2, lata1, lona1);
                 var xa2 = _gnom.Forward(latb2, lonb2, lata2, lona2);

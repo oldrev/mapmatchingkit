@@ -28,7 +28,7 @@ namespace Sandwych.MapMatchingKit.Markov
         /// <param name="predecessors">Predecessor state candidate <i>s<sub>t-1</sub></i>.</param>
         /// <param name="sample">Measurement sample.</param>
         /// <returns>Set of tuples consisting of a {@link StateCandidate} and its emission probability.</returns>
-        public abstract IReadOnlyCollection<CandidateProbability<TCandidate>> Candidates(IEnumerable<TCandidate> predecessors, in TSample sample);
+        public abstract IReadOnlyCollection<CandidateProbability<TCandidate>> ComputeCandidates(IEnumerable<TCandidate> predecessors, in TSample sample);
 
 
         /// <summary>
@@ -44,7 +44,7 @@ namespace Sandwych.MapMatchingKit.Markov
         /// <i>s<sub>t</sub></i> and its transition probability, or null if there is no
         /// transition.
         /// </returns>
-        public abstract TransitionProbability<TTransition> Transition(in (TSample, TCandidate) predecessor, in (TSample, TCandidate) candidate);
+        public abstract TransitionProbability<TTransition> ComputeTransition(in (TSample, TCandidate) predecessor, in (TSample, TCandidate) candidate);
 
 
         /// <summary>
@@ -65,7 +65,7 @@ namespace Sandwych.MapMatchingKit.Markov
         /// all transitions from <i>s<sub>t-1</sub></i> to <i>s<sub>t</sub></i> and its
         /// transition probability, or null if there no transition.
         /// </returns>
-        public virtual IDictionary<TCandidate, IDictionary<TCandidate, TransitionProbability<TTransition>>> Transitions(
+        public virtual IDictionary<TCandidate, IDictionary<TCandidate, TransitionProbability<TTransition>>> ComputeTransitions(
             in (TSample, IEnumerable<TCandidate>) predecessors, in (TSample, IEnumerable<TCandidate>) candidates)
         {
             TSample sample = candidates.Item1;
@@ -79,7 +79,7 @@ namespace Sandwych.MapMatchingKit.Markov
 
                 foreach (TCandidate candidate in candidates.Item2)
                 {
-                    map[predecessor].Add(candidate, this.Transition((previous, predecessor), (sample, candidate)));
+                    map[predecessor].Add(candidate, this.ComputeTransition((previous, predecessor), (sample, candidate)));
                 }
             }
 
@@ -109,7 +109,7 @@ namespace Sandwych.MapMatchingKit.Markov
             }
 
             var result = new HashSet<TCandidate>();
-            var candidates = this.Candidates(predecessors, sample);
+            var candidates = this.ComputeCandidates(predecessors, sample);
             //logger.trace("{} state candidates", candidates.size());
 
             double normsum = 0;
@@ -122,7 +122,7 @@ namespace Sandwych.MapMatchingKit.Markov
                     states.Add(candidate.Candidate);
                 }
 
-                var transitions = this.Transitions((previous, predecessors), (sample, states));
+                var transitions = this.ComputeTransitions((previous, predecessors), (sample, states));
 
                 foreach (var candidate in candidates)
                 {

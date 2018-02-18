@@ -81,7 +81,7 @@ namespace Sandwych.MapMatchingKit.Matching
         public double MaxDistance { get; set; } = 15000.0;
 
 
-        public override IReadOnlyCollection<CandidateProbability> Candidates(
+        public override IReadOnlyCollection<CandidateProbability> ComputeCandidates(
             IEnumerable<MatcherCandidate> predecessors, in MatcherSample sample)
         {
             var points_ = this._map.Radius(sample.Coordinate, this.MaxRadius);
@@ -131,13 +131,13 @@ namespace Sandwych.MapMatchingKit.Matching
             return candidates;
         }
 
-        public override TransitionProbability Transition(
+        public override TransitionProbability ComputeTransition(
                 in (MatcherSample, MatcherCandidate) predecessor, in (MatcherSample, MatcherCandidate) candidate)
         {
             throw new NotSupportedException();
         }
 
-        public override IDictionary<MatcherCandidate, IDictionary<MatcherCandidate, TransitionProbability>> Transitions(
+        public override IDictionary<MatcherCandidate, IDictionary<MatcherCandidate, TransitionProbability>> ComputeTransitions(
                 in (MatcherSample, IEnumerable<MatcherCandidate>) predecessors,
                 in (MatcherSample, IEnumerable<MatcherCandidate>) candidates)
         {

@@ -133,7 +133,7 @@ namespace Sandwych.MapMatchingKit.Tests.Markov
                 this.states = states;
             }
 
-            public override IReadOnlyCollection<CandidateProbability<MockElement>> Candidates(
+            public override IReadOnlyCollection<CandidateProbability<MockElement>> ComputeCandidates(
                 IEnumerable<MockElement> predecessors, in MockSample sample)
             {
                 var candidates = new List<CandidateProbability<MockElement>>();
@@ -145,7 +145,7 @@ namespace Sandwych.MapMatchingKit.Tests.Markov
             }
 
 
-            public override TransitionProbability<MockStateTransition> Transition(
+            public override TransitionProbability<MockStateTransition> ComputeTransition(
                     in (MockSample, MockElement) predecessor,
                     in (MockSample, MockElement) candidate)
             {

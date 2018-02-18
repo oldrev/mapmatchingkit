@@ -41,7 +41,7 @@ namespace Sandwych.MapMatchingKit.Markov
         /// <summary>
         /// Time of the last state update in milliseconds epoch time.
         /// </summary>
-        long Time { get; }
+        DateTimeOffset Time { get; }
 
 
         /// <summary>

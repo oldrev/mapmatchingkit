@@ -71,13 +71,13 @@ namespace Sandwych.MapMatchingKit.Markov
             }
         }
 
-        public long Time
+        public DateTimeOffset Time
         {
             get
             {
                 if (_sequence.Count == 0)
                 {
-                    return -1;
+                    return DateTimeOffset.MaxValue;
                 }
                 else
                 {
@@ -154,7 +154,7 @@ namespace Sandwych.MapMatchingKit.Markov
 
             _sequence.AddToBack((vector, sample, kestimate));
 
-            while ((_t > 0 && sample.Time - _sequence.PeekFirst().Item2.Time > _t)
+            while ((_t > 0 && (sample.Time - _sequence.PeekFirst().Item2.Time).TotalMilliseconds > _t)
                     || (_k >= 0 && _sequence.Count > _k + 1))
             {
                 var deletes = _sequence.PeekFirst().Item1;

@@ -1,17 +1,22 @@
 ﻿using System;
 using System.Linq;
-using Sandwych.MapMatchingKit.Topology;
-using System.Collections.Generic;
 using System.Text;
+using System.Collections.Generic;
+using Sandwych.MapMatchingKit.Topology;
 using Sandwych.MapMatchingKit.Spatial;
-using NetTopologySuite.Geometries;
-using GeoAPI.Geometries;
 using Sandwych.MapMatchingKit.Spatial.Geometries;
 using Sandwych.MapMatchingKit.Spatial.Index;
 
 namespace Sandwych.MapMatchingKit.Roads
 {
-    public class RoadMap : AbstractGraph<Road>
+    /// Implementation of a road map with (directed) roads, i.e. {@link Road} objects. It provides a road
+    /// network for routing that is derived from {@link Graph} and spatial search of roads with a
+    /// {@link SpatialIndex}.
+    /// <para>
+    /// <b>Note:</b> Since {@link Road} objects are directed representations of {@link BaseRoad} objects,
+    /// identifiers have a special mapping, see {@link Road}.
+    /// </para>
+    public sealed class RoadMap : AbstractGraph<Road>
     {
         public ISpatialIndex<RoadInfo> Index { get; }
         private readonly ISpatialOperation _spatial;
@@ -26,26 +31,25 @@ namespace Sandwych.MapMatchingKit.Roads
         {
         }
 
-        private IEnumerable<RoadPoint> Split(IEnumerable<(RoadInfo road, double distance)> points)
+        private IEnumerable<RoadPoint> Split(IEnumerable<(RoadInfo road, double fraction)> points)
         {
             /*
              * This uses the road
              */
             foreach (var point in points)
             {
-                yield return new RoadPoint(this.Edges[point.road.Id * 2], point.Item2, _spatial);
+                yield return new RoadPoint(this.Edges[point.road.Id * 2], point.fraction, _spatial);
 
                 var backwardRoadId = point.road.Id * 2 + 1;
                 if (this.Edges.TryGetValue(backwardRoadId, out var road))
                 {
-                    yield return new RoadPoint(road, 1.0 - point.Item2, _spatial);
+                    yield return new RoadPoint(road, 1.0 - point.fraction, _spatial);
                 }
             }
         }
 
-        public IEnumerable<RoadPoint> Radius(Coordinate2D c, double r) =>
+        public IEnumerable<RoadPoint> Radius(in Coordinate2D c, double r) =>
             this.Split(this.Index.Radius(c, r));
-
 
     }
 }

@@ -60,7 +60,7 @@ namespace Sandwych.MapMatchingKit.Examples.HelloWorldApp
                 if (cand.HasTransition)
                 {
                     var geom = cand.Transition.Route.ToGeometry(); // path geometry from last matching candidate
-                    Console.WriteLine("RoadID={0}\t\tFraction={1}", roadId, cand.Point.Fraction);
+                    Console.WriteLine("Lng={0}\tLat={1}\tRoadID={2}", coord.X, coord.Y, roadId, cand.Point.Fraction);
                 }
             }
 
@@ -82,7 +82,7 @@ namespace Sandwych.MapMatchingKit.Examples.HelloWorldApp
                 var timeStr = i.Properties["field_8"].ToString().Substring(0, timeFormat.Length);
                 var time = DateTimeOffset.ParseExact(timeStr, timeFormat, CultureInfo.InvariantCulture);
                 var longTime = time.ToUnixTimeMilliseconds();
-                yield return new MatcherSample(longTime, longTime, coord2D);
+                yield return new MatcherSample(longTime, time, coord2D);
             }
         }
 

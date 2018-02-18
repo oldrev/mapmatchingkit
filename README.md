@@ -23,7 +23,9 @@ This library provides an implementation of
 
 # Roadmap and Current Status
 
-**Working in progress.**
+**Alpha** - Basic functions works. 
+
+The API can and will change frequently, do not use it for production.
 
 # Requirements
 

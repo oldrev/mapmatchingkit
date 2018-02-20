@@ -5,13 +5,13 @@
   <evaluateDefaultValues active="0"/>
   <layer-tree-group expanded="1" checked="Qt::Checked" name="">
     <customproperties/>
-    <layer-tree-layer expanded="1" providerKey="delimitedtext" checked="Qt::Checked" id="samples_output20180220162348204" source="file:///C:/dev/github/mmk/data/samples.output.csv?type=csv&amp;xField=lng&amp;yField=lat&amp;spatialIndex=no&amp;subsetIndex=no&amp;watchFile=no" name="samples.output">
+    <layer-tree-layer expanded="1" providerKey="delimitedtext" checked="Qt::Checked" id="samples_output20180220162348204" source="file://./samples.output.csv?type=csv&amp;xField=lng&amp;yField=lat&amp;spatialIndex=no&amp;subsetIndex=no&amp;watchFile=no" name="samples.output">
       <customproperties/>
     </layer-tree-layer>
-    <layer-tree-layer expanded="1" providerKey="ogr" checked="Qt::Checked" id="samples20180216020800079" source="C:/dev/github/mmk/data/samples.geojson" name="Vehicle GPS Samples">
+    <layer-tree-layer expanded="1" providerKey="ogr" checked="Qt::Checked" id="samples20180216020800079" source="./samples.geojson" name="Vehicle GPS Samples">
       <customproperties/>
     </layer-tree-layer>
-    <layer-tree-layer expanded="1" providerKey="ogr" checked="Qt::Checked" id="osm_kunming_roads_network20180216020811805" source="C:/dev/github/mmk/data/osm-kunming-roads-network.geojson" name="OSM Road Map">
+    <layer-tree-layer expanded="1" providerKey="ogr" checked="Qt::Checked" id="osm_kunming_roads_network20180216020811805" source="./osm-kunming-roads-network.geojson" name="OSM Road Map">
       <customproperties/>
     </layer-tree-layer>
   </layer-tree-group>
@@ -19,10 +19,10 @@
   <mapcanvas>
     <units>degrees</units>
     <extent>
-      <xmin>102.79878288139197196</xmin>
-      <ymin>25.03567730684931547</ymin>
-      <xmax>102.82345263139212932</xmax>
-      <ymax>25.03861074434933442</ymax>
+      <xmin>102.80130994031034675</xmin>
+      <ymin>25.03481139155562119</ymin>
+      <xmax>102.82597969031050411</xmax>
+      <ymax>25.03774482905564014</ymax>
     </extent>
     <rotation>0</rotation>
     <projections>0</projections>

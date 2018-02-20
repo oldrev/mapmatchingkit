@@ -16,9 +16,9 @@ This solution is porting from the [Barefoot](https://github.com/bmwcarit/barefoo
 
 From [Wikipedia](https://en.wikipedia.org/wiki/Map_matching):
 
-```
-Map matching is the problem of how to match recorded geographic coordinates to a logical model of the real world, typically using some form of Geographic Information System. The most common approach is to take recorded, serial location points (e.g. from GPS) and relate them to edges in an existing street graph (network), usually in a sorted list representing the travel of a user or vehicle. Matching observations to a logical model in this way has applications in satellite navigation, GPS tracking of freight, and transportation engineering.
-```
+> Map matching is the problem of how to match recorded geographic coordinates to a logical model of the real world, typically using some form of Geographic Information System. 
+> The most common approach is to take recorded, serial location points (e.g. from GPS) and relate them to edges in an existing street graph (network), usually in a sorted list representing the travel of a user or vehicle.
+> Matching observations to a logical model in this way has applications in satellite navigation, GPS tracking of freight, and transportation engineering.
 
 ## Additional Utilities:
 

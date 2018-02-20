@@ -16,12 +16,12 @@ namespace Sandwych.MapMatchingKit.Tests.Markov
         {
             public int Id { get; }
 
-            public MockElement(int id)
+            public MockElement(MockSample sample, int id) : base(sample)
             {
                 this.Id = id;
             }
 
-            public MockElement(int id, double filtprob, double seqprob) : this(id)
+            public MockElement(int id, double filtprob, double seqprob) : this(null, id)
             {
                 this.Filtprob = filtprob;
                 this.Seqprob = seqprob;
@@ -139,7 +139,7 @@ namespace Sandwych.MapMatchingKit.Tests.Markov
                 var candidates = new List<CandidateProbability<MockElement>>();
                 for (int c = 0; c < states.NumCandidates; ++c)
                 {
-                    candidates.Add(new CandidateProbability<MockElement>(new MockElement(c), states.Emission(c)));
+                    candidates.Add(new CandidateProbability<MockElement>(new MockElement(sample, c), states.Emission(c)));
                 }
                 return candidates.ToArray();
             }

@@ -17,7 +17,7 @@ namespace Sandwych.MapMatchingKit.Tests.Markov
         {
             private readonly int _id;
 
-            public MockElem(int id, double seqprob, double filtprob, MockElem pred)
+            public MockElem(int id, double seqprob, double filtprob, MockElem pred) : base(null)
             {
                 this._id = id;
                 this.Seqprob = seqprob;

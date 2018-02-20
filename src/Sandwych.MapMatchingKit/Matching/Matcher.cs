@@ -124,7 +124,7 @@ namespace Sandwych.MapMatchingKit.Matching
                     emission *= Math.Max(1E-2, 1 / _sqrt_2pi_sigA * Math.Exp((-1) * da / (2 * _sigA)));
                 }
 
-                var candidate = new MatcherCandidate(point);
+                var candidate = new MatcherCandidate(sample, point);
                 candidates.Add(new CandidateProbability(candidate, emission));
             }
 

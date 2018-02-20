@@ -12,7 +12,7 @@ namespace Sandwych.MapMatchingKit.Matching
 
         public ref readonly RoadPoint Point => ref _point;
 
-        public MatcherCandidate(in RoadPoint point) : base()
+        public MatcherCandidate(in MatcherSample sample, in RoadPoint point) : base(sample)
         {
             this._point = point;
         }

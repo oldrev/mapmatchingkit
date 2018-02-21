@@ -6,7 +6,7 @@
 
 Sandwych.MapMatchingKit is a GPS map-matching solution for .NET platform.
 
-This solution is porting from the [Barefoot](https://github.com/bmwcarit/barefoot) project which developed in Java.
+This library is ported from the [Barefoot](https://github.com/bmwcarit/barefoot) project which developed in Java.
 
 <p align="center">
     <img src="doc/images/screenshots/qgis.png">
@@ -46,9 +46,37 @@ The API can and will change frequently, do not use it for production.
 
 Sandwych.MapMatchingKit can be installed from [NuGet](https://www.nuget.org/packages/Sandwych.MapMatchingKit).
 
+## Prepare Your Data
+
+### Road Map
+
+Field | Type | Description 
+----- | ---- | -----------
+Id | long | The unique ID of road line
+Source | long | Starting vertex ID of the road line
+Target | long | Ending vertex ID of the road line
+Oneway | bool | Indicates the road is a one way road or not
+Oneway | bool | Indicates the road is a one way road or not
+Type | short | Indicates the type of the road (Optional)
+Priority | float | Road priority factor, which is greater or equal than one (default is 1.0)
+MaxForwardSpeed | float | Maximum speed limit for passing this road from source to target (default is 120.0km/h)
+MaxBackwardSpeed | float | Maximum speed limit for passing this road from target to source (default is 120.0km/h)
+Length | float | Length of road geometry in meters, can be computed if not provided
+Geometry | ILineString | An object of ILineString to represents the road.
+
+
+### GPS Samples
+
+Field | Type | Description 
+----- | ---- | -----------
+Id | long | The unique ID of the GPS point
+Time | DateTimeOffset | The timestamp of the GPS point
+Coordinate | Coordinate2D | Longtitude and latitude of the GPS point
+
+
 # Demo & Usage:
 
-See directory `example/Sandwych.MapMatchingKit.Examples.HelloWorldApp` for a fully executable map-matching example. 
+See the directory `example/Sandwych.MapMatchingKit.Examples.HelloWorldApp` for a fully executable map-matching example. 
 
 ## Offline Map-Matching
 
@@ -57,8 +85,10 @@ var spatial = new GeographySpatialOperation();
 var mapBuilder = new RoadMapBuilder(spatial);
 var roads = //load your road map
 var map = mapBuilder.AddRoads(roads).Build();
-var matcher = new Matcher(map, new DijkstraRouter<Road, RoadPoint>(), Costs.TimePriorityCost, spatial);
+var router = new DijkstraRouter<Road, RoadPoint>();
+var matcher = new Matcher(map, router, Costs.TimePriorityCost, spatial);
 var kstate = new MatcherKState();
+//Do the map-matching iteration
 foreach (var sample in samples)
 {
     var vector = matcher.Execute(kstate.Vector(), kstate.Sample, sample);
@@ -114,7 +144,8 @@ For code contributions (e.g. new features or bugfixes), please create a pull req
 
 # Credits
 
-* "barefoot" from BMW Car IT GmbH: [https://github.com/bmwcarit/barefoot](https://github.com/bmwcarit/barefoot)
+All honors belongs to the original Barefoot developed by BMW Car IT GmbH: [https://github.com/bmwcarit/barefoot](https://github.com/bmwcarit/barefoot)
+
 * "hmm-lib" from BMW Car IT GmbH: [https://github.com/bmwcarit/hmm-lib](https://github.com/bmwcarit/hmm-lib)
 * "GeographicLib" from Charles Karney: [https://github.com/oldrev/GeographicLib](https://github.com/oldrev/GeographicLib)
 * "Nito.Collections.Deque" from Stephen Cleary: [https://github.com/StephenCleary/Deque](https://github.com/StephenCleary/Deque)

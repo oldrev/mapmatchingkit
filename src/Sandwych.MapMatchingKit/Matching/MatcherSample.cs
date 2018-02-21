@@ -12,33 +12,34 @@ namespace Sandwych.MapMatchingKit.Matching
     /// Measurement sample for Hidden Markov Model (HMM) map matching which is a position measurement,
     /// e.g. measured with a GPS device.
     /// </summary>
-    public readonly struct MatcherSample : ISample
+    public sealed class MatcherSample : ISample
     {
         public long Id { get; }
-        public long Time { get; }
+        public DateTimeOffset Time { get; }
         public float Azimuth { get; }
         public Coordinate2D Coordinate { get; }
+        public bool IsNaN => this.Id < 0;
 
         public MatcherSample(long id, long time, double lng, double lat, float azimuth = float.NaN)
         {
             this.Id = id;
-            this.Time = time;
+            this.Time = DateTimeOffset.MinValue.AddMilliseconds(time);
             this.Coordinate = new Coordinate2D(lng, lat);
             this.Azimuth = NormAzimuth(azimuth);
         }
 
-        public MatcherSample(long id, long time, Coordinate2D point, float azimuth = float.NaN)
+        public MatcherSample(long id, long time, in Coordinate2D point, float azimuth = float.NaN)
         {
             this.Id = id;
-            this.Time = time;
+            this.Time = DateTimeOffset.MinValue.AddMilliseconds(time);
             this.Coordinate = point;
             this.Azimuth = NormAzimuth(azimuth);
         }
 
-        public MatcherSample(long id, DateTime time, Coordinate2D point, float azimuth = float.NaN)
+        public MatcherSample(long id, DateTimeOffset time, in Coordinate2D point, float azimuth = float.NaN)
         {
             this.Id = id;
-            this.Time = time.ToFileTime();
+            this.Time = time;
             this.Coordinate = point;
             this.Azimuth = NormAzimuth(azimuth);
         }

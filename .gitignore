@@ -30,3 +30,4 @@ project.lock.json
 .testPublish/ 
 .dotnetcli
 *.qgs~
+*.output.csv

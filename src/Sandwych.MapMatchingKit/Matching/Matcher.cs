@@ -81,7 +81,7 @@ namespace Sandwych.MapMatchingKit.Matching
         public double MaxDistance { get; set; } = 15000.0;
 
 
-        public override IReadOnlyCollection<CandidateProbability> Candidates(
+        public override IReadOnlyCollection<CandidateProbability> ComputeCandidates(
             IEnumerable<MatcherCandidate> predecessors, in MatcherSample sample)
         {
             var points_ = this._map.Radius(sample.Coordinate, this.MaxRadius);
@@ -124,20 +124,20 @@ namespace Sandwych.MapMatchingKit.Matching
                     emission *= Math.Max(1E-2, 1 / _sqrt_2pi_sigA * Math.Exp((-1) * da / (2 * _sigA)));
                 }
 
-                var candidate = new MatcherCandidate(point);
+                var candidate = new MatcherCandidate(sample, point);
                 candidates.Add(new CandidateProbability(candidate, emission));
             }
 
             return candidates;
         }
 
-        public override TransitionProbability Transition(
+        public override TransitionProbability ComputeTransition(
                 in (MatcherSample, MatcherCandidate) predecessor, in (MatcherSample, MatcherCandidate) candidate)
         {
             throw new NotSupportedException();
         }
 
-        public override IDictionary<MatcherCandidate, IDictionary<MatcherCandidate, TransitionProbability>> Transitions(
+        public override IDictionary<MatcherCandidate, IDictionary<MatcherCandidate, TransitionProbability>> ComputeTransitions(
                 in (MatcherSample, IEnumerable<MatcherCandidate>) predecessors,
                 in (MatcherSample, IEnumerable<MatcherCandidate>) candidates)
         {
@@ -145,7 +145,7 @@ namespace Sandwych.MapMatchingKit.Matching
 
             var transitions = new Dictionary<MatcherCandidate, IDictionary<MatcherCandidate, TransitionProbability>>();
             var base_ = 1.0 * _spatial.Distance(predecessors.Item1.Coordinate, candidates.Item1.Coordinate) / 60.0;
-            var bound = Math.Max(1000.0, Math.Min(this.MaxDistance, ((candidates.Item1.Time - predecessors.Item1.Time) / 1000.0) * 100.0));
+            var bound = Math.Max(1000.0, Math.Min(this.MaxDistance, (candidates.Item1.Time - predecessors.Item1.Time).TotalSeconds * 100.0));
 
             foreach (var predecessor in predecessors.Item2)
             {
@@ -165,8 +165,7 @@ namespace Sandwych.MapMatchingKit.Matching
                         // route.length() - dt)) to avoid unnecessary routes in case of u-turns.
 
                         var beta = this.Lambda == 0D
-                                ? (2.0 * Math.Max(1d,
-                                        candidates.Item1.Time - predecessors.Item1.Time) / 1000D)
+                                ? (2.0 * Math.Max(1d, (candidates.Item1.Time - predecessors.Item1.Time).TotalMilliseconds) / 1000D)
                                 : 1D / this.Lambda;
 
                         var transition = (1D / beta) * Math.Exp(

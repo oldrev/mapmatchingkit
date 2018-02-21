@@ -32,11 +32,44 @@ namespace Sandwych.MapMatchingKit.Examples.HelloWorldApp
             matcher.MaxDistance = 1000; // set maximum searching distance between two GPS points to 1000 meters.
             matcher.MaxRadius = 200.0; // sets maximum radius for candidate selection to 200 meters
 
-            var kstate = new MatcherKState();
 
             Console.WriteLine("Loading GPS samples...");
-            var samples = ReadSamples().OrderBy(s => s.Time).ToArray();
-            Console.WriteLine("GPS samples loaded. [count={0}]", samples.Length);
+            var samples = ReadSamples().OrderBy(s => s.Time).ToList();
+            Console.WriteLine("GPS samples loaded. [count={0}]", samples.Count);
+
+            Console.WriteLine("Starting Offline map-matching...");
+            OfflineMatch(matcher, samples);
+
+
+            Console.WriteLine("Starting Online map-matching...");
+            OnlineMatch(matcher, samples);
+
+            Console.WriteLine("All done!");
+            Console.ReadKey();
+        }
+
+        private static void OnlineMatch(Matcher matcher, IReadOnlyList<MatcherSample> samples)
+        {
+            // Create initial (empty) state memory
+            var kstate = new MatcherKState();
+
+            // Iterate over sequence (stream) of samples
+            foreach (var sample in samples)
+            {
+                // Execute matcher with single sample and update state memory
+                var vector = kstate.Vector();
+                vector = matcher.Execute(vector, kstate.Sample, sample);
+                kstate.Update(vector, sample);
+
+                // Access map matching result: estimate for most recent sample
+                var estimated = kstate.Estimate();
+                Console.WriteLine("RoadID={0}", estimated.Point.Edge.RoadInfo.Id); // The id of the road in your map
+            }
+        }
+
+        private static void OfflineMatch(Matcher matcher, IReadOnlyList<MatcherSample> samples)
+        {
+            var kstate = new MatcherKState();
 
             //Do the offline map-matching
             Console.WriteLine("Doing map-matching...");
@@ -50,22 +83,26 @@ namespace Sandwych.MapMatchingKit.Examples.HelloWorldApp
             Console.WriteLine("Fetching map-matching results...");
             var candidatesSequence = kstate.Sequence();
             var timeElapsed = DateTime.Now - startedOn;
-            Console.WriteLine("Map-matching elapsed time: {0}, Speed={1} samples/second", timeElapsed, samples.Length / timeElapsed.TotalSeconds);
-            Console.WriteLine("Results:");
+            Console.WriteLine("Map-matching elapsed time: {0}, Speed={1} samples/second", timeElapsed, samples.Count / timeElapsed.TotalSeconds);
+            Console.WriteLine("Results: [count={0}]", candidatesSequence.Count());
+            var csvLines = new List<string>();
+            csvLines.Add("time,lng,lat,azimuth");
             foreach (var cand in candidatesSequence)
             {
                 var roadId = cand.Point.Edge.RoadInfo.Id; // original road id
                 var heading = cand.Point.Edge.Headeing; // heading
                 var coord = cand.Point.Coordinate; // GPS position (on the road)
+                csvLines.Add(string.Format("{0},{1},{2},{3}", cand.Sample.Time.ToUnixTimeSeconds(), coord.X, coord.Y, cand.Point.Azimuth));
                 if (cand.HasTransition)
                 {
-                    var geom = cand.Transition.Route.ToGeometry(); // path geometry from last matching candidate
-                    Console.WriteLine("RoadID={0}\t\tFraction={1}", roadId, cand.Point.Fraction);
+                    var geom = cand.Transition.Route.ToGeometry(); // path geometry(LineString) from last matching candidate
+                    //cand.Transition.Route.Edges // Road segments between two GPS position
                 }
             }
 
-            Console.WriteLine("All done!");
-            Console.ReadKey();
+            var csvFile = Path.Combine(s_dataDir, "samples.output.csv");
+            Console.WriteLine("Writing output file: {0}", csvFile);
+            File.WriteAllLines(csvFile, csvLines);
         }
 
 
@@ -82,7 +119,7 @@ namespace Sandwych.MapMatchingKit.Examples.HelloWorldApp
                 var timeStr = i.Properties["field_8"].ToString().Substring(0, timeFormat.Length);
                 var time = DateTimeOffset.ParseExact(timeStr, timeFormat, CultureInfo.InvariantCulture);
                 var longTime = time.ToUnixTimeMilliseconds();
-                yield return new MatcherSample(longTime, longTime, coord2D);
+                yield return new MatcherSample(longTime, time, coord2D);
             }
         }
 

@@ -14,6 +14,12 @@ namespace Sandwych.MapMatchingKit.Markov
         public double Filtprob { get; set; }
         public TCandidate Predecessor { get; set; }
         public bool HasTransition { get; private set; }
+        public TSample Sample { get; }
+
+        protected AbstractStateCandidate(in TSample sample)
+        {
+            this.Sample = sample;
+        }
 
         public TTransition Transition
         {
@@ -30,10 +36,6 @@ namespace Sandwych.MapMatchingKit.Markov
                 _transition = value;
                 this.HasTransition = true;
             }
-        }
-
-        public AbstractStateCandidate()
-        {
         }
 
         public virtual bool Equals(TCandidate other)

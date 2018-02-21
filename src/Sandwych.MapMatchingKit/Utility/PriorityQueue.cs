@@ -10,9 +10,32 @@ using System.Collections.Generic;
 
 namespace Sandwych.MapMatchingKit.Utility
 {
-
     public sealed class PriorityQueue<T> where T : IComparable<T>
     {
+        private readonly struct IndexedItem
+        {
+            public T Value { get; }
+            public int Id { get; }
+
+            public IndexedItem(in T value, int id)
+            {
+                this.Value = value;
+                this.Id = id;
+            }
+
+            public int CompareTo(in IndexedItem other)
+            {
+                var c = Value.CompareTo(other.Value);
+                if (c == 0)
+                {
+                    c = Id.CompareTo(other.Id);
+                }
+
+                return c;
+            }
+
+        }
+
         private static int _count = int.MinValue;
         private IndexedItem[] _items;
         private int _size;
@@ -30,7 +53,9 @@ namespace Sandwych.MapMatchingKit.Utility
 
         private bool IsHigherPriority(int left, int right)
         {
-            return _items[left].CompareTo(_items[right]) < 0;
+            ref var leftItem = ref _items[left];
+            ref var rightItem = ref _items[right];
+            return leftItem.CompareTo(rightItem) < 0;
         }
 
         private void Percolate(int index)
@@ -51,11 +76,11 @@ namespace Sandwych.MapMatchingKit.Utility
                 var temp = _items[index];
                 _items[index] = _items[parent];
                 _items[parent] = temp;
-                Percolate(parent);
+                this.Percolate(parent);
             }
         }
 
-        private void Heapify() => Heapify(index: 0);
+        private void Heapify() => this.Heapify(0);
 
         private void Heapify(int index)
         {
@@ -68,12 +93,12 @@ namespace Sandwych.MapMatchingKit.Utility
             var right = 2 * index + 2;
             var first = index;
 
-            if (left < _size && IsHigherPriority(left, first))
+            if (left < _size && this.IsHigherPriority(left, first))
             {
                 first = left;
             }
 
-            if (right < _size && IsHigherPriority(right, first))
+            if (right < _size && this.IsHigherPriority(right, first))
             {
                 first = right;
             }
@@ -83,7 +108,7 @@ namespace Sandwych.MapMatchingKit.Utility
                 var temp = _items[index];
                 _items[index] = _items[first];
                 _items[first] = temp;
-                Heapify(first);
+                this.Heapify(first);
             }
         }
 
@@ -92,7 +117,9 @@ namespace Sandwych.MapMatchingKit.Utility
         public T Peek()
         {
             if (_size == 0)
+            {
                 throw new InvalidOperationException("Heap is empty");
+            }
 
             return _items[0].Value;
         }
@@ -100,10 +127,13 @@ namespace Sandwych.MapMatchingKit.Utility
         private void RemoveAt(int index)
         {
             _items[index] = _items[--_size];
-            _items[_size] = default(IndexedItem);
 
-            Heapify();
+            this.Heapify();
+            this.ShrinkWhenRequired();
+        }
 
+        private void ShrinkWhenRequired()
+        {
             if (_size < _items.Length / 4)
             {
                 var temp = _items;
@@ -114,12 +144,22 @@ namespace Sandwych.MapMatchingKit.Utility
 
         public T Dequeue()
         {
-            var result = Peek();
-            RemoveAt(0);
+            var result = this.Peek();
+            this.RemoveAt(0);
             return result;
         }
 
         public void Enqueue(T item)
+        {
+            this.GrowWhenRequired();
+
+            var index = _size++;
+            _count++;
+            _items[index] = new IndexedItem(item, _count);
+            this.Percolate(index);
+        }
+
+        private void GrowWhenRequired()
         {
             if (_size >= _items.Length)
             {
@@ -127,18 +167,13 @@ namespace Sandwych.MapMatchingKit.Utility
                 _items = new IndexedItem[_items.Length * 2];
                 Array.Copy(temp, _items, temp.Length);
             }
-
-            var index = _size++;
-            _count++;
-            _items[index] = new IndexedItem { Value = item, Id = _count };
-            Percolate(index);
         }
 
-        public bool Remove(T item)
+        public bool Remove(in T item)
         {
             for (var i = 0; i < _size; ++i)
             {
-                if (EqualityComparer<T>.Default.Equals(_items[i].Value, item))
+                if (_items[i].Value.CompareTo(item) == 0)
                 {
                     RemoveAt(i);
                     return true;
@@ -146,23 +181,6 @@ namespace Sandwych.MapMatchingKit.Utility
             }
 
             return false;
-        }
-
-        private struct IndexedItem : IComparable<IndexedItem>
-        {
-            public T Value;
-            public int Id;
-
-            public int CompareTo(IndexedItem other)
-            {
-                var c = Value.CompareTo(other.Value);
-                if (c == 0)
-                {
-                    c = Id.CompareTo(other.Id);
-                }
-
-                return c;
-            }
         }
 
     } //class PriorityQueue

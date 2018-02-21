@@ -39,6 +39,12 @@ namespace Sandwych.MapMatchingKit.Markov
 
 
         /// <summary>
+        /// Time of the last state update in milliseconds epoch time.
+        /// </summary>
+        DateTimeOffset Time { get; }
+
+
+        /// <summary>
         /// Updates the state with a state vector which is a set of {@link StateCandidate} objects with
         /// its respective measurement, which is a sample object.
         /// </summary>

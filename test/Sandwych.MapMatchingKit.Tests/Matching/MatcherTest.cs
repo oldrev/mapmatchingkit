@@ -83,7 +83,7 @@ namespace Sandwych.MapMatchingKit.Tests.Matching
             Assert.Equal(route.StartPoint.Edge.Id, transition.Transition.Route.StartPoint.Edge.Id);
             Assert.Equal(route.EndPoint.Edge.Id, transition.Transition.Route.EndPoint.Edge.Id);
 
-            double beta = lambda == 0 ? (2.0 * (target.Item2.Time - source.Item2.Time) / 1000)
+            double beta = lambda == 0 ? (2.0 * (target.Item2.Time - source.Item2.Time).TotalSeconds)
                     : 1 / lambda;
             double @base = 1.0 * _spatial.Distance(source.Item2.Coordinate, target.Item2.Coordinate) / 60;
             double p = (1 / beta)
@@ -117,7 +117,7 @@ namespace Sandwych.MapMatchingKit.Tests.Matching
                 filter.MaxRadius = 100D;
                 var sample = new Coordinate2D(11.001, 48.001);
 
-                var candidates = filter.Candidates(new MatcherCandidate[] { }, new MatcherSample(0, 0, sample));
+                var candidates = filter.ComputeCandidates(new MatcherCandidate[] { }, new MatcherSample(0, 0, sample));
 
                 Assert.Empty(candidates);
             }
@@ -126,7 +126,7 @@ namespace Sandwych.MapMatchingKit.Tests.Matching
             {
                 filter.MaxRadius = radius;
 
-                var candidates = filter.Candidates(new MatcherCandidate[] { }, new MatcherSample(0, 0, sample));
+                var candidates = filter.ComputeCandidates(new MatcherCandidate[] { }, new MatcherSample(0, 0, sample));
 
                 var refset = new HashSet<long>(refsetIds);
                 var set = new HashSet<long>();
@@ -161,12 +161,12 @@ namespace Sandwych.MapMatchingKit.Tests.Matching
                 var predecessors = new HashSet<MatcherCandidate>();
                 var candidates = new HashSet<MatcherCandidate>();
 
-                foreach (var candidate in filter.Candidates(new HashSet<MatcherCandidate>(), sample1))
+                foreach (var candidate in filter.ComputeCandidates(new HashSet<MatcherCandidate>(), sample1))
                 {
                     predecessors.Add(candidate.Candidate);
                 }
 
-                foreach (var candidate in filter.Candidates(new HashSet<MatcherCandidate>(), sample2))
+                foreach (var candidate in filter.ComputeCandidates(new HashSet<MatcherCandidate>(), sample2))
                 {
                     candidates.Add(candidate.Candidate);
                 }
@@ -174,7 +174,7 @@ namespace Sandwych.MapMatchingKit.Tests.Matching
                 Assert.Equal(2, predecessors.Count);
                 Assert.Equal(4, candidates.Count);
 
-                var transitions = filter.Transitions((sample1, predecessors), (sample2, candidates));
+                var transitions = filter.ComputeTransitions((sample1, predecessors), (sample2, candidates));
 
                 Assert.Equal(2, transitions.Count);
 
@@ -196,12 +196,12 @@ namespace Sandwych.MapMatchingKit.Tests.Matching
                 var predecessors = new HashSet<MatcherCandidate>();
                 var candidates = new HashSet<MatcherCandidate>();
 
-                foreach (var candidate in filter.Candidates(new HashSet<MatcherCandidate>(), sample1))
+                foreach (var candidate in filter.ComputeCandidates(new HashSet<MatcherCandidate>(), sample1))
                 {
                     predecessors.Add(candidate.Candidate);
                 }
 
-                foreach (var candidate in filter.Candidates(new HashSet<MatcherCandidate>(), sample2))
+                foreach (var candidate in filter.ComputeCandidates(new HashSet<MatcherCandidate>(), sample2))
                 {
                     candidates.Add(candidate.Candidate);
                 }
@@ -209,7 +209,7 @@ namespace Sandwych.MapMatchingKit.Tests.Matching
                 Assert.Equal(4, predecessors.Count);
                 Assert.Equal(2, candidates.Count);
 
-                var transitions = filter.Transitions((sample1, predecessors), (sample2, candidates));
+                var transitions = filter.ComputeTransitions((sample1, predecessors), (sample2, candidates));
 
                 Assert.Equal(4, transitions.Count);
 

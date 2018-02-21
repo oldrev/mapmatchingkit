@@ -6,6 +6,6 @@ namespace Sandwych.MapMatchingKit.Markov
 {
     public interface ISample
     {
-        long Time { get; }
+        DateTimeOffset Time { get; }
     }
 }

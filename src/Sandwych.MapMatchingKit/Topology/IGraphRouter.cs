@@ -14,6 +14,8 @@ namespace Sandwych.MapMatchingKit.Topology
             Func<TEdge, double> bound = null, double max = double.NaN);
 
 
+        IDictionary<P, (P, IEnumerable<TEdge>)> Route(IEnumerable<P> sources, IEnumerable<P> targets, Func<TEdge, double> cost,
+            Func<TEdge, double> bound = null, double max = double.NaN);
     }
 
 

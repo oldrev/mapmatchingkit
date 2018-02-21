@@ -116,7 +116,7 @@ namespace Sandwych.MapMatchingKit.Examples.HelloWorldApp
             {
                 var p = i.Geometry as Point;
                 var coord2D = new Coordinate2D(p.Coordinates.Longitude, p.Coordinates.Latitude);
-                var timeStr = i.Properties["field_8"].ToString().Substring(0, timeFormat.Length);
+                var timeStr = i.Properties["time"].ToString().Substring(0, timeFormat.Length);
                 var time = DateTimeOffset.ParseExact(timeStr, timeFormat, CultureInfo.InvariantCulture);
                 var longTime = time.ToUnixTimeMilliseconds();
                 yield return new MatcherSample(longTime, time, coord2D);

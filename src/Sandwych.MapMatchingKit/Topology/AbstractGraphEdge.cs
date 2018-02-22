@@ -4,7 +4,14 @@ using System.Text;
 
 namespace Sandwych.MapMatchingKit.Topology
 {
-    public abstract class AbstractGraphEdge<TEdge> : IGraphEdge<TEdge>
+
+    /// <summary>
+    /// Abstract edge in a directed <see cref="Topology.AbstractGraph{TEdge}"/>.
+    /// </summary>
+    /// <typeparam name="TEdge">Implementation of <see cref="Topology.AbstractGraph{TEdge}" /> in a directed graph. 
+    /// (Use the curiously recurring template pattern (CRTP) for type-safe use of customized edge type.)
+    /// </typeparam>
+    public abstract class AbstractGraphEdge<TEdge> : IGraphEdge<TEdge>, IEquatable<TEdge>
         where TEdge : class, IGraphEdge<TEdge>
     {
         public long Id { get; }
@@ -25,7 +32,7 @@ namespace Sandwych.MapMatchingKit.Topology
             this.Target = target;
         }
 
-        public IEnumerable<TEdge> Successors
+        public virtual IEnumerable<TEdge> Successors
         {
             get
             {
@@ -48,5 +55,15 @@ namespace Sandwych.MapMatchingKit.Topology
         }
 
         public override int GetHashCode() => this.Id.GetHashCode();
+
+        public virtual bool Equals(TEdge other)
+        {
+            if (object.ReferenceEquals(this, other))
+            {
+                return true;
+            }
+
+            return this.Id == other.Id;
+        }
     }
 }

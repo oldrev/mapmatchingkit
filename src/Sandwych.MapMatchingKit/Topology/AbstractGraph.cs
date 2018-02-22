@@ -5,6 +5,7 @@ using System.Linq;
 
 namespace Sandwych.MapMatchingKit.Topology
 {
+
     public abstract class AbstractGraph<TEdge> : IGraph<TEdge>
         where TEdge : AbstractGraphEdge<TEdge>
     {

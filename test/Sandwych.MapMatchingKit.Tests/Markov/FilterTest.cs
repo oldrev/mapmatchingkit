@@ -21,7 +21,7 @@ namespace Sandwych.MapMatchingKit.Tests.Markov
                 this.Id = id;
             }
 
-            public MockElement(int id, double filtprob, double seqprob) : this(null, id)
+            public MockElement(int id, double filtprob, double seqprob) : this(default, id)
             {
                 this.Filtprob = filtprob;
                 this.Seqprob = seqprob;

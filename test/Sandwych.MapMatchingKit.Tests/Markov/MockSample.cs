@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Sandwych.MapMatchingKit.Tests.Markov
 {
-    public sealed class MockSample : ISample
+    public readonly struct MockSample : ISample
     {
         public DateTimeOffset Time { get; }
 

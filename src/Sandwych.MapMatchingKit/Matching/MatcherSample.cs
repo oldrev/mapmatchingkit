@@ -12,7 +12,7 @@ namespace Sandwych.MapMatchingKit.Matching
     /// Measurement sample for Hidden Markov Model (HMM) map matching which is a position measurement,
     /// e.g. measured with a GPS device.
     /// </summary>
-    public sealed class MatcherSample : ISample
+    public readonly struct MatcherSample : ISample
     {
         public long Id { get; }
         public DateTimeOffset Time { get; }

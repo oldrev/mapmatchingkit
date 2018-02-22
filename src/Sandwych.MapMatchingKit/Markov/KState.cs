@@ -245,9 +245,9 @@ namespace Sandwych.MapMatchingKit.Markov
         /// <returns>List of the most likely sequence of state candidates.</returns>
         public IEnumerable<TCandidate> Sequence()
         {
-            var ksequence = new List<TCandidate>(_sequence.Count);
             if (_sequence.Count > 0)
             {
+                var ksequence = new List<TCandidate>(_sequence.Count);
                 var kestimate = _sequence.PeekLast().Estimated;
 
                 for (int i = _sequence.Count - 1; i >= 0; --i)
@@ -263,9 +263,17 @@ namespace Sandwych.MapMatchingKit.Markov
                         kestimate = _sequence[i].Estimated.Predecessor;
                     }
                 }
+
+                if (ksequence.Count > 1)
+                {
+                    ksequence.Reverse();
+                }
+                return ksequence;
             }
-            ksequence.Reverse();
-            return ksequence;
+            else
+            {
+                return new TCandidate[] { };
+            }
         }
 
     }

@@ -116,11 +116,7 @@ namespace Sandwych.MapMatchingKit.Markov
 
             if (predecessors.Count() > 0)
             {
-                var states = new HashSet<TCandidate>();
-                foreach (var candidate in candidates)
-                {
-                    states.Add(candidate.Candidate);
-                }
+                var states = candidates.Select(c => c.Candidate).Distinct();
 
                 var transitions = this.ComputeTransitions((previous, predecessors), (sample, states));
 
@@ -139,7 +135,7 @@ namespace Sandwych.MapMatchingKit.Markov
                                 continue;
                             }
 
-                            candidate_.Filtprob = candidate_.Filtprob + (transition.Probability * predecessor.Filtprob);
+                            candidate_.Filtprob += transition.Probability * predecessor.Filtprob;
 
                             var seqprob = predecessor.Seqprob + Math.Log10(transition.Probability) + Math.Log10(candidate.Probability);
 

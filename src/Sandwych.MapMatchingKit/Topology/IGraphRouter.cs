@@ -7,15 +7,17 @@ namespace Sandwych.MapMatchingKit.Topology
 {
     public interface IGraphRouter<TEdge, P>
         where TEdge : IGraphEdge<TEdge>
-        where P : IEdgePoint<TEdge>
+        where P : IEdgePoint<TEdge>, IEquatable<P>
     {
 
-        IDictionary<P, IEnumerable<TEdge>> Route(P source, IEnumerable<P> targets, Func<TEdge, double> cost,
-            Func<TEdge, double> bound = null, double max = double.NaN);
+        IEnumerable<TEdge> Route(P source, P target,
+            Func<TEdge, double> cost, Func<TEdge, double> bound = null, double max = double.NaN);
 
+        IDictionary<P, IEnumerable<TEdge>> Route(P source, IEnumerable<P> targets,
+            Func<TEdge, double> cost, Func<TEdge, double> bound = null, double max = double.NaN);
 
-        IDictionary<P, (P, IEnumerable<TEdge>)> Route(IEnumerable<P> sources, IEnumerable<P> targets, Func<TEdge, double> cost,
-            Func<TEdge, double> bound = null, double max = double.NaN);
+        IDictionary<P, (P, IEnumerable<TEdge>)> Route(IEnumerable<P> sources, IEnumerable<P> targets,
+            Func<TEdge, double> cost, Func<TEdge, double> bound = null, double max = double.NaN);
     }
 
 

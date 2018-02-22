@@ -44,12 +44,11 @@ namespace Sandwych.MapMatchingKit.Roads
         }
 
         public override int GetHashCode() =>
-            (this.Edge, this.Fraction, this.Coordinate, this.Azimuth).GetHashCode();
+            (this.Edge, this.Fraction).GetHashCode();
 
 
-        public bool Equals(RoadPoint other)
-        {
-            return object.ReferenceEquals(this.Edge, other.Edge) && this.Fraction == other.Fraction && this.Coordinate == other.Coordinate && this.Azimuth == other.Azimuth;
-        }
+        public bool Equals(RoadPoint other) =>
+            this.Edge == other.Edge && Math.Abs(this.Fraction - other.Fraction) < 10E-6;
+
     }
 }

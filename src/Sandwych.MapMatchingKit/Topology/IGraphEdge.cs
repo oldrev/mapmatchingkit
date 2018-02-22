@@ -10,7 +10,7 @@ namespace Sandwych.MapMatchingKit.Topology
     /// <typeparam name="T">Implementation of <see cref="Topology.IGraphEdge{T}" /> in a directed graph. 
     /// (Use the curiously recurring template pattern (CRTP) for type-safe use of customized edge type.)
     /// </typeparam>
-    public interface IGraphEdge<T>
+    public interface IGraphEdge<T> : IEquatable<T>
         where T : IGraphEdge<T>
     {
         /// <summary>

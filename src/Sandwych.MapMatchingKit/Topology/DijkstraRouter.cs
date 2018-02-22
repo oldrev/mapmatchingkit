@@ -16,19 +16,23 @@ namespace Sandwych.MapMatchingKit.Topology
     /// <typeparam name="P"><see cref="Sandwych.MapMatchingKit.Topology.IEdgePoint{TEdge}"/> type of positions in the network.</typeparam>
     public class DijkstraRouter<TEdge, P> : IGraphRouter<TEdge, P>
         where TEdge : class, IGraphEdge<TEdge>
-        where P : IEdgePoint<TEdge>
+        where P : IEdgePoint<TEdge>, IEquatable<P>
     {
         public ILogger Logger { get; set; } = NullLogger.Instance;
 
         /// <summary>
         /// Route mark representation.
         /// </summary>
-        private sealed class Mark : IComparable<Mark>
+        private readonly struct Mark : IComparable<Mark>, IEquatable<Mark>
         {
             public TEdge MarkedEdge { get; }
             public TEdge PredecessorEdge { get; }
             public double Cost { get; }
             public double BoundingCost { get; }
+
+            private readonly static Mark s_empty = new Mark(null, null, double.NaN, double.NaN);
+            public static ref readonly Mark Empty => ref s_empty;
+            public bool IsEmpty => double.IsNaN(this.Cost);
 
             /// <summary>
             /// Constructor of an entry.
@@ -47,6 +51,11 @@ namespace Sandwych.MapMatchingKit.Topology
 
             public int CompareTo(Mark other)
             {
+                if (this.IsEmpty || other.IsEmpty)
+                {
+                    throw new InvalidOperationException();
+                }
+
                 if (this.Cost < other.Cost)
                 {
                     return -1;
@@ -63,40 +72,28 @@ namespace Sandwych.MapMatchingKit.Topology
 
             public override int GetHashCode() =>
                 (this.MarkedEdge, this.PredecessorEdge, this.Cost, this.BoundingCost).GetHashCode();
+
+            public bool Equals(Mark other)
+            {
+                if (this.IsEmpty || other.IsEmpty)
+                {
+                    throw new InvalidOperationException();
+                }
+                return this.CompareTo(other) == 0;
+            }
         }
 
-        public IEnumerable<TEdge> Route(P source, P target, Func<TEdge, double> cost)
-        {
-            return Ssst(source, target, cost, null, double.NaN);
-        }
+        public IDictionary<P, IEnumerable<TEdge>> Route(P source, IEnumerable<P> targets,
+            Func<TEdge, double> cost, Func<TEdge, double> bound = null, double max = double.NaN) =>
+            Ssmt(source, targets, cost, bound, max);
 
-        public IEnumerable<TEdge> Route(P source, P target, Func<TEdge, double> cost, Func<TEdge, double> bound, double max)
-        {
-            return Ssst(source, target, cost, bound, max);
-        }
+        public IDictionary<P, (P, IEnumerable<TEdge>)> Route(IEnumerable<P> sources, IEnumerable<P> targets,
+            Func<TEdge, double> cost, Func<TEdge, double> bound = null, double max = double.NaN) =>
+            Msmt(sources, targets, cost, bound, max);
 
-        public IDictionary<P, IEnumerable<TEdge>> Route(P source, IEnumerable<P> targets, Func<TEdge, double> cost)
-        {
-            return Ssmt(source, targets, cost, null, double.NaN);
-        }
-
-        public IDictionary<P, IEnumerable<TEdge>> Route(P source, IEnumerable<P> targets, Func<TEdge, double> cost,
-            Func<TEdge, double> bound = null, double max = double.NaN)
-        {
-            return Ssmt(source, targets, cost, bound, max);
-        }
-
-        public IDictionary<P, (P, IEnumerable<TEdge>)> Route(IEnumerable<P> sources, IEnumerable<P> targets, Func<TEdge, double> cost,
-            Func<TEdge, double> bound, double max)
-        {
-            return Msmt(sources, targets, cost, bound, max);
-        }
-
-        private IEnumerable<TEdge> Ssst(P source, P target, Func<TEdge, double> cost, Func<TEdge, double> bound, double max)
-        {
-            var targets = new P[] { target };
-            return Ssmt(source, targets, cost, bound, max)[target];
-        }
+        public IEnumerable<TEdge> Route(P source, P target,
+            Func<TEdge, double> cost, Func<TEdge, double> bound = null, double max = double.NaN) =>
+            Ssmt(source, new P[] { target }, cost, bound, max)[target];
 
         private IDictionary<P, IEnumerable<TEdge>> Ssmt(P source, IEnumerable<P> targets, Func<TEdge, double> cost, Func<TEdge, double> bound, double max = double.NaN)
         {
@@ -116,7 +113,7 @@ namespace Sandwych.MapMatchingKit.Topology
             /*
              * Initialize map of edges to target points.
              */
-            var targetEdges = new Dictionary<TEdge, HashSet<P>>();
+            var targetEdges = new Dictionary<TEdge, ICollection<P>>();
             foreach (var target in targets)
             {
                 if (this.Logger.IsEnabled(LogLevel.Debug))
@@ -127,7 +124,7 @@ namespace Sandwych.MapMatchingKit.Topology
 
                 if (!targetEdges.ContainsKey(target.Edge))
                 {
-                    targetEdges[target.Edge] = new HashSet<P>() { target };
+                    targetEdges[target.Edge] = new HashSet<P> { target };
                 }
                 else
                 {
@@ -159,6 +156,7 @@ namespace Sandwych.MapMatchingKit.Topology
                         source, source.Edge.Id, source.Fraction, startcost);
                 }
 
+                //On the same edge
                 if (targetEdges.TryGetValue(source.Edge, out var targetsMap))
                 {
                     // start edge reaches target edge
@@ -308,7 +306,7 @@ namespace Sandwych.MapMatchingKit.Topology
                         {
                             this.Logger.LogDebug("added successor edge {0} with {1} cost", successor.Id, succcost);
                         }
-                        Mark mark = new Mark(successor, current.MarkedEdge, succcost, succbound);
+                        var mark = new Mark(successor, current.MarkedEdge, succcost, succbound);
                         entries.Add(successor, mark);
                         priorities.Enqueue(mark);
                     }
@@ -323,12 +321,26 @@ namespace Sandwych.MapMatchingKit.Topology
                 {
                     var path = new List<TEdge>();
                     var iterator = finishs[targetPoint];
-                    Mark start = null;
-                    while (iterator != null)
+                    var start = Mark.Empty;
+                    while (!iterator.IsEmpty)
                     {
                         path.Add(iterator.MarkedEdge);
                         start = iterator;
-                        iterator = iterator.PredecessorEdge != null ? entries.GetOrNull(iterator.PredecessorEdge) : null;
+                        if (iterator.PredecessorEdge != null)
+                        {
+                            if (entries.TryGetValue(iterator.PredecessorEdge, out var pem))
+                            {
+                                iterator = pem;
+                            }
+                            else
+                            {
+                                iterator = Mark.Empty;
+                            }
+                        }
+                        else
+                        {
+                            iterator = Mark.Empty;
+                        }
                     }
                     path.Reverse();
                     var tp = (starts[start], path);

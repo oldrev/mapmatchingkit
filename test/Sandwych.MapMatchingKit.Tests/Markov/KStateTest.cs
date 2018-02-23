@@ -201,7 +201,7 @@ namespace Sandwych.MapMatchingKit.Tests.Markov
             elements.Add(1, new MockElem(1, Math.Log10(0.2), 0.2, null));
             elements.Add(2, new MockElem(2, Math.Log10(0.5), 0.5, null));
 
-            var state = new KState<MockElem, MockStateTransition, MockSample>(1, TimeSpan.MaxValue);
+            var state = new KState<MockElem, MockStateTransition, MockSample>(1);
             {
                 var vector = new HashSet<MockElem>() {
                     elements[0], elements[1], elements[2]
@@ -299,7 +299,7 @@ namespace Sandwych.MapMatchingKit.Tests.Markov
             elements.Add(1, new MockElem(1, Math.Log10(0.2), 0.2, null));
             elements.Add(2, new MockElem(2, Math.Log10(0.5), 0.5, null));
 
-            var state = new KState<MockElem, MockStateTransition, MockSample>(-1, TimeSpan.FromMilliseconds(1));
+            var state = new KState<MockElem, MockStateTransition, MockSample>(-1, TimeSpan.FromMilliseconds(1.0));
             {
                 var vector = new HashSet<MockElem>() { elements[0], elements[1], elements[2] };
 

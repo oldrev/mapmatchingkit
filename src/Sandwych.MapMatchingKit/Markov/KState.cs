@@ -23,28 +23,30 @@ namespace Sandwych.MapMatchingKit.Markov
         {
             public ICollection<TCandidate> Candidates { get; }
             public TSample Sample { get; }
-            public TCandidate Estimated { get; }
+            public TCandidate EstimatedCandidate { get; }
 
             public SequenceEntry(ICollection<TCandidate> candidates, in TSample sample, in TCandidate estimated)
             {
                 this.Candidates = candidates;
                 this.Sample = sample;
-                this.Estimated = estimated;
+                this.EstimatedCandidate = estimated;
             }
         }
 
-        private readonly int _k = -1;
-        private readonly TimeSpan _t = TimeSpan.MaxValue;
         private readonly Deque<SequenceEntry> _sequence;
         private readonly IDictionary<TCandidate, int> _counters;
+
+        public int SequenceSizeBound { get; } = -1;
+        public TimeSpan SequenceIntervalBound { get; } = TimeSpan.MinValue;
 
         /// <summary>
         /// Creates empty <see cref="KState{TCandidate, TTransition, TSample}"/> object with default parameters, i.e. capacity is unbounded.
         /// </summary>
-        public KState() : this(-1, TimeSpan.MaxValue)
-        {
-        }
+        public KState() : this(-1, TimeSpan.MinValue) { }
 
+        public KState(int k) : this(k, TimeSpan.MinValue) { }
+
+        public KState(TimeSpan t) : this(-1, t) { }
 
         /// <summary>
         /// Creates an empty <see cref="KState{TCandidate, TTransition, TSample}"/> object and sets <i>&kappa;</i> and <i>&tau;</i> parameters.
@@ -53,8 +55,8 @@ namespace Sandwych.MapMatchingKit.Markov
         /// <param name="t"><i>&tau;</i> parameter bounds length of the state sequence to contain only states for the past <i>&tau;</i> milliseconds.</param>
         public KState(int k, TimeSpan t)
         {
-            this._k = k;
-            this._t = t;
+            this.SequenceSizeBound = k;
+            this.SequenceIntervalBound = t;
             this._sequence = new Deque<SequenceEntry>();
             this._counters = new Dictionary<TCandidate, int>();
         }
@@ -152,7 +154,7 @@ namespace Sandwych.MapMatchingKit.Markov
 
                 foreach (TCandidate candidate in deletes)
                 {
-                    if (deletes.Count != size || candidate != last.Estimated)
+                    if (deletes.Count != size || candidate != last.EstimatedCandidate)
                     {
                         this.Remove(candidate, _sequence.Count - 1);
                     }
@@ -161,8 +163,8 @@ namespace Sandwych.MapMatchingKit.Markov
 
             _sequence.AddToBack(new SequenceEntry(vector, sample, kestimate));
 
-            while ((_t != TimeSpan.MaxValue && (sample.Time - _sequence.PeekFirst().Sample.Time) > _t)
-                    || (_k >= 0 && _sequence.Count > _k + 1))
+            while ((SequenceIntervalBound >= TimeSpan.Zero && (sample.Time - _sequence.PeekFirst().Sample.Time) > SequenceIntervalBound)
+                || (SequenceSizeBound >= 0 && _sequence.Count > SequenceSizeBound + 1))
             {
                 var deletes = _sequence.PeekFirst().Candidates;
                 _sequence.RemoveFromFront();
@@ -178,7 +180,7 @@ namespace Sandwych.MapMatchingKit.Markov
                 }
             }
 
-            bool assert = (_k < 0 || _sequence.Count <= _k + 1);
+            bool assert = (SequenceSizeBound < 0 || _sequence.Count <= SequenceSizeBound + 1);
             if (!assert)
             {
                 throw new InvalidOperationException();
@@ -187,7 +189,7 @@ namespace Sandwych.MapMatchingKit.Markov
 
         protected void Remove(in TCandidate candidate, int index)
         {
-            if (_sequence[index].Estimated == candidate)
+            if (_sequence[index].EstimatedCandidate == candidate)
             {
                 return;
             }
@@ -245,30 +247,28 @@ namespace Sandwych.MapMatchingKit.Markov
         /// <returns>List of the most likely sequence of state candidates.</returns>
         public IEnumerable<TCandidate> Sequence()
         {
-            if (_sequence.Count > 0)
+            IEnumerable<TCandidate> EnumerateSequenceBackward()
             {
-                var ksequence = new List<TCandidate>(_sequence.Count);
-                var kestimate = _sequence.PeekLast().Estimated;
+                var kestimate = _sequence.PeekLast().EstimatedCandidate;
 
-                for (int i = _sequence.Count - 1; i >= 0; --i)
+                foreach (var entry in _sequence.Reverse())
                 {
                     if (kestimate != null)
                     {
-                        ksequence.Add(kestimate);
+                        yield return kestimate;
                         kestimate = kestimate.Predecessor;
                     }
                     else
                     {
-                        ksequence.Add(_sequence[i].Estimated);
-                        kestimate = _sequence[i].Estimated.Predecessor;
+                        yield return entry.EstimatedCandidate;
+                        kestimate = entry.EstimatedCandidate.Predecessor;
                     }
                 }
+            }
 
-                if (ksequence.Count > 1)
-                {
-                    ksequence.Reverse();
-                }
-                return ksequence;
+            if (_sequence.Count > 0)
+            {
+                return EnumerateSequenceBackward().Reverse();
             }
             else
             {

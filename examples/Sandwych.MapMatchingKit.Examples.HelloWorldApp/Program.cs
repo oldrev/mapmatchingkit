@@ -2,15 +2,15 @@
 using System.IO;
 using System.Linq;
 using System.Globalization;
-using Newtonsoft.Json;
-using GeoJSON.Net.Feature;
-using GeoJSON.Net.Geometry;
+using NetTopologySuite.Features;
+using NetTopologySuite.IO;
 using Sandwych.MapMatchingKit.Matching;
 using System.Collections.Generic;
 using Sandwych.MapMatchingKit.Spatial.Geometries;
 using Sandwych.MapMatchingKit.Roads;
 using Sandwych.MapMatchingKit.Topology;
 using Sandwych.MapMatchingKit.Spatial;
+using GeoAPI.Geometries;
 
 namespace Sandwych.MapMatchingKit.Examples.HelloWorldApp
 {
@@ -109,14 +109,15 @@ namespace Sandwych.MapMatchingKit.Examples.HelloWorldApp
         private static IEnumerable<MatcherSample> ReadSamples()
         {
             var json = File.ReadAllText(Path.Combine(s_dataDir, @"samples.geojson"));
-            var fc = JsonConvert.DeserializeObject<FeatureCollection>(json);
+            var reader = new GeoJsonReader();
+            var fc = reader.Read<FeatureCollection>(json);
             var timeFormat = "yyyy-MM-dd-HH.mm.ss";
             var samples = new List<MatcherSample>();
             foreach (var i in fc.Features)
             {
-                var p = i.Geometry as Point;
-                var coord2D = new Coordinate2D(p.Coordinates.Longitude, p.Coordinates.Latitude);
-                var timeStr = i.Properties["time"].ToString().Substring(0, timeFormat.Length);
+                var p = i.Geometry as IPoint;
+                var coord2D = new Coordinate2D(p.X, p.Y);
+                var timeStr = i.Attributes["time"].ToString().Substring(0, timeFormat.Length);
                 var time = DateTimeOffset.ParseExact(timeStr, timeFormat, CultureInfo.InvariantCulture);
                 var longTime = time.ToUnixTimeMilliseconds();
                 yield return new MatcherSample(longTime, time, coord2D);
@@ -127,19 +128,18 @@ namespace Sandwych.MapMatchingKit.Examples.HelloWorldApp
         private static IEnumerable<RoadInfo> ReadRoads(ISpatialOperation spatial)
         {
             var json = File.ReadAllText(Path.Combine(s_dataDir, @"osm-kunming-roads-network.geojson"));
-            var fc = JsonConvert.DeserializeObject<FeatureCollection>(json);
+            var reader = new GeoJsonReader();
+            var fc = reader.Read<FeatureCollection>(json);
             foreach (var feature in fc.Features)
             {
-                var geom = feature.Geometry as LineString;
-                var lineCoords = geom.Coordinates.Select(c => new GeoAPI.Geometries.Coordinate(c.Longitude, c.Latitude)).ToArray();
-                var lineGeom = new NetTopologySuite.Geometries.LineString(lineCoords);
+                var lineGeom = feature.Geometry as ILineString;
                 yield return new RoadInfo(
-                    Convert.ToInt64(feature.Properties["gid"]),
-                    Convert.ToInt64(feature.Properties["source"]),
-                    Convert.ToInt64(feature.Properties["target"]),
-                    (double)feature.Properties["reverse"] >= 0D ? false : true,
+                    Convert.ToInt64(feature.Attributes["gid"]),
+                    Convert.ToInt64(feature.Attributes["source"]),
+                    Convert.ToInt64(feature.Attributes["target"]),
+                    (double)feature.Attributes["reverse"] >= 0D ? false : true,
                     (short)0,
-                    Convert.ToSingle(feature.Properties["priority"]),
+                    Convert.ToSingle(feature.Attributes["priority"]),
                     120f,
                     120f,
                     Convert.ToSingle(spatial.Length(lineGeom)),

@@ -94,27 +94,9 @@ namespace Sandwych.MapMatchingKit.Topology.PrecomputedDijkstra
             }
 
             var edges = GetPath();
-
-            if (this.CheckPathBoundingCost(edges, bound, max))
+            foreach (var edge in edges)
             {
-                foreach (var e in edges)
-                {
-                    yield return e;
-                }
-                yield break;
-            }
-        }
-
-        private bool CheckPathBoundingCost(IEnumerable<TEdge> path, Func<TEdge, double> bound = null, double max = double.NaN)
-        {
-            if (bound != null && !double.IsNaN(max))
-            {
-                var bounding = path.Sum(this._boundingCost);
-                return (bounding <= max);
-            }
-            else
-            {
-                return true;
+                yield return edge;
             }
         }
 

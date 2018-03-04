@@ -132,7 +132,7 @@ namespace Sandwych.MapMatchingKit.Examples.HelloWorldApp
 
         private static IEnumerable<RoadInfo> ReadRoads(ISpatialOperation spatial)
         {
-            var json = File.ReadAllText(System.IO.Path.Combine(s_dataDir, @"osm-kunming-roads-network.geojson"));
+            var json = File.ReadAllText(Path.Combine(s_dataDir, @"osm-kunming-roads-network.geojson"));
             var reader = new GeoJsonReader();
             var fc = reader.Read<FeatureCollection>(json);
             foreach (var feature in fc.Features)

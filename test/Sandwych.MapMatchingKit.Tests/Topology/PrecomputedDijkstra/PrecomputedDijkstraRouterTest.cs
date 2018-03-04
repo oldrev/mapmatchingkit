@@ -58,5 +58,24 @@ namespace Sandwych.MapMatchingKit.Tests.Topology.PrecomputedDijkstra
             Assert.Equal(expectedPath, actualPath);
         }
 
+        [Fact]
+        public void SelfLoopTest()
+        {
+            var max = 200D;
+            var start = new RoadPoint(_map.GetEdge(0), 0.3);
+            var targets = new RoadPoint[] {
+                new RoadPoint(_map.GetEdge(0), 0.2),
+            };
+            Func<Road, double> cost = r => r.Weight;
+
+            var dijkstraRouter = new DijkstraRouter<Road, RoadPoint>();
+            var precomputedRouter = new PrecomputedDijkstraRouter<Road, RoadPoint>(_map, cost, cost, max);
+
+            var expectedPath = dijkstraRouter.Route(start, targets, cost, cost, max);
+            var actualPath = precomputedRouter.Route(start, targets, cost, cost, max);
+
+            Assert.Equal(expectedPath, actualPath);
+        }
+
     }
 }

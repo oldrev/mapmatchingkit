@@ -95,7 +95,7 @@ namespace Sandwych.MapMatchingKit.Tests.Matching
         private ISet<long> RefSet(Coordinate2D sample, double radius)
         {
             var refset = new HashSet<long>();
-            foreach (var road in _map.Edges.Values)
+            foreach (var road in _map.EdgeMap.Values)
             {
                 double f = _spatial.Intercept(road.Geometry, sample);
                 var i = _spatial.Interpolate(road.Geometry, f);

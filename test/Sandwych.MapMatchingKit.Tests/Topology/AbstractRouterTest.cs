@@ -57,23 +57,23 @@ namespace Sandwych.MapMatchingKit.Tests.Topology
 
             AssertSinglePath(
                 expectedPath: new long[] { 0L },
-                sources: new RoadPoint[] { new RoadPoint(map.Edges[0L], 0.3) },
-                targets: new RoadPoint[] { new RoadPoint(map.Edges[0L], 0.3) });
+                sources: new RoadPoint[] { new RoadPoint(map.EdgeMap[0L], 0.3) },
+                targets: new RoadPoint[] { new RoadPoint(map.EdgeMap[0L], 0.3) });
 
             AssertSinglePath(
                 expectedPath: new long[] { 0L },
-                sources: new RoadPoint[] { new RoadPoint(map.Edges[0L], 0.3) },
-                targets: new RoadPoint[] { new RoadPoint(map.Edges[0L], 0.7) });
+                sources: new RoadPoint[] { new RoadPoint(map.EdgeMap[0L], 0.3) },
+                targets: new RoadPoint[] { new RoadPoint(map.EdgeMap[0L], 0.7) });
 
             AssertSinglePath(
                 expectedPath: new long[] { 0L, 1L, 0L },
-                sources: new RoadPoint[] { new RoadPoint(map.Edges[0L], 0.7) },
-                targets: new RoadPoint[] { new RoadPoint(map.Edges[0L], 0.3) });
+                sources: new RoadPoint[] { new RoadPoint(map.EdgeMap[0L], 0.7) },
+                targets: new RoadPoint[] { new RoadPoint(map.EdgeMap[0L], 0.3) });
 
             AssertSinglePath(
                 expectedPath: new long[] { 1L, 0L },
-                sources: new RoadPoint[] { new RoadPoint(map.Edges[0], 0.8), new RoadPoint(map.Edges[1L], 0.2) },
-                targets: new RoadPoint[] { new RoadPoint(map.Edges[0L], 0.7) });
+                sources: new RoadPoint[] { new RoadPoint(map.EdgeMap[0], 0.8), new RoadPoint(map.EdgeMap[1L], 0.2) },
+                targets: new RoadPoint[] { new RoadPoint(map.EdgeMap[0L], 0.7) });
         }
 
         [Fact]
@@ -87,23 +87,23 @@ namespace Sandwych.MapMatchingKit.Tests.Topology
 
             AssertSinglePath(
                 expectedPath: new long[] { 0L },
-                sources: new RoadPoint[] { new RoadPoint(map.Edges[0L], 0.3) },
-                targets: new RoadPoint[] { new RoadPoint(map.Edges[0L], 0.7) });
+                sources: new RoadPoint[] { new RoadPoint(map.EdgeMap[0L], 0.3) },
+                targets: new RoadPoint[] { new RoadPoint(map.EdgeMap[0L], 0.7) });
 
             AssertSinglePath(
                 expectedPath: new long[] { 0L, 0L },
-                sources: new RoadPoint[] { new RoadPoint(map.Edges[0L], 0.7) },
-                targets: new RoadPoint[] { new RoadPoint(map.Edges[0L], 0.3) });
+                sources: new RoadPoint[] { new RoadPoint(map.EdgeMap[0L], 0.7) },
+                targets: new RoadPoint[] { new RoadPoint(map.EdgeMap[0L], 0.3) });
 
             AssertSinglePath(
                 expectedPath: new long[] { 0L, 0L },
-                sources: new RoadPoint[] { new RoadPoint(map.Edges[0L], 0.8), new RoadPoint(map.Edges[1L], 0.2) },
-                targets: new RoadPoint[] { new RoadPoint(map.Edges[0L], 0.2) });
+                sources: new RoadPoint[] { new RoadPoint(map.EdgeMap[0L], 0.8), new RoadPoint(map.EdgeMap[1L], 0.2) },
+                targets: new RoadPoint[] { new RoadPoint(map.EdgeMap[0L], 0.2) });
 
             AssertSinglePath(
                 expectedPath: new long[] { 1L, 0L },
-                sources: new RoadPoint[] { new RoadPoint(map.Edges[0L], 0.4), new RoadPoint(map.Edges[1L], 0.6) },
-                targets: new RoadPoint[] { new RoadPoint(map.Edges[0L], 0.3) });
+                sources: new RoadPoint[] { new RoadPoint(map.EdgeMap[0L], 0.4), new RoadPoint(map.EdgeMap[1L], 0.6) },
+                targets: new RoadPoint[] { new RoadPoint(map.EdgeMap[0L], 0.3) });
         }
 
         [Fact]
@@ -138,8 +138,8 @@ namespace Sandwych.MapMatchingKit.Tests.Topology
                 };
                 AssertMultiplePaths(
                     expectedPaths: paths,
-                    sources: new RoadPoint[] { new RoadPoint(map.Edges[0], 0.3), new RoadPoint(map.Edges[1], 0.7) },
-                    targets: new RoadPoint[] { new RoadPoint(map.Edges[14], 0.3), new RoadPoint(map.Edges[15], 0.7) });
+                    sources: new RoadPoint[] { new RoadPoint(map.EdgeMap[0], 0.3), new RoadPoint(map.EdgeMap[1], 0.7) },
+                    targets: new RoadPoint[] { new RoadPoint(map.EdgeMap[14], 0.3), new RoadPoint(map.EdgeMap[15], 0.7) });
             }
             {
                 // (0.7, 100) + 50 + 100 + (0.1, 200) = 240
@@ -149,8 +149,8 @@ namespace Sandwych.MapMatchingKit.Tests.Topology
                 };
                 AssertMultiplePaths(
                     expectedPaths: paths,
-                    sources: new RoadPoint[] { new RoadPoint(map.Edges[0], 0.3), new RoadPoint(map.Edges[1], 0.7) },
-                    targets: new RoadPoint[] { new RoadPoint(map.Edges[14], 0.1), new RoadPoint(map.Edges[15], 0.9) });
+                    sources: new RoadPoint[] { new RoadPoint(map.EdgeMap[0], 0.3), new RoadPoint(map.EdgeMap[1], 0.7) },
+                    targets: new RoadPoint[] { new RoadPoint(map.EdgeMap[14], 0.1), new RoadPoint(map.EdgeMap[15], 0.9) });
             }
 
             var router = new DijkstraRouter<Road, RoadPoint>();

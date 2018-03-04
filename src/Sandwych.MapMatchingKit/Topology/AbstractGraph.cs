@@ -6,11 +6,11 @@ using System.Linq;
 namespace Sandwych.MapMatchingKit.Topology
 {
 
-    public abstract class AbstractGraph<TEdge> : IGraph<TEdge>
+    public abstract class AbstractGraph<TEdge> : QuickGraph.AdjacencyGraph<long, TEdge>, IGraph<TEdge>
         where TEdge : AbstractGraphEdge<TEdge>
     {
         private bool _constructed = false;
-        private readonly Dictionary<long, TEdge> _edges = new Dictionary<long, TEdge>();
+        private readonly Dictionary<long, TEdge> _edgeMap = new Dictionary<long, TEdge>();
 
         public AbstractGraph(IEnumerable<TEdge> edges)
         {
@@ -18,17 +18,19 @@ namespace Sandwych.MapMatchingKit.Topology
             {
                 throw new ArgumentNullException(nameof(edges));
             }
+
+            this.AddVerticesAndEdgeRange(edges);
             foreach (var e in edges)
             {
-                _edges.Add(e.Id, e);
+                _edgeMap.Add(e.Id, e);
             }
 
             this.Construct();
         }
 
-        public TEdge GetEdge(long id) => _edges[id];
+        public TEdge GetEdge(long id) => _edgeMap[id];
 
-        public IReadOnlyDictionary<long, TEdge> Edges => _edges;
+        public IReadOnlyDictionary<long, TEdge> EdgeMap => _edgeMap;
 
         protected virtual void Construct()
         {
@@ -39,7 +41,7 @@ namespace Sandwych.MapMatchingKit.Topology
 
             var map = new Dictionary<long, IList<TEdge>>();
 
-            foreach (var edge in this.Edges.Values)
+            foreach (var edge in this.EdgeMap.Values)
             {
                 if (!map.ContainsKey(edge.Source))
                 {

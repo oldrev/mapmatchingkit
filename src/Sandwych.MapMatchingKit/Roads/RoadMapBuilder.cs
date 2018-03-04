@@ -58,7 +58,7 @@ namespace Sandwych.MapMatchingKit.Roads
         {
             var map = new Dictionary<long, IList<Road>>();
 
-            foreach (var edge in graph.Edges.Values)
+            foreach (var edge in graph.EdgeMap.Values)
             {
                 if (!map.ContainsKey(edge.Source))
                 {

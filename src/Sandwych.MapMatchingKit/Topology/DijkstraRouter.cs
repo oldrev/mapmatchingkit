@@ -20,69 +20,6 @@ namespace Sandwych.MapMatchingKit.Topology
     {
         public ILogger Logger { get; set; } = NullLogger.Instance;
 
-        /// <summary>
-        /// Route mark representation.
-        /// </summary>
-        private readonly struct Mark : IComparable<Mark>, IEquatable<Mark>
-        {
-            public TEdge MarkedEdge { get; }
-            public TEdge PredecessorEdge { get; }
-            public double Cost { get; }
-            public double BoundingCost { get; }
-
-            private readonly static Mark s_empty = new Mark(null, null, double.NaN, double.NaN);
-            public static ref readonly Mark Empty => ref s_empty;
-            public bool IsEmpty => double.IsNaN(this.Cost);
-
-            /// <summary>
-            /// Constructor of an entry.
-            /// </summary>
-            /// <param name="markedEdge">{@link AbstractEdge} defining the route mark.</param>
-            /// <param name="predecessorEdge">Predecessor {@link AbstractEdge}.</param>
-            /// <param name="cost">Cost value to this route mark.</param>
-            /// <param name="boundingCost">Bounding cost value to this route mark.</param>
-            public Mark(TEdge markedEdge, TEdge predecessorEdge, Double cost, Double boundingCost)
-            {
-                this.MarkedEdge = markedEdge;
-                this.PredecessorEdge = predecessorEdge;
-                this.Cost = cost;
-                this.BoundingCost = boundingCost;
-            }
-
-            public int CompareTo(Mark other)
-            {
-                if (this.IsEmpty || other.IsEmpty)
-                {
-                    throw new InvalidOperationException();
-                }
-
-                if (this.Cost < other.Cost)
-                {
-                    return -1;
-                }
-                else if (this.Cost > other.Cost)
-                {
-                    return 1;
-                }
-                else
-                {
-                    return 0;
-                }
-            }
-
-            public override int GetHashCode() =>
-                (this.MarkedEdge, this.PredecessorEdge, this.Cost, this.BoundingCost).GetHashCode();
-
-            public bool Equals(Mark other)
-            {
-                if (this.IsEmpty || other.IsEmpty)
-                {
-                    throw new InvalidOperationException();
-                }
-                return this.CompareTo(other) == 0;
-            }
-        }
-
         public IDictionary<P, IEnumerable<TEdge>> Route(P source, IEnumerable<P> targets,
             Func<TEdge, double> cost, Func<TEdge, double> bound = null, double max = double.NaN) =>
             Ssmt(source, targets, cost, bound, max);
@@ -135,11 +72,11 @@ namespace Sandwych.MapMatchingKit.Topology
             /*
              * Setup data structures
              */
-            var priorities = new PriorityQueue<Mark>();
-            var entries = new Dictionary<TEdge, Mark>();
-            var finishs = new Dictionary<P, Mark>();
-            var reaches = new Dictionary<Mark, P>();
-            var starts = new Dictionary<Mark, P>();
+            var priorities = new PriorityQueue<RouteMark<TEdge>>();
+            var entries = new Dictionary<TEdge, RouteMark<TEdge>>();
+            var finishs = new Dictionary<P, RouteMark<TEdge>>();
+            var reaches = new Dictionary<RouteMark<TEdge>, P>();
+            var starts = new Dictionary<RouteMark<TEdge>, P>();
 
             /*
              * Initialize map of edges with start points
@@ -175,7 +112,7 @@ namespace Sandwych.MapMatchingKit.Topology
                                 target, source.Edge.Id, source.Fraction, target.Fraction, reachcost);
                         }
 
-                        var reach = new Mark(source.Edge, null, reachcost, reachbound);
+                        var reach = new RouteMark<TEdge>(source.Edge, null, reachcost, reachbound);
                         reaches.Add(reach, target);
                         starts.Add(reach, source);
                         priorities.Enqueue(reach);
@@ -189,7 +126,7 @@ namespace Sandwych.MapMatchingKit.Topology
                         this.Logger.LogDebug("add source {0} with start edge {1} and fraction {2} with {3} cost",
                             source, source.Edge.Id, source.Fraction, startcost);
                     }
-                    start = new Mark(source.Edge, null, startcost, startbound);
+                    start = new RouteMark<TEdge>(source.Edge, null, startcost, startbound);
                     entries[source.Edge] = start;
                     starts[start] = source;
                     priorities.Enqueue(start);
@@ -203,7 +140,7 @@ namespace Sandwych.MapMatchingKit.Topology
                             this.Logger.LogDebug("update source {0} with start edge {1} and fraction {2} with {3} cost",
                                 source, source.Edge.Id, source.Fraction, startcost);
                         }
-                        start = new Mark(source.Edge, null, startcost, startbound);
+                        start = new RouteMark<TEdge>(source.Edge, null, startcost, startbound);
                         entries[source.Edge] = start;
                         starts[start] = source;
                         priorities.Remove(start);
@@ -294,7 +231,7 @@ namespace Sandwych.MapMatchingKit.Topology
                                     targetEdge, successor.Id, targetEdge.Fraction, reachcost);
                             }
 
-                            var reach = new Mark(successor, current.MarkedEdge, reachcost, reachbound);
+                            var reach = new RouteMark<TEdge>(successor, current.MarkedEdge, reachcost, reachbound);
                             reaches.Add(reach, targetEdge);
                             priorities.Enqueue(reach);
                         }
@@ -306,7 +243,7 @@ namespace Sandwych.MapMatchingKit.Topology
                         {
                             this.Logger.LogDebug("added successor edge {0} with {1} cost", successor.Id, succcost);
                         }
-                        var mark = new Mark(successor, current.MarkedEdge, succcost, succbound);
+                        var mark = new RouteMark<TEdge>(successor, current.MarkedEdge, succcost, succbound);
                         entries.Add(successor, mark);
                         priorities.Enqueue(mark);
                     }
@@ -321,7 +258,7 @@ namespace Sandwych.MapMatchingKit.Topology
                 {
                     var path = new List<TEdge>();
                     var iterator = finishs[targetPoint];
-                    var start = Mark.Empty;
+                    var start = RouteMark<TEdge>.Empty;
                     while (!iterator.IsEmpty)
                     {
                         path.Add(iterator.MarkedEdge);
@@ -334,12 +271,12 @@ namespace Sandwych.MapMatchingKit.Topology
                             }
                             else
                             {
-                                iterator = Mark.Empty;
+                                iterator = RouteMark<TEdge>.Empty;
                             }
                         }
                         else
                         {
-                            iterator = Mark.Empty;
+                            iterator = RouteMark<TEdge>.Empty;
                         }
                     }
                     path.Reverse();

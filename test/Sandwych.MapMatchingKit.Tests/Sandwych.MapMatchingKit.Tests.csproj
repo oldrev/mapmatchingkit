@@ -5,6 +5,7 @@
     <ApplicationIcon />
     <OutputType>Library</OutputType>
     <LangVersion>latest</LangVersion>
+    <RootNamespace>Sandwych.MapMatchingKit.Tests</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>

@@ -17,10 +17,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Examples", "Examples", "{DF
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sandwych.MapMatchingKit.Examples.HelloWorldApp", "examples\Sandwych.MapMatchingKit.Examples.HelloWorldApp\Sandwych.MapMatchingKit.Examples.HelloWorldApp.csproj", "{2CCF3F1B-FFF3-4153-952D-4564BEB4C11A}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Source", "Source", "{CCB5D40B-40A8-43C2-B0E2-F2B6F5D73917}"
+EndProject
 Global
-	GlobalSection(Performance) = preSolution
-		HasPerformanceSessions = true
-	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
@@ -51,12 +50,17 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
+		{13A3865C-37AB-49B6-9687-CA285DF2EB04} = {CCB5D40B-40A8-43C2-B0E2-F2B6F5D73917}
 		{0F1F7B8D-A56F-4028-9701-7636482404E9} = {5F02380C-9094-411E-9CB8-40B6259F79D8}
+		{B8F22581-A63E-4F9C-AF6B-A2115F00FD9C} = {CCB5D40B-40A8-43C2-B0E2-F2B6F5D73917}
 		{6B856AA6-C7E4-4F3D-8D18-35871BAED45F} = {5F02380C-9094-411E-9CB8-40B6259F79D8}
 		{2CCF3F1B-FFF3-4153-952D-4564BEB4C11A} = {DF6975B6-10B3-49EA-966D-0F623BB27BE9}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {F6CFD619-16DA-4D64-BC25-789DAC1BD83D}
+	EndGlobalSection
+	GlobalSection(Performance) = preSolution
+		HasPerformanceSessions = true
 	EndGlobalSection
 	GlobalSection(Performance) = preSolution
 		HasPerformanceSessions = true

@@ -45,10 +45,10 @@ namespace Sandwych.MapMatchingKit.Roads
              */
             foreach (var point in points)
             {
-                yield return new RoadPoint(this.Edges[point.road.Id * 2], point.fraction, _spatial);
+                yield return new RoadPoint(this.EdgeMap[point.road.Id * 2], point.fraction, _spatial);
 
                 var backwardRoadId = point.road.Id * 2 + 1;
-                if (this.Edges.TryGetValue(backwardRoadId, out var road))
+                if (this.EdgeMap.TryGetValue(backwardRoadId, out var road))
                 {
                     yield return new RoadPoint(road, 1.0 - point.fraction, _spatial);
                 }

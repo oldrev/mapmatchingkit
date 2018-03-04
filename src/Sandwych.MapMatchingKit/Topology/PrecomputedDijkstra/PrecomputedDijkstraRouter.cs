@@ -16,7 +16,7 @@ namespace Sandwych.MapMatchingKit.Topology.PrecomputedDijkstra
         public ILogger Logger { get; set; } = NullLogger.Instance;
 
         private readonly IGraph<TEdge> _graph;
-        private readonly PrecomputedDijkstraTable<long, TEdge> _ubodt;
+        private readonly PrecomputedDijkstraTable<long, TEdge> _precomputedTable;
         private readonly Func<TEdge, double> _cost;
         private readonly Func<TEdge, double> _boundingCost;
         private readonly double _maxRadius;
@@ -27,7 +27,7 @@ namespace Sandwych.MapMatchingKit.Topology.PrecomputedDijkstra
             _cost = cost;
             _boundingCost = boundingCost;
             _maxRadius = max;
-            _ubodt = this.CreateTable();
+            _precomputedTable = this.CreateTable();
         }
 
         public IReadOnlyDictionary<P, IEnumerable<TEdge>> Route(P source, IEnumerable<P> targets, Func<TEdge, double> cost,
@@ -48,16 +48,7 @@ namespace Sandwych.MapMatchingKit.Topology.PrecomputedDijkstra
         public IReadOnlyDictionary<P, (P, IEnumerable<TEdge>)> Route(IEnumerable<P> sources, IEnumerable<P> targets, Func<TEdge, double> cost = null,
             Func<TEdge, double> bound = null, double max = double.NaN)
         {
-            var result = new Dictionary<P, (P, IEnumerable<TEdge>)>();
-            foreach (var source in sources)
-            {
-                var ssmtResult = this.Route(source, targets, cost, bound, max);
-                foreach (var r in ssmtResult)
-                {
-                    result.Add(r.Key, (source, r.Value));
-                }
-            }
-            return result;
+            throw new NotSupportedException();
         }
 
         public IEnumerable<TEdge> Route(P source, P target, Func<TEdge, double> cost, Func<TEdge, double> bound = null, double max = double.NaN)
@@ -79,7 +70,7 @@ namespace Sandwych.MapMatchingKit.Topology.PrecomputedDijkstra
         private IEnumerable<TEdge> RouteInternal(
             P source, P target, Func<TEdge, double> cost, Func<TEdge, double> bound = null, double max = Double.NaN)
         {
-            //On Same Road and forward
+            //On same road && forward
             if (source.Edge.Equals(target.Edge) && source.Fraction <= target.Fraction)
             {
                 yield return source.Edge;
@@ -92,7 +83,18 @@ namespace Sandwych.MapMatchingKit.Topology.PrecomputedDijkstra
                 yield break;
             }
 
-            var edges = _ubodt.GetPathByEdge(source.Edge, target.Edge);
+            IEnumerable<TEdge> GetPath()
+            {
+                yield return source.Edge;
+                foreach (var edge in _precomputedTable.GetPathByVertex(source.Edge.Target, target.Edge.Source))
+                {
+                    yield return edge;
+                }
+                yield return target.Edge;
+            }
+
+            var edges = GetPath();
+
             if (this.CheckPathBoundingCost(edges, bound, max))
             {
                 foreach (var e in edges)

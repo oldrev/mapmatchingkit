@@ -54,7 +54,11 @@ namespace Sandwych.MapMatchingKit.Tests.Topology
                 new object[] {
                     map,
                     new long[] { 1L, 0L },
-                    new RoadPoint[] { new RoadPoint(map.EdgeMap[0], 0.8), new RoadPoint(map.EdgeMap[1L], 0.2) },
+                    new RoadPoint[] 
+                    {
+                        new RoadPoint(map.EdgeMap[0], 0.8),
+                        new RoadPoint(map.EdgeMap[1L], 0.2)
+                    },
                     new RoadPoint[] { new RoadPoint(map.EdgeMap[0L], 0.7) },
                     cost, null, double.NaN
                 },

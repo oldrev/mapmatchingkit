@@ -55,7 +55,6 @@ namespace Sandwych.MapMatchingKit.Tests.Topology
             this.AssertSinglePath(expectedPath, sources, targets, routes);
         }
 
-        /*
         [Theory]
         [ClassData(typeof(RouterTestData_SelfLoop))]
         public void TestSelfLoop(
@@ -67,7 +66,6 @@ namespace Sandwych.MapMatchingKit.Tests.Topology
             var routes = route.Route(sources, targets, cost, bound, max);
             this.AssertSinglePath(expectedPath, sources, targets, routes);
         }
-        */
 
 
         /*

@@ -28,7 +28,8 @@ namespace Sandwych.MapMatchingKit.Examples.HelloWorldApp
             var map = mapBuilder.AddRoads(roads).Build();
             Console.WriteLine("The road map has been loaded");
 
-            var matcher = new Matcher(map, new DijkstraRouter<Road, RoadPoint>(), Costs.TimePriorityCost, spatial);
+            var matcher = new Matcher<MatcherCandidate, MatcherTransition, MatcherSample>(
+                map, new DijkstraRouter<Road, RoadPoint>(), Costs.TimePriorityCost, spatial);
             matcher.MaxDistance = 1000; // set maximum searching distance between two GPS points to 1000 meters.
             matcher.MaxRadius = 200.0; // sets maximum radius for candidate selection to 200 meters
 
@@ -48,7 +49,9 @@ namespace Sandwych.MapMatchingKit.Examples.HelloWorldApp
             Console.ReadKey();
         }
 
-        private static void OnlineMatch(Matcher matcher, IReadOnlyList<MatcherSample> samples)
+        private static void OnlineMatch(
+            Matcher<MatcherCandidate, MatcherTransition, MatcherSample> matcher,
+            IReadOnlyList<MatcherSample> samples)
         {
             // Create initial (empty) state memory
             var kstate = new MatcherKState();
@@ -67,7 +70,9 @@ namespace Sandwych.MapMatchingKit.Examples.HelloWorldApp
             }
         }
 
-        private static void OfflineMatch(Matcher matcher, IReadOnlyList<MatcherSample> samples)
+        private static void OfflineMatch(
+            Matcher<MatcherCandidate, MatcherTransition, MatcherSample> matcher,
+            IReadOnlyList<MatcherSample> samples)
         {
             var kstate = new MatcherKState();
 

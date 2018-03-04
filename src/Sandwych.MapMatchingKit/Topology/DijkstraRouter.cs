@@ -20,11 +20,11 @@ namespace Sandwych.MapMatchingKit.Topology
     {
         public ILogger Logger { get; set; } = NullLogger.Instance;
 
-        public IDictionary<P, IEnumerable<TEdge>> Route(P source, IEnumerable<P> targets,
+        public IReadOnlyDictionary<P, IEnumerable<TEdge>> Route(P source, IEnumerable<P> targets,
             Func<TEdge, double> cost, Func<TEdge, double> bound = null, double max = double.NaN) =>
             Ssmt(source, targets, cost, bound, max);
 
-        public IDictionary<P, (P, IEnumerable<TEdge>)> Route(IEnumerable<P> sources, IEnumerable<P> targets,
+        public IReadOnlyDictionary<P, (P, IEnumerable<TEdge>)> Route(IEnumerable<P> sources, IEnumerable<P> targets,
             Func<TEdge, double> cost, Func<TEdge, double> bound = null, double max = double.NaN) =>
             Msmt(sources, targets, cost, bound, max);
 
@@ -32,7 +32,7 @@ namespace Sandwych.MapMatchingKit.Topology
             Func<TEdge, double> cost, Func<TEdge, double> bound = null, double max = double.NaN) =>
             Ssmt(source, new P[] { target }, cost, bound, max)[target];
 
-        private IDictionary<P, IEnumerable<TEdge>> Ssmt(P source, IEnumerable<P> targets, Func<TEdge, double> cost, Func<TEdge, double> bound, double max = double.NaN)
+        private IReadOnlyDictionary<P, IEnumerable<TEdge>> Ssmt(P source, IEnumerable<P> targets, Func<TEdge, double> cost, Func<TEdge, double> bound, double max = double.NaN)
         {
             var sources = new P[1] { source };
             var map = Msmt(sources, targets, cost, bound, max);
@@ -44,7 +44,7 @@ namespace Sandwych.MapMatchingKit.Topology
             return result;
         }
 
-        private IDictionary<P, (P, IEnumerable<TEdge>)> Msmt(IEnumerable<P> sources, IEnumerable<P> targets, Func<TEdge, double> cost,
+        private IReadOnlyDictionary<P, (P, IEnumerable<TEdge>)> Msmt(IEnumerable<P> sources, IEnumerable<P> targets, Func<TEdge, double> cost,
                 Func<TEdge, double> bound, double max)
         {
             /*

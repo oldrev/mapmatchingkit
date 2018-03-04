@@ -12,9 +12,9 @@ namespace Sandwych.MapMatchingKit.Topology.PrecomputedDijkstra
 
         public IEnumerable<PrecomputedDijkstraTableRow<TVertex, TEdge>> ComputeRows(
             IVertexAndEdgeListGraph<TVertex, TEdge> graph,
-            Func<TEdge, double> cost, double maxRadius)
+            Func<TEdge, double> cost, Func<TEdge, double> bound, double maxRadius)
         {
-            var dijkstra = new BoundedDijkstraShortestPathAlgorithm<TVertex, TEdge>(graph, cost, maxRadius);
+            var dijkstra = new BoundedDijkstraShortestPathAlgorithm<TVertex, TEdge>(graph, cost, bound, maxRadius);
 
             foreach (var rootVertex in graph.Vertices)
             {
@@ -26,7 +26,7 @@ namespace Sandwych.MapMatchingKit.Topology.PrecomputedDijkstra
             }
         }
 
-        public IEnumerable<PrecomputedDijkstraTableRow<TVertex, TEdge>> ComputeRowsSingleSource(
+        private IEnumerable<PrecomputedDijkstraTableRow<TVertex, TEdge>> ComputeRowsSingleSource(
             IVertexAndEdgeListGraph<TVertex, TEdge> graph,
             BoundedDijkstraShortestPathAlgorithm<TVertex, TEdge> dijkstra,
             TVertex sourceVertex)

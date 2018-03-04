@@ -30,13 +30,41 @@ namespace Sandwych.MapMatchingKit.Topology.PrecomputedDijkstra
         {
         }
 
+        public bool HasPathByVertex(TVertex sourceVertex, TVertex targetVertex)
+        {
+            if (IsSameVertex(sourceVertex, targetVertex))
+            {
+                return false;
+            }
+            else
+            {
+                return this.ContainsKey((sourceVertex, targetVertex));
+            }
+        }
+
+        public bool HasPathByEdge(TEdge sourceEdge, TEdge targetEdge)
+        {
+            if (IsSameEdge(sourceEdge, targetEdge))
+            {
+                throw new InvalidOperationException();
+            }
+            else if (IsNeighbor(sourceEdge, targetEdge))
+            {
+                return true;
+            }
+            else
+            {
+                return this.HasPathByVertex(sourceEdge.Target, targetEdge.Source);
+            }
+        }
+
         public IEnumerable<TEdge> GetPathByEdge(TEdge sourceEdge, TEdge targetEdge)
         {
-            if (sourceEdge == targetEdge)
+            if (IsSameEdge(sourceEdge, targetEdge))
             {
-                yield break;
+                throw new InvalidOperationException();
             }
-            else if (sourceEdge.Target.Equals(targetEdge.Source))
+            else if (IsNeighbor(sourceEdge, targetEdge))
             {
                 yield return sourceEdge;
                 yield return targetEdge;
@@ -56,6 +84,11 @@ namespace Sandwych.MapMatchingKit.Topology.PrecomputedDijkstra
 
         public IEnumerable<TEdge> GetPathByVertex(TVertex sourceVertex, TVertex targetVertex)
         {
+            if (IsSameVertex(sourceVertex, targetVertex))
+            {
+                throw new InvalidOperationException();
+            }
+
             if (this.TryGetValue((sourceVertex, targetVertex), out var row))
             {
                 //now we got the first edge, then we started from the next row
@@ -74,6 +107,15 @@ namespace Sandwych.MapMatchingKit.Topology.PrecomputedDijkstra
                 yield break;
             }
         }
+
+        private static bool IsSameVertex(TVertex sourceVertex, TVertex targetVertex) =>
+            sourceVertex.Equals(targetVertex);
+
+        private static bool IsNeighbor(TEdge sourceEdge, TEdge targetEdge) =>
+            sourceEdge.Target.Equals(targetEdge.Source);
+
+        private static bool IsSameEdge(TEdge sourceEdge, TEdge targetEdge) =>
+            sourceEdge.Source.Equals(targetEdge.Source) && sourceEdge.Target.Equals(targetEdge.Target);
 
     }
 }

@@ -9,25 +9,26 @@ namespace Sandwych.MapMatchingKit.Tests.Topology
 {
     public abstract class AbstractRouterTest : TestBase
     {
-        protected abstract IGraphRouter<Road, RoadPoint> CreateRouter();
+        protected abstract IGraphRouter<Road, RoadPoint> CreateRouter(Graph graph, Func<Road, double> cost, Func<Road, double> bound, double max);
 
-        protected void AssertSinglePath(IEnumerable<long> expectedPath, IEnumerable<RoadPoint> sources, IEnumerable<RoadPoint> targets)
+        protected void AssertSinglePath(
+            IEnumerable<long> expectedPath,
+            IEnumerable<RoadPoint> sources,
+            IEnumerable<RoadPoint> targets,
+            IReadOnlyDictionary<RoadPoint, (RoadPoint, IEnumerable<Road>)> routes)
         {
-            var router = this.CreateRouter();
-            var routes = router.Route(sources, targets, e => e.Weight, null, double.NaN);
+            Assert.Equal(1, routes.Count);
             var route = routes[targets.First()];
 
             Assert.Equal(expectedPath.First(), route.Item1.Edge.Id);
             Assert.Equal(expectedPath, route.Item2.Select(r => r.Id));
         }
 
-        protected void AssertMultiplePaths(IReadOnlyDictionary<long, IEnumerable<long>> expectedPaths,
-            IEnumerable<RoadPoint> sources, IEnumerable<RoadPoint> targets,
-            Func<Road, double> bound = null, double max = double.NaN)
+        protected void AssertMultiplePathsTest(
+            IReadOnlyDictionary<RoadPoint, (RoadPoint, IEnumerable<Road>)> routes,
+            IReadOnlyDictionary<long, IEnumerable<long>> expectedPaths,
+            IEnumerable<RoadPoint> sources, IEnumerable<RoadPoint> targets)
         {
-            var router = this.CreateRouter();
-            var routes = router.Route(sources, targets, e => e.Weight, bound, max);
-
             Assert.Equal(expectedPaths.Count(), routes.Count());
 
             foreach (var pair in routes)
@@ -42,70 +43,34 @@ namespace Sandwych.MapMatchingKit.Tests.Topology
             }
         }
 
-
-        [Fact]
-        public void TestSameRoad()
+        [Theory]
+        [ClassData(typeof(RouterTestData_SameRoad))]
+        public void TestSameRoad(
+            Graph graph,
+            IEnumerable<long> expectedPath, IEnumerable<RoadPoint> sources, IEnumerable<RoadPoint> targets,
+            Func<Road, double> cost, Func<Road, double> bound, double max)
         {
-            var roads = new Road[] {
-                new Road(0, 0, 1, 100),
-                new Road(1, 1, 0, 20),
-                new Road(2, 0, 2, 100),
-                new Road(3, 1, 2, 100),
-                new Road(4, 1, 3, 100)
-            };
-            var map = new Graph(roads);
-
-            AssertSinglePath(
-                expectedPath: new long[] { 0L },
-                sources: new RoadPoint[] { new RoadPoint(map.EdgeMap[0L], 0.3) },
-                targets: new RoadPoint[] { new RoadPoint(map.EdgeMap[0L], 0.3) });
-
-            AssertSinglePath(
-                expectedPath: new long[] { 0L },
-                sources: new RoadPoint[] { new RoadPoint(map.EdgeMap[0L], 0.3) },
-                targets: new RoadPoint[] { new RoadPoint(map.EdgeMap[0L], 0.7) });
-
-            AssertSinglePath(
-                expectedPath: new long[] { 0L, 1L, 0L },
-                sources: new RoadPoint[] { new RoadPoint(map.EdgeMap[0L], 0.7) },
-                targets: new RoadPoint[] { new RoadPoint(map.EdgeMap[0L], 0.3) });
-
-            AssertSinglePath(
-                expectedPath: new long[] { 1L, 0L },
-                sources: new RoadPoint[] { new RoadPoint(map.EdgeMap[0], 0.8), new RoadPoint(map.EdgeMap[1L], 0.2) },
-                targets: new RoadPoint[] { new RoadPoint(map.EdgeMap[0L], 0.7) });
+            var route = this.CreateRouter(graph, cost, bound, max);
+            var routes = route.Route(sources, targets, cost, bound, max);
+            this.AssertSinglePath(expectedPath, sources, targets, routes);
         }
 
-        [Fact]
-        public void TestSelfLoop()
+        /*
+        [Theory]
+        [ClassData(typeof(RouterTestData_SelfLoop))]
+        public void TestSelfLoop(
+            Graph graph,
+            IEnumerable<long> expectedPath, IEnumerable<RoadPoint> sources, IEnumerable<RoadPoint> targets,
+            Func<Road, double> cost, Func<Road, double> bound, double max)
         {
-            var roads = new Road[] {
-                new Road(0, 0, 0, 100),
-                new Road(1, 0, 0, 100),
-            };
-            var map = new Graph(roads);
-
-            AssertSinglePath(
-                expectedPath: new long[] { 0L },
-                sources: new RoadPoint[] { new RoadPoint(map.EdgeMap[0L], 0.3) },
-                targets: new RoadPoint[] { new RoadPoint(map.EdgeMap[0L], 0.7) });
-
-            AssertSinglePath(
-                expectedPath: new long[] { 0L, 0L },
-                sources: new RoadPoint[] { new RoadPoint(map.EdgeMap[0L], 0.7) },
-                targets: new RoadPoint[] { new RoadPoint(map.EdgeMap[0L], 0.3) });
-
-            AssertSinglePath(
-                expectedPath: new long[] { 0L, 0L },
-                sources: new RoadPoint[] { new RoadPoint(map.EdgeMap[0L], 0.8), new RoadPoint(map.EdgeMap[1L], 0.2) },
-                targets: new RoadPoint[] { new RoadPoint(map.EdgeMap[0L], 0.2) });
-
-            AssertSinglePath(
-                expectedPath: new long[] { 1L, 0L },
-                sources: new RoadPoint[] { new RoadPoint(map.EdgeMap[0L], 0.4), new RoadPoint(map.EdgeMap[1L], 0.6) },
-                targets: new RoadPoint[] { new RoadPoint(map.EdgeMap[0L], 0.3) });
+            var route = this.CreateRouter(graph, cost, bound, max);
+            var routes = route.Route(sources, targets, cost, bound, max);
+            this.AssertSinglePath(expectedPath, sources, targets, routes);
         }
+        */
 
+
+        /*
         [Fact]
         public void TestShortestPath()
         {
@@ -132,29 +97,33 @@ namespace Sandwych.MapMatchingKit.Tests.Topology
             var map = new Graph(roads);
             {
                 // (0.7, 100) + 50 + 40 + 60 + (0.3, 200) = 280
+                var router = this.CreateRouter();
                 var paths = new Dictionary<long, IEnumerable<long>>() {
                     { 14L, new long[] { 0L, 4L, 8L, 14L } },
                     { 15L, new long[] { 0L, 4L, 10L, 16L, 15L } },
                 };
                 AssertMultiplePaths(
+                    router,
                     expectedPaths: paths,
                     sources: new RoadPoint[] { new RoadPoint(map.EdgeMap[0], 0.3), new RoadPoint(map.EdgeMap[1], 0.7) },
                     targets: new RoadPoint[] { new RoadPoint(map.EdgeMap[14], 0.3), new RoadPoint(map.EdgeMap[15], 0.7) });
             }
             {
                 // (0.7, 100) + 50 + 100 + (0.1, 200) = 240
+                var router = this.CreateRouter();
                 var paths = new Dictionary<long, IEnumerable<long>>() {
                     { 14L, new long[] { 0L, 4L, 8L, 14L } },
                     { 15L, new long[] { 0L, 4L, 10L, 16L, 15L } },
                 };
                 AssertMultiplePaths(
+                    router,
                     expectedPaths: paths,
                     sources: new RoadPoint[] { new RoadPoint(map.EdgeMap[0], 0.3), new RoadPoint(map.EdgeMap[1], 0.7) },
                     targets: new RoadPoint[] { new RoadPoint(map.EdgeMap[14], 0.1), new RoadPoint(map.EdgeMap[15], 0.9) });
             }
 
-            var router = new DijkstraRouter<Road, RoadPoint>();
             {
+                var router = CreateRouter();
                 // (0.7, 100) + 50 + 100 + (0.1, 200) = 240
                 var sources = new RoadPoint[] { new RoadPoint(map.GetEdge(0), 0.3), };
                 var targets = new RoadPoint[] { new RoadPoint(map.GetEdge(14), 0.1), };
@@ -164,6 +133,7 @@ namespace Sandwych.MapMatchingKit.Tests.Topology
                 Assert.Empty(route);
             }
             {
+                var router = CreateRouter();
                 // (0.7, 100) + 50 + 100 + (0.1, 200) = 240
                 // (0.7, 100) + 50 + 100 + (0.8, 200) = 380
 
@@ -199,6 +169,7 @@ namespace Sandwych.MapMatchingKit.Tests.Topology
                 }
             }
         }
+        */
 
     }
 }

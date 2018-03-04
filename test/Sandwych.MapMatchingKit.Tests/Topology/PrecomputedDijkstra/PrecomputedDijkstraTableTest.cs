@@ -12,6 +12,7 @@ namespace Sandwych.MapMatchingKit.Tests.Topology.PrecomputedDijkstra
     {
         [Theory]
         [InlineData("A", "B")]
+        [InlineData("A", "D")]
         [InlineData("A", "J")]
         [InlineData("C", "E")]
         public void TestGetPathByVertex(string sourceVertex, string targetVertex)
@@ -19,11 +20,11 @@ namespace Sandwych.MapMatchingKit.Tests.Topology.PrecomputedDijkstra
             var maxRadius = 500D;
 
             var naiveDijkstra = new BoundedDijkstraShortestPathAlgorithm<string, Edge<string>>(
-                MyGraph.GraphInstance, e => MyGraph.EdgeCosts[e], maxRadius);
+                MyGraph.GraphInstance, e => MyGraph.EdgeCosts[e], e => MyGraph.EdgeCosts[e], maxRadius);
             naiveDijkstra.Compute(sourceVertex);
 
             var generator = new PrecomputedDijkstraTableGenerator<string, Edge<string>>();
-            var rows = generator.ComputeRows(MyGraph.GraphInstance, e => MyGraph.EdgeCosts[e], maxRadius);
+            var rows = generator.ComputeRows(MyGraph.GraphInstance, e => MyGraph.EdgeCosts[e], e => MyGraph.EdgeCosts[e], maxRadius);
 
             var table = new PrecomputedDijkstraTable<string, Edge<string>>(rows);
             var actualPath = table.GetPathByVertex(sourceVertex, targetVertex);

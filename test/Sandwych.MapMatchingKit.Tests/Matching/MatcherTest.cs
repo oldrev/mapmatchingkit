@@ -112,7 +112,7 @@ namespace Sandwych.MapMatchingKit.Tests.Matching
         [Fact]
         public void TestCandidates()
         {
-            var filter = new Matcher(_map, _router, _cost, _spatial);
+            var filter = new Matcher<MatcherCandidate, MatcherTransition, MatcherSample>(_map, _router, _cost, _spatial);
             {
                 filter.MaxRadius = 100D;
                 var sample = new Coordinate2D(11.001, 48.001);
@@ -152,7 +152,7 @@ namespace Sandwych.MapMatchingKit.Tests.Matching
         [Fact]
         public void TestTransitions()
         {
-            var filter = new Matcher(_map, _router, _cost, _spatial);
+            var filter = new Matcher<MatcherCandidate, MatcherTransition, MatcherSample>(_map, _router, _cost, _spatial);
             filter.MaxRadius = 200D;
             {
                 MatcherSample sample1 = new MatcherSample(0, 0, new Coordinate2D(11.001, 48.001));

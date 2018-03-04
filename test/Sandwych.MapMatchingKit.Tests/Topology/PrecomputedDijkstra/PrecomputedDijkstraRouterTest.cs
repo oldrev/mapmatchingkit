@@ -1,17 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using Sandwych.MapMatchingKit.Topology;
-using Xunit;
+using Sandwych.MapMatchingKit.Topology.PrecomputedDijkstra;
 
-namespace Sandwych.MapMatchingKit.Tests.Topology
+namespace Sandwych.MapMatchingKit.Tests.Topology.PrecomputedDijkstra
 {
-    public class DijkstraRouterTest : AbstractRouterTest
+    public class PrecomputedDijkstraRouterTest : AbstractRouterTest
     {
         protected override IGraphRouter<Road, RoadPoint> CreateRouter(
             Graph graph, Func<Road, double> cost, Func<Road, double> bound, double max) =>
-            new DijkstraRouter<Road, RoadPoint>();
+            new PrecomputedDijkstraRouter<Road, RoadPoint>(graph, cost, bound, max);
     }
-
 }

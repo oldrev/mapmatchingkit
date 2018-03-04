@@ -17,7 +17,11 @@ namespace Sandwych.MapMatchingKit.Matching
     /// Matcher filter for Hidden Markov Model (HMM) map matching. It is a HMM filter (<see cref="IFilter{TCandidate, TTransition, TSample}"/>)
     /// and determines emission and transition probabilities for map matching with HMM.
     /// </summary>
-    public class Matcher : AbstractFilter<MatcherCandidate, MatcherTransition, MatcherSample>
+    /// <typeparam name="TCandidate">Candidate inherits from {@link StateCandidate}.</typeparam>
+    /// <typeparam name="TTransition">Transition inherits from {@link StateTransition}.</typeparam>
+    /// <typeparam name="TSample">Sample inherits from {@link Sample}.</typeparam>
+    public class Matcher<TCandidate, TTransition, TSample> : AbstractFilter<MatcherCandidate, MatcherTransition, MatcherSample>
+        where TCandidate : IStateCandidate<TCandidate, TTransition, TSample>
     {
         private readonly RoadMap _map;
         private readonly IGraphRouter<Road, RoadPoint> _router;

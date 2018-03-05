@@ -5,7 +5,7 @@ using NetTopologySuite.Index;
 
 namespace Sandwych.MapMatchingKit.Spatial.Index
 {
-    public readonly struct IndexItemVisitor<T> : IItemVisitor<T>
+    public sealed class IndexItemVisitor<T> : IItemVisitor<T>
     {
         public Action<T> Action { get; }
 

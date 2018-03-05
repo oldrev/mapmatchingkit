@@ -5,12 +5,8 @@
     <TargetFramework>netcoreapp2.0</TargetFramework>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <PlatformTarget>AnyCPU</PlatformTarget>
-  </PropertyGroup>
-
   <ItemGroup>
-    <PackageReference Include="NetTopologySuite.IO.GeoJSON" Version="1.15.0-pre061" />
+    <PackageReference Include="NetTopologySuite.IO.GeoJSON" Version="1.15.0-pre048" />
   </ItemGroup>
 
   <ItemGroup>

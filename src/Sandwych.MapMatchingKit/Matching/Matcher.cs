@@ -84,11 +84,16 @@ namespace Sandwych.MapMatchingKit.Matching
         /// </summary>
         public double MaxDistance { get; set; } = 15000.0;
 
+        /// <summary>
+        /// Gets or sets maximum number of candidates per state
+        /// </summary>
+        public int MaxCandidates { get; set; } = 8;
+
 
         public override IReadOnlyCollection<CandidateProbability> ComputeCandidates(
             IEnumerable<MatcherCandidate> predecessors, in MatcherSample sample)
         {
-            var points_ = this._map.Radius(sample.Coordinate, this.MaxRadius);
+            var points_ = this._map.Radius(sample.Coordinate, this.MaxRadius, this.MaxCandidates);
             var points = Minset.Minimize(points_);
 
             var dict = new Dictionary<long, RoadPoint>(points.Count);

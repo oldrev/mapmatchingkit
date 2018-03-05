@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using GeoAPI.Geometries;
 using NetTopologySuite.Index;
@@ -14,7 +15,7 @@ namespace Sandwych.MapMatchingKit.Spatial.Index
         protected Func<TItem, ILineString> ItemGeometryGetter { get; }
         protected Func<TItem, double> ItemLengthGetter { get; }
 
-        public AbstractSpatialIndex(IEnumerable<TItem> items, ISpatialOperation spatialService, 
+        public AbstractSpatialIndex(IEnumerable<TItem> items, ISpatialOperation spatialService,
             Func<TItem, ILineString> geometryGetter, Func<TItem, double> lengthGetter)
         {
             this.ItemGeometryGetter = geometryGetter;
@@ -23,7 +24,7 @@ namespace Sandwych.MapMatchingKit.Spatial.Index
             this.AddRange(items);
         }
 
-        public IReadOnlyList<(TItem, double)> Radius(Coordinate2D c, double radius)
+        public IEnumerable<(TItem, double)> Radius(Coordinate2D c, double radius, int k = -1)
         {
             var neighbors = new List<(TItem, double)>();
             var env = this.Spatial.Envelope(c, radius);
@@ -43,7 +44,14 @@ namespace Sandwych.MapMatchingKit.Spatial.Index
 
             Index.Query(env, visitor);
 
-            return neighbors;
+            if (k > 0)
+            {
+                return neighbors.OrderBy(i => i.Item2).Take(k);
+            }
+            else
+            {
+                return neighbors;
+            }
         }
 
         protected void Add(TItem item)

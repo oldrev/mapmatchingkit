@@ -36,7 +36,7 @@ namespace Sandwych.MapMatchingKit.Examples.HelloWorldApp
             var matcher = new Matcher<MatcherCandidate, MatcherTransition, MatcherSample>(
                 map, router, Costs.TimePriorityCost, spatial);
             matcher.MaxDistance = 1000; // set maximum searching distance between two GPS points to 1000 meters.
-            matcher.MaxRadius = 100.0; // sets maximum radius for candidate selection to 200 meters
+            matcher.MaxRadius = 200.0; // sets maximum radius for candidate selection to 200 meters
 
 
             Console.WriteLine("Loading GPS samples...");

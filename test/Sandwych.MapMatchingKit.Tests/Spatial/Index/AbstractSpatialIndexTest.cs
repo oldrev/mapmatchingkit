@@ -86,7 +86,7 @@ namespace Sandwych.MapMatchingKit.Tests.Spatial.Index
 
             var points = index.Radius(c, r);
 
-            Assert.Equal(neighbors.Count, points.Count);
+            Assert.Equal(neighbors.Count, points.Count());
             foreach (var pointId in points.Select(p => (int)p.Item1.UserData))
             {
                 Assert.Contains(pointId, neighbors);

@@ -31,7 +31,7 @@ namespace Sandwych.MapMatchingKit.Roads
 
             // The original Barefoot is using Quad Tree for spatial indexing, however, in my experiment, NTS's STRtree is
             // much faster than NTS's Quadtree.
-            this.Index = new RtreeIndex<RoadInfo>(roads.Select(x => x.RoadInfo), spatial, r => r.Geometry, r => r.Length);
+            this.Index = new Spatial.Index.RBush.RBushSpatialIndex<RoadInfo>(roads.Select(x => x.RoadInfo), spatial, r => r.Geometry, r => r.Length);
         }
 
         public RoadMap(IEnumerable<Road> roads) : this(roads, GeographySpatialOperation.Instance)
@@ -55,8 +55,8 @@ namespace Sandwych.MapMatchingKit.Roads
             }
         }
 
-        public IEnumerable<RoadPoint> Radius(in Coordinate2D c, double r) =>
-            this.Split(this.Index.Radius(c, r));
+        public IEnumerable<RoadPoint> Radius(in Coordinate2D c, double r, int k = -1) =>
+            this.Split(this.Index.Radius(c, r, k));
 
     }
 }

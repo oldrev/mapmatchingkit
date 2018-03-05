@@ -26,7 +26,7 @@ namespace Sandwych.MapMatchingKit.BenchmarkApp
     public class RoutersBenchmark
     {
         private const double MaxDistance = 1000D;
-        private const double MaxGpsRadius = 200D;
+        private const double MaxGpsRadius = 100D;
         private string DataDirPath { get; set; }
 
         private RoadMap _roadMap;
@@ -55,7 +55,7 @@ namespace Sandwych.MapMatchingKit.BenchmarkApp
             }
 
             {
-                var precomputedDijkstraRouter = new PrecomputedDijkstraRouter<Road, RoadPoint>(_roadMap, Costs.TimePriorityCost, Costs.DistanceCost, 1000D);
+                var precomputedDijkstraRouter = new PrecomputedDijkstraRouter<Road, RoadPoint>(_roadMap, Costs.TimePriorityCost, Costs.DistanceCost, MaxDistance);
                 _precomputedDijkstraMatcher = new Matcher<MatcherCandidate, MatcherTransition, MatcherSample>(
                     _roadMap, precomputedDijkstraRouter, Costs.TimePriorityCost, spatial);
                 _precomputedDijkstraMatcher.MaxDistance = MaxDistance; // set maximum searching distance between two GPS points to 1000 meters.

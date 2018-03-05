@@ -48,6 +48,7 @@ namespace Sandwych.MapMatchingKit.Examples.HelloWorldApp
 
 
             Console.WriteLine("Starting Online map-matching...");
+            //Uncomment below line to see how online-matching works
             //OnlineMatch(matcher, samples);
 
             Console.WriteLine("All done!");

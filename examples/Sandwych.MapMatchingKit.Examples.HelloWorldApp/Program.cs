@@ -16,7 +16,7 @@ namespace Sandwych.MapMatchingKit.Examples.HelloWorldApp
 {
     class Program
     {
-        private static readonly string s_dataDir = System.IO.Path.GetFullPath(System.IO.Path.Combine(Directory.GetCurrentDirectory(), "..", "..", "data"));
+        private static readonly string s_dataDir = Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), "..", "..", "data"));
 
         static void Main(string[] args)
         {
@@ -113,7 +113,7 @@ namespace Sandwych.MapMatchingKit.Examples.HelloWorldApp
 
         private static IEnumerable<MatcherSample> ReadSamples()
         {
-            var json = File.ReadAllText(System.IO.Path.Combine(s_dataDir, @"samples.geojson"));
+            var json = File.ReadAllText(System.IO.Path.Combine(s_dataDir, @"samples.oneday.geojson"));
             var reader = new GeoJsonReader();
             var fc = reader.Read<FeatureCollection>(json);
             var timeFormat = "yyyy-MM-dd-HH.mm.ss";

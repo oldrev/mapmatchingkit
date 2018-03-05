@@ -18,14 +18,5 @@ namespace Sandwych.MapMatchingKit.Matching
         }
 
         public override int GetHashCode() => this.Point.GetHashCode();
-
-        public override bool Equals(MatcherCandidate other)
-        {
-            if (object.ReferenceEquals(this, other))
-            {
-                return true;
-            }
-            return Point.Equals(other.Point) && Predecessor.Equals(other.Predecessor) && Transition.Equals(other.Transition);
-        }
     }
 }

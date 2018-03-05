@@ -17,7 +17,7 @@ namespace Sandwych.MapMatchingKit.Markov
     /// <typeparam name="TSample">Sample inherits from {@link Sample}.</typeparam>
     public abstract class AbstractFilter<TCandidate, TTransition, TSample> :
         IFilter<TCandidate, TTransition, TSample>
-        where TCandidate : IStateCandidate<TCandidate, TTransition, TSample>
+        where TCandidate : class, IStateCandidate<TCandidate, TTransition, TSample>
     {
         public ILogger Logger { get; set; } = NullLogger.Instance;
 

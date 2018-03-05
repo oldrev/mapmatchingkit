@@ -21,7 +21,7 @@ namespace Sandwych.MapMatchingKit.Matching
     /// <typeparam name="TTransition">Transition inherits from {@link StateTransition}.</typeparam>
     /// <typeparam name="TSample">Sample inherits from {@link Sample}.</typeparam>
     public class Matcher<TCandidate, TTransition, TSample> : AbstractFilter<MatcherCandidate, MatcherTransition, MatcherSample>
-        where TCandidate : IStateCandidate<TCandidate, TTransition, TSample>
+        where TCandidate : class, IStateCandidate<TCandidate, TTransition, TSample>
     {
         private readonly RoadMap _map;
         private readonly IGraphRouter<Road, RoadPoint> _router;

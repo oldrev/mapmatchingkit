@@ -6,7 +6,7 @@ namespace Sandwych.MapMatchingKit.Markov
 {
     public abstract class AbstractStateCandidate<TCandidate, TTransition, TSample> :
         IStateCandidate<TCandidate, TTransition, TSample>
-        where TCandidate : IStateCandidate<TCandidate, TTransition, TSample>
+        where TCandidate : class, IStateCandidate<TCandidate, TTransition, TSample>
     {
         private TTransition _transition;
 
@@ -38,13 +38,5 @@ namespace Sandwych.MapMatchingKit.Markov
             }
         }
 
-        public virtual bool Equals(TCandidate other)
-        {
-            if (object.ReferenceEquals(this, other))
-            {
-                return true;
-            }
-            return Predecessor.Equals(other.Predecessor) && Transition.Equals(other.Transition);
-        }
     }
 }

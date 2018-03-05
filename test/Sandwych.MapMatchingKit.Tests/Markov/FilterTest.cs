@@ -12,7 +12,7 @@ namespace Sandwych.MapMatchingKit.Tests.Markov
         {
         }
 
-        private class MockElement : AbstractStateCandidate<MockElement, MockStateTransition, MockSample>
+        private class MockElement : AbstractStateCandidate<MockElement, MockStateTransition, MockSample>, IEquatable<MockElement>
         {
             public int Id { get; }
 
@@ -27,7 +27,7 @@ namespace Sandwych.MapMatchingKit.Tests.Markov
                 this.Seqprob = seqprob;
             }
 
-            public override bool Equals(MockElement other)
+            public bool Equals(MockElement other)
             {
                 return this.Id == other.Id;
             }

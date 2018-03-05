@@ -68,18 +68,16 @@ namespace Sandwych.MapMatchingKit.BenchmarkApp
         [Benchmark(Baseline = true)]
         public int NaiveDijkstraMatching()
         {
-            var candidates = this.DoMatching(_naiveDijkstraMatcher);
-            return candidates.Count();
+            return this.DoMatching(_naiveDijkstraMatcher);
         }
 
         [Benchmark]
         public int PrecomputedDijkstraMatching()
         {
-            var candidates = this.DoMatching(_precomputedDijkstraMatcher);
-            return candidates.Count();
+            return this.DoMatching(_precomputedDijkstraMatcher);
         }
 
-        private IEnumerable<MatcherCandidate> DoMatching(Matcher<MatcherCandidate, MatcherTransition, MatcherSample> matcher)
+        private int DoMatching(Matcher<MatcherCandidate, MatcherTransition, MatcherSample> matcher)
         {
             var kstate = new MatcherKState();
             foreach (var sample in _samples)
@@ -87,8 +85,7 @@ namespace Sandwych.MapMatchingKit.BenchmarkApp
                 var vector = matcher.Execute(kstate.Vector(), kstate.Sample, sample);
                 kstate.Update(vector, sample);
             }
-            var candidatesSequence = kstate.Sequence();
-            return candidatesSequence;
+            return 0;
         }
 
         private IEnumerable<MatcherSample> ReadSamples()

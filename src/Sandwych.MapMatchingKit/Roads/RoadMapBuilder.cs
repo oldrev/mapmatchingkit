@@ -35,7 +35,7 @@ namespace Sandwych.MapMatchingKit.Roads
 
         public RoadMap Build()
         {
-            return new RoadMap(this.GetAllRoads());
+            return new RoadMap(this.GetAllRoads(), _spatial);
         }
 
         private IEnumerable<Road> GetAllRoads()

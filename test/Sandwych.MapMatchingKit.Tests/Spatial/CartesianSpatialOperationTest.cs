@@ -242,6 +242,6 @@ namespace Sandwych.MapMatchingKit.Tests.Spatial
         }
 
     }
-
 #endif
+
 }

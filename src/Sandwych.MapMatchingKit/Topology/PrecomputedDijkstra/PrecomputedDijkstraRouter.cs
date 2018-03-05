@@ -86,14 +86,24 @@ namespace Sandwych.MapMatchingKit.Topology.PrecomputedDijkstra
             IEnumerable<TEdge> GetPath()
             {
                 yield return source.Edge;
-                foreach (var edge in _precomputedTable.GetPathByVertex(source.Edge.Target, target.Edge.Source))
+                var foundPath = _precomputedTable.GetPathByVertex(source.Edge.Target, target.Edge.Source);
+                foreach (var edge in foundPath)
                 {
                     yield return edge;
                 }
                 yield return target.Edge;
             }
 
-            var edges = GetPath();
+            IEnumerable<TEdge> edges = EmptyPath;
+            try
+            {
+                edges = GetPath();
+            }
+            catch (BadGraphException)
+            {
+                yield break;
+            }
+
             foreach (var edge in edges)
             {
                 yield return edge;

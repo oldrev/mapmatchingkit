@@ -86,7 +86,7 @@ namespace Sandwych.MapMatchingKit.Topology.PrecomputedDijkstra
         {
             if (IsSameVertex(sourceVertex, targetVertex))
             {
-                throw new InvalidOperationException();
+                throw new ArgumentException();
             }
 
             if (this.TryGetValue((sourceVertex, targetVertex), out var row))
@@ -97,9 +97,15 @@ namespace Sandwych.MapMatchingKit.Topology.PrecomputedDijkstra
 
                 while (!currentStart.Equals(targetVertex))
                 {
-                    row = this[(currentStart, targetVertex)];
-                    yield return row.SourceEdge;
-                    currentStart = row.NextVertex;
+                    if (this.TryGetValue((currentStart, targetVertex), out row))
+                    {
+                        yield return row.SourceEdge;
+                        currentStart = row.NextVertex;
+                    }
+                    else
+                    {
+                        throw new BadGraphException();
+                    }
                 }
             }
             else

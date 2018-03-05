@@ -107,7 +107,7 @@ namespace Sandwych.MapMatchingKit.Matching
                 map.Remove(id);
             }
 
-            return map.Values;
+            return new HashSet<RoadPoint>(map.Values);
         }
     }
 }

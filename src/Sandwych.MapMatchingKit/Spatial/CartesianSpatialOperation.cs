@@ -10,7 +10,6 @@ using Sandwych.MapMatchingKit.Spatial.Geometries;
 namespace Sandwych.MapMatchingKit.Spatial
 {
 
-#if CARTESIAN_SPATIAL
     public sealed class CartesianSpatialOperation : ISpatialOperation
     {
         private const double TwoPi = Math.PI * 2;
@@ -152,15 +151,13 @@ namespace Sandwych.MapMatchingKit.Spatial
 
         public Envelope Envelope(in Coordinate2D c, double radius)
         {
-            //c 是圆心，radius 是外接正方形边长的一半
-            var bottomLeft = (x: c.X - radius, y: c.Y - radius);
-            var topRight = (x: c.X + radius, y: c.Y + radius);
-            return new Envelope(bottomLeft.x, topRight.x, bottomLeft.y, topRight.y);
+            var minCorner = (X: c.X - radius, Y: c.Y - radius);
+            var maxCorner = (X: c.X + radius, Y: c.Y + radius);
+            return new Envelope(minCorner.X, maxCorner.X, minCorner.Y, maxCorner.Y);
         }
 
-
-
+        public Envelope Envelope(ILineString line) =>
+            line.EnvelopeInternal;
     }
 
-#endif
 }

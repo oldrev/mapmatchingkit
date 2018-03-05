@@ -11,6 +11,7 @@ using Sandwych.MapMatchingKit.Roads;
 using Sandwych.MapMatchingKit.Topology;
 using Sandwych.MapMatchingKit.Spatial;
 using GeoAPI.Geometries;
+using Sandwych.MapMatchingKit.Topology.PrecomputedDijkstra;
 
 namespace Sandwych.MapMatchingKit.Examples.HelloWorldApp
 {
@@ -28,10 +29,14 @@ namespace Sandwych.MapMatchingKit.Examples.HelloWorldApp
             var map = mapBuilder.AddRoads(roads).Build();
             Console.WriteLine("The road map has been loaded");
 
+
+            //var router = new PrecomputedDijkstraRouter<Road, RoadPoint>(map, Costs.TimePriorityCost, Costs.DistanceCost, 1000D);
+            var router = new DijkstraRouter<Road, RoadPoint>();
+
             var matcher = new Matcher<MatcherCandidate, MatcherTransition, MatcherSample>(
-                map, new DijkstraRouter<Road, RoadPoint>(), Costs.TimePriorityCost, spatial);
+                map, router, Costs.TimePriorityCost, spatial);
             matcher.MaxDistance = 1000; // set maximum searching distance between two GPS points to 1000 meters.
-            matcher.MaxRadius = 200.0; // sets maximum radius for candidate selection to 200 meters
+            matcher.MaxRadius = 100.0; // sets maximum radius for candidate selection to 200 meters
 
 
             Console.WriteLine("Loading GPS samples...");
@@ -43,7 +48,7 @@ namespace Sandwych.MapMatchingKit.Examples.HelloWorldApp
 
 
             Console.WriteLine("Starting Online map-matching...");
-            OnlineMatch(matcher, samples);
+            //OnlineMatch(matcher, samples);
 
             Console.WriteLine("All done!");
             Console.ReadKey();
@@ -92,6 +97,7 @@ namespace Sandwych.MapMatchingKit.Examples.HelloWorldApp
             Console.WriteLine("Results: [count={0}]", candidatesSequence.Count());
             var csvLines = new List<string>();
             csvLines.Add("time,lng,lat,azimuth");
+            int matchedCandidateCount = 0;
             foreach (var cand in candidatesSequence)
             {
                 var roadId = cand.Point.Edge.RoadInfo.Id; // original road id
@@ -103,7 +109,9 @@ namespace Sandwych.MapMatchingKit.Examples.HelloWorldApp
                     var geom = cand.Transition.Route.ToGeometry(); // path geometry(LineString) from last matching candidate
                     //cand.Transition.Route.Edges // Road segments between two GPS position
                 }
+                matchedCandidateCount++;
             }
+            Console.WriteLine("Matched Candidates: {0}, Rate: {1}%", matchedCandidateCount, matchedCandidateCount * 100 / samples.Count());
 
             var csvFile = System.IO.Path.Combine(s_dataDir, "samples.output.csv");
             Console.WriteLine("Writing output file: {0}", csvFile);

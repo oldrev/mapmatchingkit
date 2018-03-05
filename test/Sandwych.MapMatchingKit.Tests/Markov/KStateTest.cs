@@ -13,7 +13,7 @@ namespace Sandwych.MapMatchingKit.Tests.Markov
         {
         }
 
-        private class MockElem : AbstractStateCandidate<MockElem, MockStateTransition, MockSample>
+        private class MockElem : AbstractStateCandidate<MockElem, MockStateTransition, MockSample>, IEquatable<MockElem>
         {
             private readonly int _id;
 
@@ -34,7 +34,7 @@ namespace Sandwych.MapMatchingKit.Tests.Markov
             */
             public int Id => _id;
 
-            public override bool Equals(MockElem other)
+            public bool Equals(MockElem other)
             {
                 return this.Id == other.Id;
             }

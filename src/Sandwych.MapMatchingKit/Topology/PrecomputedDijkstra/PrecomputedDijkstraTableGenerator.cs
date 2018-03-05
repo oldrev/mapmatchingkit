@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Collections.Generic;
 using QuickGraph;
 
@@ -14,23 +15,17 @@ namespace Sandwych.MapMatchingKit.Topology.PrecomputedDijkstra
             IVertexAndEdgeListGraph<TVertex, TEdge> graph,
             Func<TEdge, double> cost, Func<TEdge, double> bound, double maxRadius)
         {
-            var dijkstra = new BoundedDijkstraShortestPathAlgorithm<TVertex, TEdge>(graph, cost, bound, maxRadius);
-
-            foreach (var rootVertex in graph.Vertices)
-            {
-                var rows = this.ComputeRowsSingleSource(graph, dijkstra, rootVertex);
-                foreach (var row in rows)
-                {
-                    yield return row;
-                }
-            }
+            var pquery = graph.Vertices.AsParallel();
+            var allRows = pquery.SelectMany(rootVertex => this.ComputeRowsSingleSource(graph, rootVertex, cost, bound, maxRadius));
+            return allRows.ToList();
         }
 
         private IEnumerable<PrecomputedDijkstraTableRow<TVertex, TEdge>> ComputeRowsSingleSource(
             IVertexAndEdgeListGraph<TVertex, TEdge> graph,
-            BoundedDijkstraShortestPathAlgorithm<TVertex, TEdge> dijkstra,
-            TVertex sourceVertex)
+            TVertex sourceVertex,
+            Func<TEdge, double> cost, Func<TEdge, double> bound, double maxRadius)
         {
+            var dijkstra = new BoundedDijkstraShortestPathAlgorithm<TVertex, TEdge>(graph, cost, bound, maxRadius);
 
             try
             {

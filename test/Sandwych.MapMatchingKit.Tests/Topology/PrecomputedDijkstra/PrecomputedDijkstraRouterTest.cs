@@ -5,6 +5,7 @@ using System.Text;
 using Sandwych.MapMatchingKit.Topology;
 using Sandwych.MapMatchingKit.Topology.PrecomputedDijkstra;
 using Xunit;
+using Xunit.Extensions;
 
 namespace Sandwych.MapMatchingKit.Tests.Topology.PrecomputedDijkstra
 {
@@ -37,10 +38,23 @@ namespace Sandwych.MapMatchingKit.Tests.Topology.PrecomputedDijkstra
             _map = new Graph(roads);
         }
 
-        [Fact]
-        public void ShortestPathTest1()
+        private (IReadOnlyDictionary<RoadPoint, IEnumerable<Road>> expected,
+            IReadOnlyDictionary<RoadPoint, IEnumerable<Road>> actual)
+            FindPaths(
+            RoadPoint source, IEnumerable<RoadPoint> targets,
+            Func<Road, double> cost, Func<Road, double> bound, double maxRadius)
         {
-            var max = 200D;
+            var dijkstraRouter = new DijkstraRouter<Road, RoadPoint>();
+            var precomputedRouter = new PrecomputedDijkstraRouter<Road, RoadPoint>(_map, cost, bound, maxRadius);
+            var expectedPath = dijkstraRouter.Route(source, targets, cost, bound, maxRadius);
+            var actualPath = precomputedRouter.Route(source, targets, cost, bound, maxRadius);
+            return (expectedPath, actualPath);
+        }
+
+        [Fact]
+        public void TestSimpleShortestPath()
+        {
+            var maxRadius = 200D;
             var start = new RoadPoint(_map.GetEdge(0), 0.3);
             var targets = new RoadPoint[] {
                 new RoadPoint(_map.GetEdge(10), 0.5),
@@ -48,18 +62,14 @@ namespace Sandwych.MapMatchingKit.Tests.Topology.PrecomputedDijkstra
             };
             Func<Road, double> cost = r => r.Weight;
 
-            var dijkstraRouter = new DijkstraRouter<Road, RoadPoint>();
-            var precomputedRouter = new PrecomputedDijkstraRouter<Road, RoadPoint>(_map, cost, cost, max);
+            var paths = this.FindPaths(start, targets, cost, cost, maxRadius);
 
-            var expectedPath = dijkstraRouter.Route(start, targets, cost, cost, max);
-            var actualPath = precomputedRouter.Route(start, targets, cost, cost, max);
-
-            Assert.Single(actualPath);
-            Assert.Equal(expectedPath, actualPath);
+            Assert.Single(paths.actual);
+            Assert.Equal(paths.expected, paths.actual);
         }
 
         [Fact]
-        public void SelfLoopTest()
+        public void SelfLoopTest1()
         {
             var max = 200D;
             var start = new RoadPoint(_map.GetEdge(0), 0.3);

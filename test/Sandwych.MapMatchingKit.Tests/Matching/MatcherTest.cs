@@ -19,7 +19,7 @@ namespace Sandwych.MapMatchingKit.Tests.Matching
         private readonly ISpatialOperation _spatial = new GeographySpatialOperation();
         private readonly DijkstraRouter<Road, RoadPoint> _router = new DijkstraRouter<Road, RoadPoint>();
         private readonly RoadMap _map;
-        private readonly Func<Road, double> _cost = new Func<Road, double>(Costs.TimeCost);
+        private readonly Func<Road, double> _cost = Costs.TimeCost;
 
         class MockedRoadReader
         {

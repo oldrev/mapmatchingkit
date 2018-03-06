@@ -53,18 +53,26 @@ namespace Sandwych.MapMatchingKit.Topology.PrecomputedDijkstra
 
         public IEnumerable<TEdge> Route(P source, P target, Func<TEdge, double> cost, Func<TEdge, double> bound = null, double max = double.NaN)
         {
-            var edges = RouteInternal(source, target, cost, bound, max);
-            if (bound != null && !double.IsNaN(max))
+            try
             {
-                var boundingDistance = edges.Sum(bound);
-                boundingDistance -= source.Edge.Cost(source.Fraction, bound);
-                boundingDistance -= target.Edge.Cost(1D - target.Fraction, bound);
-                if (boundingDistance > max)
+                var edges = RouteInternal(source, target, cost, bound, max);
+                if (bound != null && !double.IsNaN(max))
                 {
-                    return EmptyPath;
+                    var boundingDistance = edges.Sum(bound);
+                    boundingDistance -= source.Edge.Cost(source.Fraction, bound);
+                    boundingDistance -= target.Edge.Cost(1D - target.Fraction, bound);
+                    if (boundingDistance > max)
+                    {
+                        return EmptyPath;
+                    }
                 }
+                return edges;
             }
-            return edges;
+            catch (BadGraphPathException bgpe)
+            {
+                this.Logger.LogError(bgpe.Message);
+                return EmptyPath;
+            }
         }
 
         private IEnumerable<TEdge> RouteInternal(
@@ -95,14 +103,7 @@ namespace Sandwych.MapMatchingKit.Topology.PrecomputedDijkstra
             }
 
             IEnumerable<TEdge> edges = EmptyPath;
-            try
-            {
-                edges = GetPath();
-            }
-            catch (BadGraphPathException)
-            {
-                yield break;
-            }
+            edges = GetPath();
 
             foreach (var edge in edges)
             {

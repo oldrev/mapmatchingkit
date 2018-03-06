@@ -17,7 +17,7 @@ namespace Sandwych.MapMatchingKit.Examples.HelloWorldApp
 {
     class Program
     {
-        private static readonly string s_dataDir = 
+        private static readonly string s_dataDir =
             Path.GetFullPath(Path.Combine(typeof(Program).Assembly.Location, "../../../../../../", "data"));
 
         static void Main(string[] args)

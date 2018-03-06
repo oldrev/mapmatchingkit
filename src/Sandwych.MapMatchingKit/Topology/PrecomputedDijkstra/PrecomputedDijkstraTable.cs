@@ -80,6 +80,7 @@ namespace Sandwych.MapMatchingKit.Topology.PrecomputedDijkstra
                     yield return edge;
                 }
             }
+
         }
 
         public IEnumerable<TEdge> GetPathByVertex(TVertex sourceVertex, TVertex targetVertex)
@@ -105,7 +106,7 @@ namespace Sandwych.MapMatchingKit.Topology.PrecomputedDijkstra
                     else
                     {
                         var msg = string.Format(
-                            "Bad precomputed Dijkstra path: [sourceVertex={0}, targetVertex={1}, currentVertex={2}]", 
+                            "Bad precomputed Dijkstra path: [sourceVertex={0}, targetVertex={1}, currentVertex={2}]",
                             sourceVertex, targetVertex, currentStart);
                         throw new BadGraphPathException(msg);
                     }

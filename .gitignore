@@ -31,3 +31,4 @@ project.lock.json
 .dotnetcli
 *.qgs~
 *.output.csv
+/tools/

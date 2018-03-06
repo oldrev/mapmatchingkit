@@ -23,8 +23,7 @@ namespace Sandwych.MapMatchingKit.Spatial.Index
         {
             var geom = this.ItemGeometryGetter(item);
             var env = this.Spatial.Envelope(geom as ILineString);
-            var ntsEnv = new GeoAPI.Geometries.Envelope(env.MinX, env.MaxX, env.MinY, env.MaxY);
-            this.Index.Insert(ntsEnv, item);
+            this.Index.Insert(env, item);
         }
 
         protected override void AddRange(IEnumerable<TItem> items)

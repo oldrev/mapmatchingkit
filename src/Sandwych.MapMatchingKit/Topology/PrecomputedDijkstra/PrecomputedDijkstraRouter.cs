@@ -99,7 +99,7 @@ namespace Sandwych.MapMatchingKit.Topology.PrecomputedDijkstra
             {
                 edges = GetPath();
             }
-            catch (BadGraphException)
+            catch (BadGraphPathException)
             {
                 yield break;
             }

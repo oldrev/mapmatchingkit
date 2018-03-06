@@ -104,7 +104,10 @@ namespace Sandwych.MapMatchingKit.Topology.PrecomputedDijkstra
                     }
                     else
                     {
-                        throw new BadGraphException();
+                        var msg = string.Format(
+                            "Bad precomputed Dijkstra path: [sourceVertex={0}, targetVertex={1}, currentVertex={2}]", 
+                            sourceVertex, targetVertex, currentStart);
+                        throw new BadGraphPathException(msg);
                     }
                 }
             }

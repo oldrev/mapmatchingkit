@@ -6,7 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="NetTopologySuite.IO.GeoJSON" Version="1.15.0-pre048" />
+    <PackageReference Include="NetTopologySuite.IO.GeoJSON" Version="1.15.0-pre062" />
   </ItemGroup>
 
   <ItemGroup>

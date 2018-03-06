@@ -6,40 +6,13 @@ using NetTopologySuite.Index;
 
 namespace Sandwych.MapMatchingKit.Spatial.Index.RBush
 {
+    using Sandwych.MapMatchingKit.Spatial.Geometries;
+    using System.Linq;
+    using RB = global::RBush;
+
     public class RBushSpatialIndex<TItem> : AbstractSpatialIndex<TItem>
     {
-        private sealed class NtsSpatialIndex : NetTopologySuite.Index.ISpatialIndex<TItem>
-        {
-            private readonly global::RBush.RBush<RBushIndexItem> _backend = new global::RBush.RBush<RBushIndexItem>();
-
-            public void Insert(Envelope itemEnv, TItem item)
-            {
-                var env = new global::RBush.Envelope(itemEnv.MinX, itemEnv.MinY, itemEnv.MaxX, itemEnv.MaxY);
-                _backend.Insert(new RBushIndexItem(item, env));
-            }
-
-            public IList<TItem> Query(Envelope searchEnv)
-            {
-                throw new NotSupportedException();
-            }
-
-            public void Query(Envelope searchEnv, IItemVisitor<TItem> visitor)
-            {
-                var env = new global::RBush.Envelope(searchEnv.MinX, searchEnv.MinY, searchEnv.MaxX, searchEnv.MaxY);
-                var items = _backend.Search(env);
-                foreach (var i in items)
-                {
-                    visitor.VisitItem(i.Item);
-                }
-            }
-
-            public bool Remove(Envelope itemEnv, TItem item)
-            {
-                throw new NotSupportedException();
-            }
-        }
-
-        private class RBushIndexItem : global::RBush.ISpatialData
+        private class RBushIndexItem : RB.ISpatialData
         {
             private global::RBush.Envelope _envelope;
 
@@ -54,8 +27,7 @@ namespace Sandwych.MapMatchingKit.Spatial.Index.RBush
             public ref readonly global::RBush.Envelope Envelope => ref _envelope;
         }
 
-        private readonly NetTopologySuite.Index.ISpatialIndex<TItem> _index = new NtsSpatialIndex();
-        protected override NetTopologySuite.Index.ISpatialIndex<TItem> Index => _index;
+        private readonly RB.RBush<RBushIndexItem> _index = new RB.RBush<RBushIndexItem>();
 
         public RBushSpatialIndex(
             IEnumerable<TItem> items, ISpatialOperation spatialService,
@@ -64,5 +36,26 @@ namespace Sandwych.MapMatchingKit.Spatial.Index.RBush
         {
         }
 
+        protected override void Add(TItem item)
+        {
+            var env = this.Spatial.Envelope(ItemGeometryGetter(item) as ILineString);
+            var rbEnv = new RB.Envelope(env.MinX, env.MinY, env.MaxX, env.MaxY);
+            var rbItem = new RBushIndexItem(item, rbEnv);
+            _index.Insert(rbItem);
+        }
+
+        protected override void AddRange(IEnumerable<TItem> items)
+        {
+            foreach (var item in items)
+            {
+                this.Add(item);
+            }
+        }
+
+        public override IEnumerable<TItem> Search(Envelope envelope)
+        {
+            var rbEnv = new RB.Envelope(envelope.MinX, envelope.MinY, envelope.MaxX, envelope.MaxY);
+            return _index.Search(rbEnv).Select(e => e.Item);
+        }
     }
 }

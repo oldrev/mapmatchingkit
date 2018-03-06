@@ -61,7 +61,7 @@ namespace Sandwych.MapMatchingKit.Matching
         /// </summary>
         /// <param name="candidates">candidates Set of matching candidates as <see cref="RoadPoint"> objects.</param>
         /// <returns>Minimized (reduced) set of matching candidates as <see cref="RoadPoint"/> objects</returns>
-        public static ICollection<RoadPoint> Minimize(IEnumerable<RoadPoint> candidates)
+        public static HashSet<RoadPoint> Minimize(IEnumerable<RoadPoint> candidates)
         {
             var map = new Dictionary<long, RoadPoint>(candidates.Count());
             var misses = new Dictionary<long, int>(candidates.Count());

@@ -59,8 +59,8 @@ namespace Sandwych.MapMatchingKit.Tests.Spatial
         {
             var wktReader = new WKTReader();
             var ab = wktReader.Read("LINESTRING(11.4047661 48.1403687,11.4053519 48.141055)") as ILineString;
-            var a = ab.GetPointN(0).ToCoordinate2D();
-            var b = ab.GetPointN(1).ToCoordinate2D();
+            var a = ab.GetCoordinateN(0).ToCoordinate2D();
+            var b = ab.GetCoordinateN(1).ToCoordinate2D();
 
             var points = new string[] {
                 "POINT(11.406501117689324 48.14051652560591)", // East

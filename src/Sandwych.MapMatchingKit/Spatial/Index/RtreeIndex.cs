@@ -7,7 +7,7 @@ using GeoAPI.Geometries;
 
 namespace Sandwych.MapMatchingKit.Spatial.Index
 {
-    public class RtreeIndex<TItem> : AbstractSpatialIndex<TItem>
+    public class RtreeIndex<TItem> : AbstractNtsSpatialIndex<TItem>
     {
         private readonly NetTopologySuite.Index.ISpatialIndex<TItem> _index = new STRtree<TItem>();
 

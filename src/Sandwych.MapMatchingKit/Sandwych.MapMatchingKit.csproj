@@ -7,7 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="NetTopologySuite" Version="1.15.0-pre048" />
+    <PackageReference Include="NetTopologySuite" Version="1.15.0-pre062" />
     <PackageReference Include="Nito.Collections.Deque" Version="1.0.4" />
     <PackageReference Include="ProjNET4GeoAPI" Version="1.4.0-pre001" />
     <PackageReference Include="Sandwych.GeographicLib" Version="1.49.3" />

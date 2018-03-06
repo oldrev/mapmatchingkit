@@ -5,11 +5,11 @@ using NetTopologySuite.Index;
 
 namespace Sandwych.MapMatchingKit.Spatial.Index
 {
-    public sealed class IndexItemVisitor<T> : IItemVisitor<T>
+    public sealed class NtsIndexItemVisitor<T> : IItemVisitor<T>
     {
         public Action<T> Action { get; }
 
-        public IndexItemVisitor(Action<T> action)
+        public NtsIndexItemVisitor(Action<T> action)
         {
             this.Action = action;
         }

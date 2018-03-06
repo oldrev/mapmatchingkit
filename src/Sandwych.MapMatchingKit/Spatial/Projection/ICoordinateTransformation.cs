@@ -21,7 +21,7 @@ namespace Sandwych.MapMatchingKit.Spatial.Projection
             var newCoords = new Coordinate[line.NumPoints];
             for (var i = 0; i < line.NumPoints; i++)
             {
-                var pt = line.GetPointN(i);
+                var pt = line.GetCoordinateN(i);
                 var coord = newCoords[i];
                 var oldCoord = new Coordinate2D(pt.X, pt.Y);
                 var transformedCoord = self.Transform(oldCoord);

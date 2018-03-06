@@ -43,24 +43,24 @@ namespace Sandwych.MapMatchingKit.Spatial
                 throw new ArgumentOutOfRangeException(nameof(f));
             }
 
-            var a = path.GetPointN(0).ToCoordinate2D();
+            var a = path.GetCoordinateN(0).ToCoordinate2D();
             double d = l * f;
             double s = 0, ds = 0;
 
             if (f < 0 + 1E-10)
             {
-                return this.Azimuth(path.GetPointN(0).ToCoordinate2D(), path.GetPointN(1).ToCoordinate2D(), 0);
+                return this.Azimuth(path.GetCoordinateN(0).ToCoordinate2D(), path.GetCoordinateN(1).ToCoordinate2D(), 0);
             }
 
             if (f > 1 - 1E-10)
             {
-                return this.Azimuth(path.GetPointN(path.NumPoints - 2).ToCoordinate2D(),
-                    path.GetPointN(path.NumPoints - 1).ToCoordinate2D(), f);
+                return this.Azimuth(path.GetCoordinateN(path.NumPoints - 2).ToCoordinate2D(),
+                    path.GetCoordinateN(path.NumPoints - 1).ToCoordinate2D(), f);
             }
 
             for (int i = 1; i < path.NumPoints; ++i)
             {
-                var b = path.GetPointN(i).ToCoordinate2D();
+                var b = path.GetCoordinateN(i).ToCoordinate2D();
                 ds = this.Distance(a, b);
 
                 if ((s + ds) >= d)
@@ -95,14 +95,14 @@ namespace Sandwych.MapMatchingKit.Spatial
         public double Intercept(ILineString p, in Coordinate2D c)
         {
             var d = Double.MaxValue;
-            var a = p.GetPointN(0).ToCoordinate2D();
+            var a = p.GetCoordinateN(0).ToCoordinate2D();
             var s = 0D;
             var sf = 0D;
             var ds = 0D;
 
             for (int i = 1; i < p.NumPoints; ++i)
             {
-                var b = p.GetPointN(i).ToCoordinate2D();
+                var b = p.GetCoordinateN(i).ToCoordinate2D();
 
                 ds = this.Distance(a, b);
 
@@ -153,7 +153,7 @@ namespace Sandwych.MapMatchingKit.Spatial
                 throw new ArgumentOutOfRangeException(nameof(f));
             }
 
-            var p0 = path.GetPointN(0).ToCoordinate2D();
+            var p0 = path.GetCoordinateN(0).ToCoordinate2D();
             var a = p0;
             double d = l * f;
             double s = 0, ds = 0;
@@ -165,12 +165,12 @@ namespace Sandwych.MapMatchingKit.Spatial
 
             if (f > 1 - 1E-10)
             {
-                return path.GetPointN(path.NumPoints - 1).ToCoordinate2D();
+                return path.GetCoordinateN(path.NumPoints - 1).ToCoordinate2D();
             }
 
             for (int i = 1; i < path.NumPoints; ++i)
             {
-                var b = path.GetPointN(i).ToCoordinate2D();
+                var b = path.GetCoordinateN(i).ToCoordinate2D();
                 ds = this.Distance(a, b);
 
                 if ((s + ds) >= d)
@@ -190,7 +190,7 @@ namespace Sandwych.MapMatchingKit.Spatial
             var d = 0D;
             for (var i = 1; i < line.NumPoints; ++i)
             {
-                d += this.Distance(line.GetPointN(i - 1).ToCoordinate2D(), line.GetPointN(i).ToCoordinate2D());
+                d += this.Distance(line.GetCoordinateN(i - 1).ToCoordinate2D(), line.GetCoordinateN(i).ToCoordinate2D());
             }
             return d;
         }

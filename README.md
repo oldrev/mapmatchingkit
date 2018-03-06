@@ -152,3 +152,5 @@ All honors belongs to the original Barefoot developed by BMW Car IT GmbH: [https
 * "NetTopologySuite & ProjNET4GeoAPI" from NetTopologySuite Project: [https://github.com/NetTopologySuite](https://github.com/NetTopologySuite)
 * PriorityQueue class from Rx.NET Project: [https://github.com/Reactive-Extensions/Rx.NET](https://github.com/Reactive-Extensions/Rx.NET)
 * The UBODT(upper-bounded origin destination table) algroithm from Can Yang: [https://github.com/cyang-kth/fmm](https://github.com/cyang-kth/fmm)
+* RBush - The R-Tree spatial index implementation from viceroypenguin: [https://github.com/viceroypenguin/RBush](https://github.com/viceroypenguin/RBush)
+* QuickGraph from Peli: [https://github.com/oldrev/Sandwych.QuickGraph](https://github.com/oldrev/Sandwych.QuickGraph)

@@ -2,6 +2,8 @@
 using System.Linq;
 using System.Collections.Generic;
 using QuickGraph;
+using Microsoft.Extensions.Logging;
+using Sandwych.MapMatchingKit.Utility;
 
 namespace Sandwych.MapMatchingKit.Topology.PrecomputedDijkstra
 {
@@ -10,6 +12,7 @@ namespace Sandwych.MapMatchingKit.Topology.PrecomputedDijkstra
          where TVertex : IEquatable<TVertex>
 
     {
+        public ILogger Logger { get; set; } = NullLogger.Instance;
 
         public IEnumerable<PrecomputedDijkstraTableRow<TVertex, TEdge>> ComputeRows(
             IVertexAndEdgeListGraph<TVertex, TEdge> graph,
@@ -17,7 +20,14 @@ namespace Sandwych.MapMatchingKit.Topology.PrecomputedDijkstra
         {
             var pquery = graph.Vertices.AsParallel();
             var allRows = pquery.SelectMany(rootVertex => this.ComputeRowsSingleSource(graph, rootVertex, cost, bound, maxRadius));
-            return allRows.ToList();
+            var rowsList = allRows.ToArray();
+
+            if (this.Logger.IsEnabled(LogLevel.Debug))
+            {
+                this.Logger.LogDebug("Rows count: {0}", rowsList.Length);
+            }
+
+            return rowsList;
         }
 
         private IEnumerable<PrecomputedDijkstraTableRow<TVertex, TEdge>> ComputeRowsSingleSource(

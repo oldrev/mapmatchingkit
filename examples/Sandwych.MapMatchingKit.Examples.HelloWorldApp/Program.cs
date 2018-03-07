@@ -31,8 +31,8 @@ namespace Sandwych.MapMatchingKit.Examples.HelloWorldApp
             Console.WriteLine("The road map has been loaded");
 
 
-            var router = new PrecomputedDijkstraRouter<Road, RoadPoint>(map, Costs.TimePriorityCost, Costs.DistanceCost, 1000D);
-            //var router = new DijkstraRouter<Road, RoadPoint>();
+            //var router = new PrecomputedDijkstraRouter<Road, RoadPoint>(map, Costs.TimePriorityCost, Costs.DistanceCost, 1000D);
+            var router = new DijkstraRouter<Road, RoadPoint>();
 
             var matcher = new Matcher<MatcherCandidate, MatcherTransition, MatcherSample>(
                 map, router, Costs.TimePriorityCost, spatial);

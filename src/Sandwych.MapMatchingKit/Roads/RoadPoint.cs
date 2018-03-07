@@ -5,6 +5,7 @@ using System.Text;
 using GeoAPI.Geometries;
 using Sandwych.MapMatchingKit.Spatial;
 using Sandwych.MapMatchingKit.Spatial.Geometries;
+using Sandwych.MapMatchingKit.Utility;
 
 namespace Sandwych.MapMatchingKit.Roads
 {
@@ -26,6 +27,14 @@ namespace Sandwych.MapMatchingKit.Roads
             this.Coordinate = spatial.Interpolate(this.Edge.Geometry, this.Fraction);
         }
 
+        public RoadPoint(in Road road, double fraction, in Coordinate2D coordinate, ISpatialOperation spatial)
+        {
+            this.Edge = road;
+            this.Fraction = fraction;
+            this.Coordinate = coordinate;
+            this.Azimuth = (float)spatial.Azimuth(road.Geometry, fraction);
+        }
+
         public RoadPoint(in Road road, double fraction, float azimuth) : this(road, fraction, azimuth, GeographySpatialOperation.Instance)
         {
         }
@@ -44,7 +53,7 @@ namespace Sandwych.MapMatchingKit.Roads
         }
 
         public override int GetHashCode() =>
-            (this.Edge, this.Fraction).GetHashCode();
+            HashCodeHelper.Combine(Edge.GetHashCode(), Fraction.GetHashCode());
 
 
         public bool Equals(RoadPoint other) =>

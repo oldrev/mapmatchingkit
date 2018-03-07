@@ -16,7 +16,7 @@ namespace Sandwych.MapMatchingKit.Roads
 
         public static double TimePriorityCost(Road road) => TimeCost(road) * Math.Max(HuristicPriority, road.Priority);
 
-        public static double Cost<TEdge>(this TEdge edge, double fraction, Func<TEdge, double> costFunc)
+        public static double ComputeCost<TEdge>(this TEdge edge, double fraction, Func<TEdge, double> costFunc)
             where TEdge : IGraphEdge<TEdge>
             => costFunc(edge) * fraction;
     }

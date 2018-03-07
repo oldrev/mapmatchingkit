@@ -84,8 +84,8 @@ namespace Sandwych.MapMatchingKit.Topology
             foreach (var source in sources)
             {
                 // initialize sources as start edges
-                var startcost = source.Edge.Cost(1.0 - source.Fraction, cost); //cost.cost(source.Edge, 1 - source.Fraction);
-                var startbound = bound != null ? source.Edge.Cost(1.0 - source.Fraction, bound) : 0D;  //bound.cost(source.Edge.Cost(), 1 - source.Fraction) : 0.0;
+                var startcost = source.Edge.ComputeCost(1.0 - source.Fraction, cost); //cost.cost(source.Edge, 1 - source.Fraction);
+                var startbound = bound != null ? source.Edge.ComputeCost(1.0 - source.Fraction, bound) : 0D;  //bound.cost(source.Edge.Cost(), 1 - source.Fraction) : 0.0;
 
                 if (this.Logger.IsEnabled(LogLevel.Debug))
                 {
@@ -103,8 +103,8 @@ namespace Sandwych.MapMatchingKit.Topology
                         {
                             continue;
                         }
-                        var reachcost = startcost - source.Edge.Cost(1.0 - target.Fraction, cost); // cost.cost(source.Edge, 1 - target.Fraction);
-                        var reachbound = bound != null ? startcost - source.Edge.Cost(1.0 - target.Fraction, bound) : 0D; //, // bound.cost(source.Edge, 1 - target.Fraction) : 0.0;
+                        var reachcost = startcost - source.Edge.ComputeCost(1.0 - target.Fraction, cost); // cost.cost(source.Edge, 1 - target.Fraction);
+                        var reachbound = bound != null ? startcost - source.Edge.ComputeCost(1.0 - target.Fraction, bound) : 0D; //, // bound.cost(source.Edge, 1 - target.Fraction) : 0.0;
 
                         if (this.Logger.IsEnabled(LogLevel.Debug))
                         {
@@ -223,8 +223,8 @@ namespace Sandwych.MapMatchingKit.Topology
                         // reach target edge
                         foreach (var targetEdge in targetEdges[successor])
                         {
-                            var reachcost = succcost - successor.Cost(1.0 - targetEdge.Fraction, cost);
-                            var reachbound = bound != null ? succbound - successor.Cost(1.0 - targetEdge.Fraction, bound) : 0.0;    /// bound(successor, 1 - target.Fraction) : 0.0;
+                            var reachcost = succcost - successor.ComputeCost(1.0 - targetEdge.Fraction, cost);
+                            var reachbound = bound != null ? succbound - successor.ComputeCost(1.0 - targetEdge.Fraction, bound) : 0.0;    /// bound(successor, 1 - target.Fraction) : 0.0;
                             if (this.Logger.IsEnabled(LogLevel.Debug))
                             {
                                 this.Logger.LogDebug("reached target {0} with successor edge {1} and fraction {2} with {3} cost",

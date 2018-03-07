@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Sandwych.MapMatchingKit.Utility;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -26,7 +27,7 @@ namespace Sandwych.MapMatchingKit.Topology
         /// <param name="predecessorEdge">Predecessor {@link AbstractEdge}.</param>
         /// <param name="cost">Cost value to this route mark.</param>
         /// <param name="boundingCost">Bounding cost value to this route mark.</param>
-        public RouteMark(TEdge markedEdge, TEdge predecessorEdge, Double cost, Double boundingCost)
+        public RouteMark(TEdge markedEdge, TEdge predecessorEdge, double cost, double boundingCost)
         {
             this.MarkedEdge = markedEdge;
             this.PredecessorEdge = predecessorEdge;
@@ -56,7 +57,8 @@ namespace Sandwych.MapMatchingKit.Topology
         }
 
         public override int GetHashCode() =>
-            (this.MarkedEdge, this.PredecessorEdge, this.Cost, this.BoundingCost).GetHashCode();
+            PredecessorEdge != null ? HashCodeHelper.Combine(MarkedEdge.GetHashCode(), PredecessorEdge.GetHashCode(), Cost.GetHashCode())
+                : HashCodeHelper.Combine(MarkedEdge.GetHashCode(), Cost.GetHashCode());
 
         public bool Equals(RouteMark<TEdge> other)
         {

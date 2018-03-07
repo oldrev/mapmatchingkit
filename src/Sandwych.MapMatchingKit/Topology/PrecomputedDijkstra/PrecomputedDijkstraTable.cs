@@ -11,6 +11,8 @@ namespace Sandwych.MapMatchingKit.Topology.PrecomputedDijkstra
         where TEdge : class, IEdge<TVertex>
         where TVertex : IEquatable<TVertex>
     {
+        private readonly static IEnumerable<TEdge> EmptyPath = new TEdge[] { };
+
         public PrecomputedDijkstraTable() : base()
         {
 
@@ -58,63 +60,46 @@ namespace Sandwych.MapMatchingKit.Topology.PrecomputedDijkstra
             }
         }
 
-        public IEnumerable<TEdge> GetPathByEdge(TEdge sourceEdge, TEdge targetEdge)
-        {
-            if (IsSameEdge(sourceEdge, targetEdge))
-            {
-                throw new InvalidOperationException();
-            }
-            else if (IsNeighbor(sourceEdge, targetEdge))
-            {
-                yield return sourceEdge;
-                yield return targetEdge;
-                yield break;
-            }
-            else
-            {
-                var sourceVertex = sourceEdge.Target;
-                var targetVertex = targetEdge.Source;
-                var path = this.GetPathByVertex(sourceVertex, targetVertex);
-                foreach (var edge in path)
-                {
-                    yield return edge;
-                }
-            }
-
-        }
-
-        public IEnumerable<TEdge> GetPathByVertex(TVertex sourceVertex, TVertex targetVertex)
+        public (IEnumerable<TEdge> Path, double Distance) GetPathByVertex(TVertex sourceVertex, TVertex targetVertex, double maxDistance = double.PositiveInfinity)
         {
             if (IsSameVertex(sourceVertex, targetVertex))
             {
                 throw new ArgumentException();
             }
 
-            if (this.TryGetValue((sourceVertex, targetVertex), out var row))
+            if (this.TryGetValue((sourceVertex, targetVertex), out var firstRow) && firstRow.Distance <= maxDistance)
             {
-                //now we got the first edge, then we started from the next row
-                yield return row.SourceEdge;
-                var currentStart = row.NextVertex;
-
-                while (!currentStart.Equals(targetVertex))
-                {
-                    if (this.TryGetValue((currentStart, targetVertex), out row))
-                    {
-                        yield return row.SourceEdge;
-                        currentStart = row.NextVertex;
-                    }
-                    else
-                    {
-                        var msg = string.Format(
-                            "Bad precomputed Dijkstra path: [sourceVertex={0}, targetVertex={1}, currentVertex={2}]",
-                            sourceVertex, targetVertex, currentStart);
-                        throw new BadGraphPathException(msg);
-                    }
-                }
+                return (this.GetPathFrom(firstRow), firstRow.Distance);
             }
             else
             {
-                yield break;
+                return (EmptyPath, double.NaN);
+            }
+        }
+
+        private IEnumerable<TEdge> GetPathFrom(PrecomputedDijkstraTableRow<TVertex, TEdge> startRow)
+        {
+            var row = startRow;
+            //now we got the first edge, then we started from the next row
+            yield return row.SourceEdge;
+            var currentStart = row.NextVertex;
+            var sourceVertex = startRow.SourceVertex;
+            var targetVertex = startRow.TargetVertex;
+
+            while (!currentStart.Equals(targetVertex))
+            {
+                if (this.TryGetValue((currentStart, targetVertex), out row))
+                {
+                    yield return row.SourceEdge;
+                    currentStart = row.NextVertex;
+                }
+                else
+                {
+                    var msg = string.Format(
+                        "Bad precomputed Dijkstra path: [sourceVertex={0}, targetVertex={1}, currentVertex={2}]",
+                        sourceVertex, targetVertex, currentStart);
+                    throw new BadGraphPathException(msg);
+                }
             }
         }
 

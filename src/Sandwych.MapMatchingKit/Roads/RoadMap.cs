@@ -35,19 +35,19 @@ namespace Sandwych.MapMatchingKit.Roads
             this.Index = new RtreeIndex<RoadInfo>(roads.Select(x => x.RoadInfo), spatial, r => r.Geometry, r => r.Length);
         }
 
-        private IEnumerable<RoadPoint> Split(IEnumerable<(RoadInfo road, double fraction)> points)
+        private IEnumerable<RoadPoint> Split(IEnumerable<(RoadInfo Item, double Fraction, Coordinate2D InterpolatedPoint)> points)
         {
             /*
              * This uses the road
              */
             foreach (var point in points)
             {
-                yield return new RoadPoint(this.EdgeMap[point.road.Id * 2], point.fraction, _spatial);
+                yield return new RoadPoint(this.EdgeMap[point.Item.Id * 2], point.Fraction, point.InterpolatedPoint, _spatial);
 
-                var backwardRoadId = point.road.Id * 2 + 1;
+                var backwardRoadId = point.Item.Id * 2 + 1;
                 if (this.EdgeMap.TryGetValue(backwardRoadId, out var road))
                 {
-                    yield return new RoadPoint(road, 1.0 - point.fraction, _spatial);
+                    yield return new RoadPoint(road, 1.0 - point.Fraction, point.InterpolatedPoint, _spatial);
                 }
             }
         }

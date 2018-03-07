@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Sandwych.MapMatchingKit.Utility;
+using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -15,14 +16,14 @@ namespace Sandwych.MapMatchingKit.Spatial.Geometries
         public static Vector3D Zero => new Vector3D(0D, 0D, 0D);
         public static Vector3D One => new Vector3D(1D, 1D, 1D);
 
-        public Vector3D(double x, double y, double z)
+        public Vector3D(double x, double y, double z) : this()
         {
             this.X = x;
             this.Y = y;
             this.Z = z;
         }
 
-        public Vector3D(double[] array)
+        public Vector3D(double[] array) : this()
         {
             if (array == null)
             {
@@ -101,7 +102,7 @@ namespace Sandwych.MapMatchingKit.Spatial.Geometries
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override int GetHashCode() => (X, Y, Z).GetHashCode();
+        public override int GetHashCode() => HashCodeHelper.Combine(X.GetHashCode(), Y.GetHashCode(), Z.GetHashCode());
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public double[] ToArray() => new double[3] { X, Y, Z };

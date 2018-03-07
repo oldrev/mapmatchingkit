@@ -45,6 +45,14 @@ namespace Sandwych.MapMatchingKit.Matching
             this.Azimuth = NormAzimuth(azimuth);
         }
 
+        public MatcherSample(long id, DateTimeOffset time, double x, double y, float azimuth = float.NaN)
+        {
+            this.Id = id;
+            this.Time = time;
+            this.Coordinate = new Coordinate2D(x, y);
+            this.Azimuth = NormAzimuth(azimuth);
+        }
+
         private static float NormAzimuth(float azimuth) =>
             azimuth >= 360f ? azimuth - (360f * (int)(azimuth / 360f))
                     : azimuth < 0f ? azimuth - (360f * ((int)(azimuth / 360f) - 1f)) : azimuth;

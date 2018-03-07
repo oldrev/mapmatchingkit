@@ -59,8 +59,8 @@ namespace Sandwych.MapMatchingKit.Topology.PrecomputedDijkstra
                 if (bound != null && !double.IsNaN(max))
                 {
                     var boundingDistance = edges.Sum(bound);
-                    boundingDistance -= source.Edge.Cost(source.Fraction, bound);
-                    boundingDistance -= target.Edge.Cost(1D - target.Fraction, bound);
+                    boundingDistance -= source.Edge.ComputeCost(source.Fraction, bound);
+                    boundingDistance -= target.Edge.ComputeCost(1D - target.Fraction, bound);
                     if (boundingDistance > max)
                     {
                         return EmptyPath;
@@ -78,37 +78,23 @@ namespace Sandwych.MapMatchingKit.Topology.PrecomputedDijkstra
         private IEnumerable<TEdge> RouteInternal(
             P source, P target, Func<TEdge, double> cost, Func<TEdge, double> bound = null, double max = Double.NaN)
         {
+            IEnumerable<TEdge> edges = EmptyPath;
             //On same road && forward
             if (source.Edge.Equals(target.Edge) && source.Fraction <= target.Fraction)
             {
-                yield return source.Edge;
-                yield break;
+                edges = GetPathOnSameRoad(source.Edge);
             }
             else if (source.Edge.Target.Equals(target.Edge.Source)) //is neighborhood
             {
-                yield return source.Edge;
-                yield return target.Edge;
-                yield break;
+                edges = GetPathOnNeighborhoodRoad(source.Edge, target.Edge);
             }
-
-            IEnumerable<TEdge> GetPath()
+            else
             {
-                yield return source.Edge;
-                var foundPath = _precomputedTable.GetPathByVertex(source.Edge.Target, target.Edge.Source);
-                foreach (var edge in foundPath)
-                {
-                    yield return edge;
-                }
-                yield return target.Edge;
+                var t = _precomputedTable.GetPathByVertex(source.Edge.Target, target.Edge.Source);
+                return CombineHeadTailEdges(source.Edge, target.Edge, t.Path);
             }
 
-            IEnumerable<TEdge> edges = EmptyPath;
-            edges = GetPath();
-
-            foreach (var edge in edges)
-            {
-                yield return edge;
-            }
+            return edges;
         }
 
         private PrecomputedDijkstraTable<long, TEdge> CreateTable()
@@ -116,6 +102,29 @@ namespace Sandwych.MapMatchingKit.Topology.PrecomputedDijkstra
             var generator = new PrecomputedDijkstraTableGenerator<long, TEdge>();
             var rows = generator.ComputeRows(_graph, _cost, _boundingCost, _maxRadius);
             return new PrecomputedDijkstraTable<long, TEdge>(rows);
+        }
+
+        private static IEnumerable<TEdge> GetPathOnSameRoad(TEdge sourceEdge)
+        {
+            yield return sourceEdge;
+            yield break;
+        }
+
+        private static IEnumerable<TEdge> GetPathOnNeighborhoodRoad(TEdge sourceEdge, TEdge targetEdge)
+        {
+            yield return sourceEdge;
+            yield return targetEdge;
+            yield break;
+        }
+
+        private static IEnumerable<TEdge> CombineHeadTailEdges(TEdge sourceEdge, TEdge targetEdge, IEnumerable<TEdge> bodyPath)
+        {
+            yield return sourceEdge;
+            foreach (var e in bodyPath)
+            {
+                yield return e;
+            }
+            yield return targetEdge;
         }
 
     }

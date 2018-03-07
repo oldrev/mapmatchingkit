@@ -6,7 +6,7 @@ namespace Sandwych.MapMatchingKit.Topology
 {
     public interface IPath<TEdge, TPoint>
         where TEdge : IGraphEdge<TEdge>
-        where TPoint : struct, IEdgePoint<TEdge>
+        where TPoint : IEdgePoint<TEdge>
     {
         ref readonly TPoint StartPoint { get; }
         ref readonly TPoint EndPoint { get; }

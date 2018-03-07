@@ -21,9 +21,9 @@ namespace Sandwych.MapMatchingKit.Spatial.Index
             this.AddRange(items);
         }
 
-        public virtual IEnumerable<(TItem Item, double Distance)> Radius(in Coordinate2D c, double radius, int k = -1)
+        public virtual IEnumerable<(TItem Item, double Distance, Coordinate2D InterpolatedPoint)> Radius(in Coordinate2D c, double radius, int k = -1)
         {
-            var neighbors = new List<(TItem Item, double Distance)>(20);
+            var neighbors = new List<(TItem Item, double Distance, Coordinate2D InterpolatedPoint)>(20);
             var env = this.Spatial.Envelope(c, radius);
             var candidates = this.Search(env);
             foreach (var candidate in candidates)
@@ -35,7 +35,7 @@ namespace Sandwych.MapMatchingKit.Spatial.Index
 
                 if (d <= radius)
                 {
-                    neighbors.Add((candidate, f));
+                    neighbors.Add((candidate, f, p));
                 }
             }
 

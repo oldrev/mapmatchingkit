@@ -17,6 +17,6 @@ namespace Sandwych.MapMatchingKit.Matching
             this._point = point;
         }
 
-        public override int GetHashCode() => this.Point.GetHashCode();
+        public override int GetHashCode() => Point.GetHashCode();
     }
 }

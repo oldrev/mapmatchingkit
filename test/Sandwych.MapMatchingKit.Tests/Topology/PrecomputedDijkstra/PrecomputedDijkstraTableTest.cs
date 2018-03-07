@@ -27,14 +27,14 @@ namespace Sandwych.MapMatchingKit.Tests.Topology.PrecomputedDijkstra
             var rows = generator.ComputeRows(MyGraph.GraphInstance, e => MyGraph.EdgeCosts[e], e => MyGraph.EdgeCosts[e], maxRadius);
 
             var table = new PrecomputedDijkstraTable<string, Edge<string>>(rows);
-            var actualPath = table.GetPathByVertex(sourceVertex, targetVertex);
-            var actualDistance = actualPath.Sum(e => MyGraph.EdgeCosts[e]);
+            var t = table.GetPathByVertex(sourceVertex, targetVertex);
+            var actualDistance = t.Path.Sum(e => MyGraph.EdgeCosts[e]);
 
             Assert.True(naiveDijkstra.TryGetPath(targetVertex, out var expectedPath));
-            Assert.NotNull(actualPath);
-            Assert.NotEmpty(actualPath);
+            Assert.NotNull(t.Path);
+            Assert.NotEmpty(t.Path);
             var expectedDistance = expectedPath.Sum(e => MyGraph.EdgeCosts[e]);
-            Assert.Equal(expectedPath, actualPath);
+            Assert.Equal(expectedPath, t.Path);
             Assert.Equal(expectedDistance, actualDistance, 8);
         }
     }

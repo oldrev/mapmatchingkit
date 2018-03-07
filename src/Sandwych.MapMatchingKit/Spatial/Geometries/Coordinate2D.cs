@@ -6,6 +6,7 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using GeoAPI.Geometries;
 using System.Text;
+using Sandwych.MapMatchingKit.Utility;
 
 namespace Sandwych.MapMatchingKit.Spatial.Geometries
 {
@@ -150,8 +151,8 @@ namespace Sandwych.MapMatchingKit.Spatial.Geometries
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override int GetHashCode() =>
-            (X, Y).GetHashCode();
+        public override int GetHashCode() => 
+            HashCodeHelper.Combine(X.GetHashCode(), Y.GetHashCode());
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public double[] ToArray() => new double[2] { this.X, this.Y };

@@ -7,10 +7,10 @@ namespace Sandwych.MapMatchingKit.Spatial.Geometries
 {
     public static class Coordinate2DExtensions
     {
-        public static GeoAPI.Geometries.Coordinate ToGeoAPICoordinate(this Coordinate2D self) =>
+        public static GeoAPI.Geometries.Coordinate ToGeoAPICoordinate(this in Coordinate2D self) =>
             new GeoAPI.Geometries.Coordinate(self.X, self.Y);
 
-        public static GeoAPI.Geometries.IPoint ToGeoAPIPoint(this Coordinate2D self) =>
+        public static GeoAPI.Geometries.IPoint ToGeoAPIPoint(this in Coordinate2D self) =>
             new Point(self.X, self.Y);
     }
 }

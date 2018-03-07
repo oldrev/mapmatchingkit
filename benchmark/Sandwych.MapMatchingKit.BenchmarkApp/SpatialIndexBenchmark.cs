@@ -53,21 +53,21 @@ namespace Sandwych.MapMatchingKit.BenchmarkApp
         }
 
         [Benchmark]
-        public void NtsSTRTreeBenchmark()
+        public int NtsSTRTreeBenchmark()
         {
-            this.DoRadius(_ntsRtreeIndex);
+            return this.DoRadius(_ntsRtreeIndex);
         }
 
         [Benchmark(Baseline = true)]
-        public void NtsQuadTreeBenchmark()
+        public int NtsQuadTreeBenchmark()
         {
-            this.DoRadius(_ntsQuadtreeIndex);
+            return this.DoRadius(_ntsQuadtreeIndex);
         }
 
         [Benchmark]
-        public void RBushRtreeBenchmark()
+        public int RBushRtreeBenchmark()
         {
-            this.DoRadius(_rbushIndex);
+            return this.DoRadius(_rbushIndex);
         }
 
         private int DoRadius(ISpatialIndex<ILineString> index)

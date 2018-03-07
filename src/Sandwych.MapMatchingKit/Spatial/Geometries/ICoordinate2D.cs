@@ -15,7 +15,7 @@ namespace Sandwych.MapMatchingKit.Spatial.Geometries
     public static class ICoordinate2DExtensions
     {
 
-        public static int CompareTo<T>(this T self, T other)
+        public static int CompareTo<T>(this T self, in T other)
             where T : ICoordinate2D
         {
             if (self.X < other.X)

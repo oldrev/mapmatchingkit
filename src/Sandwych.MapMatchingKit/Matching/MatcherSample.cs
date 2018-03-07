@@ -19,6 +19,7 @@ namespace Sandwych.MapMatchingKit.Matching
         public float Azimuth { get; }
         public Coordinate2D Coordinate { get; }
         public bool IsNaN => this.Id < 0;
+        public bool HasAzimuth => !float.IsNaN(this.Azimuth);
 
         public MatcherSample(long id, long time, double lng, double lat, float azimuth = float.NaN)
         {

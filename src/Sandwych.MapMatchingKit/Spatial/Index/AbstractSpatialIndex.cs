@@ -12,7 +12,6 @@ namespace Sandwych.MapMatchingKit.Spatial.Index
         protected ISpatialOperation Spatial { get; }
         protected Func<TItem, ILineString> ItemGeometryGetter { get; }
         protected Func<TItem, double> ItemLengthGetter { get; }
-
         public AbstractSpatialIndex(IEnumerable<TItem> items, ISpatialOperation spatialService,
             Func<TItem, ILineString> geometryGetter, Func<TItem, double> lengthGetter)
         {
@@ -22,9 +21,9 @@ namespace Sandwych.MapMatchingKit.Spatial.Index
             this.AddRange(items);
         }
 
-        public virtual IEnumerable<(TItem, double)> Radius(in Coordinate2D c, double radius, int k = -1)
+        public virtual IEnumerable<(TItem Item, double Distance)> Radius(in Coordinate2D c, double radius, int k = -1)
         {
-            var neighbors = new List<(TItem, double)>(16);
+            var neighbors = new List<(TItem Item, double Distance)>(20);
             var env = this.Spatial.Envelope(c, radius);
             var candidates = this.Search(env);
             foreach (var candidate in candidates)
@@ -34,7 +33,7 @@ namespace Sandwych.MapMatchingKit.Spatial.Index
                 var p = this.Spatial.Interpolate(geometry, this.ItemLengthGetter(candidate), f);
                 var d = this.Spatial.Distance(p, c);
 
-                if (d < radius)
+                if (d <= radius)
                 {
                     neighbors.Add((candidate, f));
                 }
@@ -42,7 +41,7 @@ namespace Sandwych.MapMatchingKit.Spatial.Index
 
             if (k > 0)
             {
-                return neighbors.OrderBy(i => i.Item2).Take(k);
+                return neighbors.OrderBy(i => i.Distance).Take(k);
             }
             else
             {

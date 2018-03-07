@@ -8,7 +8,15 @@ namespace Sandwych.MapMatchingKit.BenchmarkApp
     {
         static void Main(string[] args)
         {
-            var summary = BenchmarkRunner.Run<RoutersBenchmark>();
+
+            var switcher = new BenchmarkSwitcher(new[]
+            {
+                typeof(RoutersBenchmark),
+                typeof(SpatialIndexBenchmark),
+            });
+
+            switcher.Run(args);
+            Console.ReadKey();
         }
     }
 }

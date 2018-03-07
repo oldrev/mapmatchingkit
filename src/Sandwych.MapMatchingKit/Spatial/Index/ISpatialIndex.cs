@@ -17,6 +17,6 @@ namespace Sandwych.MapMatchingKit.Spatial.Index
         /// <param name="radius">Radius in meters</param>
         /// <param name="k">maximum number of candidates</param>
         /// <returns>Result set of object(s) that are within a the given radius or overlap the radius, limited by k.</returns>
-        IEnumerable<(TItem, double)> Radius(in Coordinate2D c, double radius, int k = -1);
+        IEnumerable<(TItem Item, double Distance)> Radius(in Coordinate2D c, double radius, int k = -1);
     }
 }

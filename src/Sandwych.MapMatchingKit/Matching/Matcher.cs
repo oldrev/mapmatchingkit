@@ -122,16 +122,7 @@ namespace Sandwych.MapMatchingKit.Matching
             foreach (var point in points)
             {
                 double dz = _spatial.Distance(sample.Coordinate, point.Coordinate);
-                double emission = 1 / _sqrt_2pi_sig2 * Math.Exp((-1) * dz * dz / (2 * _sig2));
-                if (!double.IsNaN(sample.Azimuth))
-                {
-                    double da = sample.Azimuth > point.Azimuth
-                            ? Math.Min(sample.Azimuth - point.Azimuth,
-                                    360 - (sample.Azimuth - point.Azimuth))
-                            : Math.Min(point.Azimuth - sample.Azimuth,
-                                    360 - (point.Azimuth - sample.Azimuth));
-                    emission *= Math.Max(1E-2, 1 / _sqrt_2pi_sigA * Math.Exp((-1) * da / (2 * _sigA)));
-                }
+                double emission = this.ComputeEmissionProbability(sample, point, dz);
 
                 var candidate = new MatcherCandidate(sample, point);
                 candidates.Add(new CandidateProbability(candidate, emission));
@@ -188,6 +179,23 @@ namespace Sandwych.MapMatchingKit.Matching
             }
 
             return transitions;
+        }
+
+
+        private double ComputeEmissionProbability(in MatcherSample sample, in RoadPoint candidates, double dz)
+        {
+            double emission = 1 / _sqrt_2pi_sig2 * Math.Exp((-1) * dz * dz / (2 * _sig2));
+            if (sample.HasAzimuth)
+            {
+                double da = sample.Azimuth > candidates.Azimuth
+                        ? Math.Min(sample.Azimuth - candidates.Azimuth,
+                                360 - (sample.Azimuth - candidates.Azimuth))
+                        : Math.Min(candidates.Azimuth - sample.Azimuth,
+                                360 - (candidates.Azimuth - sample.Azimuth));
+                emission *= Math.Max(1E-2, 1 / _sqrt_2pi_sigA * Math.Exp((-1) * da / (2 * _sigA)));
+            }
+
+            return emission;
         }
     }
 }

@@ -25,7 +25,7 @@ namespace Sandwych.MapMatchingKit.Markov
             public TSample Sample { get; }
             public TCandidate EstimatedCandidate { get; }
 
-            public SequenceEntry(ICollection<TCandidate> candidates, in TSample sample, in TCandidate estimated)
+            public SequenceEntry(ICollection<TCandidate> candidates, in TSample sample, TCandidate estimated)
             {
                 this.Candidates = candidates;
                 this.Sample = sample;
@@ -217,7 +217,7 @@ namespace Sandwych.MapMatchingKit.Markov
             }
             else
             {
-                return _sequence[_sequence.Count - 1].Candidates;
+                return _sequence.PeekLast().Candidates;
             }
         }
 

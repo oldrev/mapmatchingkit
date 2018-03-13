@@ -7,7 +7,7 @@
 
   <ItemGroup>
     <PackageReference Include="BenchmarkDotNet" Version="0.10.13" />
-    <PackageReference Include="NetTopologySuite.IO.GeoJSON" Version="1.15.0-pre062" />
+    <PackageReference Include="NetTopologySuite.IO.GeoJSON" Version="1.15.0-pre063" />
   </ItemGroup>
 
   <ItemGroup>

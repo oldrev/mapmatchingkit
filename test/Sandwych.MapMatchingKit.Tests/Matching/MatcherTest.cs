@@ -14,6 +14,8 @@ using Xunit;
 
 namespace Sandwych.MapMatchingKit.Tests.Matching
 {
+    using Matcher = Matcher<MatcherCandidate, MatcherTransition, MatcherSample>;
+
     public class MatcherTest : TestBase
     {
         private readonly ISpatialOperation _spatial = new GeographySpatialOperation();
@@ -56,7 +58,7 @@ namespace Sandwych.MapMatchingKit.Tests.Matching
             _map = roadMapBuilder.AddRoads(reader.Roads).Build();
         }
 
-        private void AssertCandidate(in CandidateProbability<MatcherCandidate> candidate, Coordinate2D sample)
+        private void AssertCandidate(in Matcher.CandidateProbability candidate, Coordinate2D sample)
         {
             var polyline = _map.GetEdge(candidate.Candidate.Point.Edge.Id).Geometry;
             var f = _spatial.Intercept(polyline, sample);
@@ -70,7 +72,7 @@ namespace Sandwych.MapMatchingKit.Tests.Matching
             AssertEquals(p, candidate.Probability, 10E-6);
         }
 
-        private void AssertTransition(in TransitionProbability<MatcherTransition> transition,
+        private void AssertTransition(in Matcher.TransitionProbability transition,
                 in (MatcherCandidate, MatcherSample) source,
                 in (MatcherCandidate, MatcherSample) target, double lambda)
         {
@@ -112,7 +114,7 @@ namespace Sandwych.MapMatchingKit.Tests.Matching
         [Fact]
         public void TestCandidates()
         {
-            var filter = new Matcher<MatcherCandidate, MatcherTransition, MatcherSample>(_map, _router, _cost, _spatial);
+            var filter = new Matcher(_map, _router, _cost, _spatial);
             {
                 filter.MaxRadius = 100D;
                 var sample = new Coordinate2D(11.001, 48.001);
@@ -152,7 +154,7 @@ namespace Sandwych.MapMatchingKit.Tests.Matching
         [Fact]
         public void TestTransitions()
         {
-            var filter = new Matcher<MatcherCandidate, MatcherTransition, MatcherSample>(_map, _router, _cost, _spatial);
+            var filter = new Matcher(_map, _router, _cost, _spatial);
             filter.MaxRadius = 200D;
             {
                 MatcherSample sample1 = new MatcherSample(0, 0, new Coordinate2D(11.001, 48.001));
@@ -174,7 +176,7 @@ namespace Sandwych.MapMatchingKit.Tests.Matching
                 Assert.Equal(2, predecessors.Count);
                 Assert.Equal(4, candidates.Count);
 
-                var transitions = filter.ComputeTransitions((sample1, predecessors), (sample2, candidates));
+                var transitions = filter.ComputeTransitions(new Matcher.SampleCandidates(sample1, predecessors), new Matcher.SampleCandidates(sample2, candidates));
 
                 Assert.Equal(2, transitions.Count);
 
@@ -209,7 +211,7 @@ namespace Sandwych.MapMatchingKit.Tests.Matching
                 Assert.Equal(4, predecessors.Count);
                 Assert.Equal(2, candidates.Count);
 
-                var transitions = filter.ComputeTransitions((sample1, predecessors), (sample2, candidates));
+                var transitions = filter.ComputeTransitions(new Matcher.SampleCandidates(sample1, predecessors), new Matcher.SampleCandidates(sample2, candidates));
 
                 Assert.Equal(4, transitions.Count);
 

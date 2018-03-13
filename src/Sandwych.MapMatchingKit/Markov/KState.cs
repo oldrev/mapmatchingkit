@@ -71,7 +71,7 @@ namespace Sandwych.MapMatchingKit.Markov
             {
                 if (_sequence.Count == 0)
                 {
-                    return default(TSample);
+                    throw new InvalidOperationException();
                 }
                 else
                 {
@@ -86,7 +86,7 @@ namespace Sandwych.MapMatchingKit.Markov
             {
                 if (_sequence.Count == 0)
                 {
-                    return DateTimeOffset.MaxValue;
+                    throw new InvalidOperationException();
                 }
                 else
                 {

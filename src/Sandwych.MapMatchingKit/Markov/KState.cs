@@ -71,7 +71,7 @@ namespace Sandwych.MapMatchingKit.Markov
             {
                 if (_sequence.Count == 0)
                 {
-                    throw new InvalidOperationException();
+                    return default(TSample);
                 }
                 else
                 {

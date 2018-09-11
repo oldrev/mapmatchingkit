@@ -8,7 +8,7 @@
     A general purpose utility library implements Hidden Markov Models (HMM) for time-inhomogeneous Markov processes for .NET.
     </Description>
     <PackageTags>map-matching;markov;hmm;viterbi</PackageTags>
-    <VersionPrefix>0.1.0</VersionPrefix>
+    <VersionPrefix>0.1.1</VersionPrefix>
     <VersionSuffix>beta</VersionSuffix>
   </PropertyGroup>
 

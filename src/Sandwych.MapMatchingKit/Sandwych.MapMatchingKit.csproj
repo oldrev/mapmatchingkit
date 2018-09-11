@@ -1,19 +1,20 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard1.6;netstandard2.0;net451;net461;</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0;net461;</TargetFrameworks>
     <LangVersion>latest</LangVersion>
     <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="NetTopologySuite" Version="1.15.0-pre063" />
+    <PackageReference Include="NetTopologySuite" Version="1.15.1" />
     <PackageReference Include="Nito.Collections.Deque" Version="1.0.4" />
-    <PackageReference Include="ProjNET4GeoAPI" Version="1.4.0-pre001" />
+    <PackageReference Include="ProjNET4GeoAPI" Version="1.4.1" />
     <PackageReference Include="Sandwych.GeographicLib" Version="1.49.3" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="1.1.2" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="2.1.1" />
     <PackageReference Include="Sandwych.QuickGraph.Core" Version="1.0.0" />
-    <PackageReference Include="System.Collections.Immutable" Version="1.4.0" />
+    <PackageReference Include="System.Collections.Immutable" Version="1.5.0" />
+    <PackageReference Include="System.ValueTuple" Version="4.5.0" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'netstandard1.6' Or '$(TargetFramework)' == 'net451'">

@@ -60,7 +60,7 @@ Task("Run-Unit-Tests")
 {
     var settings = new DotNetCoreTestSettings
     {
-        Framework = "netcoreapp2.0",
+        Framework = "netcoreapp2.1",
         NoBuild = true,
         NoRestore = true,
         Configuration = configuration,

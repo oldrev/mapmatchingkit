@@ -51,14 +51,14 @@ namespace Sandwych.MapMatchingKit.Roads
 
         public double Cost(Func<Road, double> costFunc)
         {
-            var value = Costs.Cost(this.StartPoint.Edge, 1.0 - this.StartPoint.Fraction, costFunc);
+            var value = Costs.ComputeCost(this.StartPoint.Edge, 1.0 - this.StartPoint.Fraction, costFunc);
 
             foreach (var e in _edges)
             {
                 value += costFunc(e);
             }
 
-            value -= Costs.Cost(this.EndPoint.Edge, 1.0 - this.EndPoint.Fraction, costFunc);
+            value -= Costs.ComputeCost(this.EndPoint.Edge, 1.0 - this.EndPoint.Fraction, costFunc);
 
             return value;
         }
@@ -72,6 +72,11 @@ namespace Sandwych.MapMatchingKit.Roads
 
         public bool Equals(Route other)
         {
+            if (ReferenceEquals(this, other))
+            {
+                return true;
+            }
+
             if (!this.StartPoint.Equals(other.StartPoint))
             {
                 return false;

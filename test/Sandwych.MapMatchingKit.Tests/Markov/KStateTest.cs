@@ -13,11 +13,11 @@ namespace Sandwych.MapMatchingKit.Tests.Markov
         {
         }
 
-        private class MockElem : AbstractStateCandidate<MockElem, MockStateTransition, MockSample>
+        private class MockElem : AbstractStateCandidate<MockElem, MockStateTransition, MockSample>, IEquatable<MockElem>
         {
             private readonly int _id;
 
-            public MockElem(int id, double seqprob, double filtprob, MockElem pred) : base(null)
+            public MockElem(int id, double seqprob, double filtprob, MockElem pred) : base(default)
             {
                 this._id = id;
                 this.Seqprob = seqprob;
@@ -34,7 +34,7 @@ namespace Sandwych.MapMatchingKit.Tests.Markov
             */
             public int Id => _id;
 
-            public override bool Equals(MockElem other)
+            public bool Equals(MockElem other)
             {
                 return this.Id == other.Id;
             }
@@ -201,7 +201,7 @@ namespace Sandwych.MapMatchingKit.Tests.Markov
             elements.Add(1, new MockElem(1, Math.Log10(0.2), 0.2, null));
             elements.Add(2, new MockElem(2, Math.Log10(0.5), 0.5, null));
 
-            var state = new KState<MockElem, MockStateTransition, MockSample>(1, -1);
+            var state = new KState<MockElem, MockStateTransition, MockSample>(1);
             {
                 var vector = new HashSet<MockElem>() {
                     elements[0], elements[1], elements[2]
@@ -299,7 +299,7 @@ namespace Sandwych.MapMatchingKit.Tests.Markov
             elements.Add(1, new MockElem(1, Math.Log10(0.2), 0.2, null));
             elements.Add(2, new MockElem(2, Math.Log10(0.5), 0.5, null));
 
-            var state = new KState<MockElem, MockStateTransition, MockSample>(-1, 1);
+            var state = new KState<MockElem, MockStateTransition, MockSample>(-1, TimeSpan.FromMilliseconds(1.0));
             {
                 var vector = new HashSet<MockElem>() { elements[0], elements[1], elements[2] };
 

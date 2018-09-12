@@ -1,9 +1,9 @@
 language: csharp
 sudo: false
 mono: none
-dotnet: 2.1.4
-dist: trusty
-solution: Sandwych.MapMatchingKit.sln
+dotnet: 2.1.401
+mono: latest
+dist: xenial
 
 env:
   global:
@@ -18,11 +18,13 @@ branches:
     - /^.*-wip$/
     - /^(.*\/)?ci-.*$/
 
-install:
-  - dotnet restore
-
 script:
-  - dotnet build src/Sandwych.Hmm -f netstandard1.1
-  - dotnet build src/Sandwych.MapMatchingKit -f netstandard2.0
-  - dotnet test test/Sandwych.Hmm.Tests/Sandwych.Hmm.Tests.csproj
-  - dotnet test test/Sandwych.MapMatchingKit.Tests/Sandwych.MapMatchingKit.Tests.csproj
+  - ./build.sh "-target=Travis"
+
+cache:
+  directories:
+    - .packages
+    - tools
+
+notifications:
+  email: false

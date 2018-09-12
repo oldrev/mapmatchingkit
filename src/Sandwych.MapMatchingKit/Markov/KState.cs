@@ -19,36 +19,45 @@ namespace Sandwych.MapMatchingKit.Markov
         where TCandidate : class, IStateCandidate<TCandidate, TTransition, TSample>
         where TSample : ISample
     {
-        private readonly int _k;
-        private readonly long _t;
-        private readonly Deque<(ICollection<TCandidate>, TSample, TCandidate)> _sequence;
-        private readonly IDictionary<TCandidate, int> _counters;
-
-        /// <summary>
-        /// Creates empty {@link KState} object with default parameters, i.e. capacity is unbounded.
-        /// </summary>
-        public KState()
+        private readonly struct SequenceEntry
         {
-            this._k = -1;
-            this._t = -1;
-            this._sequence = new Deque<(ICollection<TCandidate>, TSample, TCandidate)>();
-            this._counters = new Dictionary<TCandidate, int>();
+            public ICollection<TCandidate> Candidates { get; }
+            public TSample Sample { get; }
+            public TCandidate EstimatedCandidate { get; }
+
+            public SequenceEntry(ICollection<TCandidate> candidates, in TSample sample, TCandidate estimated)
+            {
+                this.Candidates = candidates;
+                this.Sample = sample;
+                this.EstimatedCandidate = estimated;
+            }
         }
 
+        private readonly Deque<SequenceEntry> _sequence;
+        private readonly IDictionary<TCandidate, int> _counters;
 
-        /*
-         * Creates an empty {@link KState} object and sets <i>&kappa;</i> and <i>&tau;</i> parameters.
-         *
-         * @param k <i>&kappa;</i> parameter bounds the length of the state sequence to at most
-         *        <i>&kappa;+1</i> states, if <i>&kappa; &ge; 0</i>.
-         * @param t <i>&tau;</i> parameter bounds length of the state sequence to contain only states
-         *        for the past <i>&tau;</i> milliseconds.
-         */
-        public KState(int k, long t)
+        public int SequenceSizeBound { get; } = -1;
+        public TimeSpan SequenceIntervalBound { get; } = TimeSpan.MinValue;
+
+        /// <summary>
+        /// Creates empty <see cref="KState{TCandidate, TTransition, TSample}"/> object with default parameters, i.e. capacity is unbounded.
+        /// </summary>
+        public KState() : this(-1, TimeSpan.MinValue) { }
+
+        public KState(int k) : this(k, TimeSpan.MinValue) { }
+
+        public KState(TimeSpan t) : this(-1, t) { }
+
+        /// <summary>
+        /// Creates an empty <see cref="KState{TCandidate, TTransition, TSample}"/> object and sets <i>&kappa;</i> and <i>&tau;</i> parameters.
+        /// </summary>
+        /// <param name="k"><i>&kappa;</i> parameter bounds the length of the state sequence to at most <i>&kappa;+1</i> states, if <i>&kappa; &ge; 0</i>.</param>
+        /// <param name="t"><i>&tau;</i> parameter bounds length of the state sequence to contain only states for the past <i>&tau;</i> milliseconds.</param>
+        public KState(int k, TimeSpan t)
         {
-            this._k = k;
-            this._t = t;
-            this._sequence = new Deque<(ICollection<TCandidate>, TSample, TCandidate)>();
+            this.SequenceSizeBound = k;
+            this.SequenceIntervalBound = t;
+            this._sequence = new Deque<SequenceEntry>();
             this._counters = new Dictionary<TCandidate, int>();
         }
 
@@ -66,7 +75,7 @@ namespace Sandwych.MapMatchingKit.Markov
                 }
                 else
                 {
-                    return _sequence.PeekLast().Item2;
+                    return _sequence.PeekLast().Sample;
                 }
             }
         }
@@ -77,7 +86,7 @@ namespace Sandwych.MapMatchingKit.Markov
             {
                 if (_sequence.Count == 0)
                 {
-                    return DateTimeOffset.MaxValue;
+                    throw new InvalidOperationException();
                 }
                 else
                 {
@@ -94,7 +103,7 @@ namespace Sandwych.MapMatchingKit.Markov
         {
             foreach (var element in _sequence)
             {
-                yield return element.Item2;
+                yield return element.Sample;
             }
         }
 
@@ -105,7 +114,7 @@ namespace Sandwych.MapMatchingKit.Markov
                 return;
             }
 
-            if (_sequence.Count > 0 && _sequence.PeekLast().Item2.Time > sample.Time)
+            if (_sequence.Count > 0 && _sequence.PeekLast().Sample.Time > sample.Time)
             {
                 throw new InvalidOperationException("out-of-order state update is prohibited");
             }
@@ -116,7 +125,7 @@ namespace Sandwych.MapMatchingKit.Markov
                 _counters[candidate] = 0;
                 if (candidate.Predecessor != null)
                 {
-                    if (!_counters.ContainsKey(candidate.Predecessor) || !_sequence.PeekLast().Item1.Contains(candidate.Predecessor))
+                    if (!_counters.ContainsKey(candidate.Predecessor) || !_sequence.PeekLast().Candidates.Contains(candidate.Predecessor))
                     {
                         throw new InvalidOperationException("Inconsistent update vector.");
                     }
@@ -133,7 +142,7 @@ namespace Sandwych.MapMatchingKit.Markov
                 var last = _sequence.PeekLast();
                 var deletes = new List<TCandidate>();
 
-                foreach (TCandidate candidate in last.Item1)
+                foreach (TCandidate candidate in last.Candidates)
                 {
                     if (_counters[candidate] == 0)
                     {
@@ -141,23 +150,23 @@ namespace Sandwych.MapMatchingKit.Markov
                     }
                 }
 
-                var size = _sequence.PeekLast().Item1.Count;
+                var size = _sequence.PeekLast().Candidates.Count;
 
                 foreach (TCandidate candidate in deletes)
                 {
-                    if (deletes.Count != size || candidate != last.Item3)
+                    if (deletes.Count != size || candidate != last.EstimatedCandidate)
                     {
                         this.Remove(candidate, _sequence.Count - 1);
                     }
                 }
             }
 
-            _sequence.AddToBack((vector, sample, kestimate));
+            _sequence.AddToBack(new SequenceEntry(vector, sample, kestimate));
 
-            while ((_t > 0 && (sample.Time - _sequence.PeekFirst().Item2.Time).TotalMilliseconds > _t)
-                    || (_k >= 0 && _sequence.Count > _k + 1))
+            while ((SequenceIntervalBound >= TimeSpan.Zero && (sample.Time - _sequence.PeekFirst().Sample.Time) > SequenceIntervalBound)
+                || (SequenceSizeBound >= 0 && _sequence.Count > SequenceSizeBound + 1))
             {
-                var deletes = _sequence.PeekFirst().Item1;
+                var deletes = _sequence.PeekFirst().Candidates;
                 _sequence.RemoveFromFront();
 
                 foreach (TCandidate candidate in deletes)
@@ -165,13 +174,13 @@ namespace Sandwych.MapMatchingKit.Markov
                     _counters.Remove(candidate);
                 }
 
-                foreach (TCandidate candidate in _sequence.PeekFirst().Item1)
+                foreach (TCandidate candidate in _sequence.PeekFirst().Candidates)
                 {
                     candidate.Predecessor = null;
                 }
             }
 
-            bool assert = (_k < 0 || _sequence.Count <= _k + 1);
+            bool assert = (SequenceSizeBound < 0 || _sequence.Count <= SequenceSizeBound + 1);
             if (!assert)
             {
                 throw new InvalidOperationException();
@@ -180,12 +189,12 @@ namespace Sandwych.MapMatchingKit.Markov
 
         protected void Remove(in TCandidate candidate, int index)
         {
-            if (_sequence[index].Item3 == candidate)
+            if (_sequence[index].EstimatedCandidate == candidate)
             {
                 return;
             }
 
-            var vector = _sequence[index].Item1;
+            var vector = _sequence[index].Candidates;
             _counters.Remove(candidate);
             vector.Remove(candidate);
 
@@ -208,7 +217,7 @@ namespace Sandwych.MapMatchingKit.Markov
             }
             else
             {
-                return _sequence[_sequence.Count - 1].Item1;
+                return _sequence.PeekLast().Candidates;
             }
         }
 
@@ -220,7 +229,7 @@ namespace Sandwych.MapMatchingKit.Markov
             }
 
             TCandidate estimate = null;
-            foreach (TCandidate candidate in _sequence.PeekLast().Item1)
+            foreach (TCandidate candidate in _sequence.PeekLast().Candidates)
             {
                 if (estimate == null || candidate.Filtprob > estimate.Filtprob)
                 {
@@ -238,26 +247,33 @@ namespace Sandwych.MapMatchingKit.Markov
         /// <returns>List of the most likely sequence of state candidates.</returns>
         public IEnumerable<TCandidate> Sequence()
         {
-            var ksequence = new Deque<TCandidate>(_sequence.Count);
-            if (_sequence.Count > 0)
+            IEnumerable<TCandidate> EnumerateSequenceBackward()
             {
-                TCandidate kestimate = _sequence.PeekLast().Item3;
+                var kestimate = _sequence.PeekLast().EstimatedCandidate;
 
-                for (int i = _sequence.Count - 1; i >= 0; --i)
+                foreach (var entry in _sequence.Reverse())
                 {
                     if (kestimate != null)
                     {
-                        ksequence.AddToFront(kestimate);
+                        yield return kestimate;
                         kestimate = kestimate.Predecessor;
                     }
                     else
                     {
-                        ksequence.AddToFront(_sequence[i].Item3);
-                        kestimate = _sequence[i].Item3.Predecessor;
+                        yield return entry.EstimatedCandidate;
+                        kestimate = entry.EstimatedCandidate.Predecessor;
                     }
                 }
             }
-            return ksequence;
+
+            if (_sequence.Count > 0)
+            {
+                return EnumerateSequenceBackward().Reverse();
+            }
+            else
+            {
+                return new TCandidate[] { };
+            }
         }
 
     }

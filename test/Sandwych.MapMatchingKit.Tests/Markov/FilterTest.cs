@@ -12,7 +12,7 @@ namespace Sandwych.MapMatchingKit.Tests.Markov
         {
         }
 
-        private class MockElement : AbstractStateCandidate<MockElement, MockStateTransition, MockSample>
+        private class MockElement : AbstractStateCandidate<MockElement, MockStateTransition, MockSample>, IEquatable<MockElement>
         {
             public int Id { get; }
 
@@ -21,13 +21,13 @@ namespace Sandwych.MapMatchingKit.Tests.Markov
                 this.Id = id;
             }
 
-            public MockElement(int id, double filtprob, double seqprob) : this(null, id)
+            public MockElement(int id, double filtprob, double seqprob) : this(default, id)
             {
                 this.Filtprob = filtprob;
                 this.Seqprob = seqprob;
             }
 
-            public override bool Equals(MockElement other)
+            public bool Equals(MockElement other)
             {
                 return this.Id == other.Id;
             }
@@ -133,24 +133,24 @@ namespace Sandwych.MapMatchingKit.Tests.Markov
                 this.states = states;
             }
 
-            public override IReadOnlyCollection<CandidateProbability<MockElement>> ComputeCandidates(
+            public override IEnumerable<CandidateProbability> ComputeCandidates(
                 IEnumerable<MockElement> predecessors, in MockSample sample)
             {
-                var candidates = new List<CandidateProbability<MockElement>>();
+                var results = new CandidateProbability[states.NumCandidates];
                 for (int c = 0; c < states.NumCandidates; ++c)
                 {
-                    candidates.Add(new CandidateProbability<MockElement>(new MockElement(sample, c), states.Emission(c)));
+                    results[c] = new CandidateProbability(new MockElement(sample, c), states.Emission(c));
                 }
-                return candidates.ToArray();
+                return results;
             }
 
 
-            public override TransitionProbability<MockStateTransition> ComputeTransition(
-                    in (MockSample, MockElement) predecessor,
-                    in (MockSample, MockElement) candidate)
+            public override TransitionProbability ComputeTransition(
+                    in SampleCandidate predecessor,
+                    in SampleCandidate candidate)
             {
-                return new TransitionProbability<MockStateTransition>(
-                    new MockStateTransition(), states.Transition(predecessor.Item2.Id, candidate.Item2.Id));
+                return new TransitionProbability(
+                    new MockStateTransition(), states.Transition(predecessor.Candidate.Id, candidate.Candidate.Id));
             }
 
             public ICollection<MockElement> Execute()

@@ -57,11 +57,13 @@ namespace Sandwych.MapMatchingKit.Tests.Spatial
         [Fact]
         public void TestLineInterception()
         {
-            var wktReader = new WKTReader();
+            var factory = GeoAPI.GeometryServiceProvider.Instance.CreateGeometryFactory();
+            var wktReader = new WKTReader(factory);
             var ab = wktReader.Read("LINESTRING(11.4047661 48.1403687,11.4053519 48.141055)") as ILineString;
-            var a = ab.GetPointN(0).ToCoordinate2D();
-            var b = ab.GetPointN(1).ToCoordinate2D();
+            var a = ab.GetCoordinateN(0).ToCoordinate2D();
+            var b = ab.GetCoordinateN(1).ToCoordinate2D();
 
+            /* FIXME NTS Bug
             var points = new string[] {
                 "POINT(11.406501117689324 48.14051652560591)", // East
                 "POINT(11.406713245538327 48.14182906667162)", // Northeast
@@ -72,10 +74,23 @@ namespace Sandwych.MapMatchingKit.Tests.Spatial
                 "POINT(11.405221721600025 48.1392039845402)", // South
                 "POINT(11.406255844863914 48.13963486923349)" // Southeast
             };
+            */
+
+            var points = new Coordinate2D[] {
+                new Coordinate2D(11.406501117689324, 48.14051652560591), // East
+                new Coordinate2D(11.406713245538327, 48.14182906667162), // Northeast
+                new Coordinate2D(11.404923416812364, 48.14258477213369), // North
+                new Coordinate2D(11.403300759321036, 48.14105540093837), // Northwest
+                new Coordinate2D(11.403193249043934, 48.140881120346386), // West
+                new Coordinate2D(11.40327279698731, 48.13987351306362), // Southwest
+                new Coordinate2D(11.405221721600025, 48.1392039845402), // South
+                new Coordinate2D(11.406255844863914, 48.13963486923349) // Southeast
+            };
 
             for (int i = 0; i < points.Length; ++i)
             {
-                var c = (wktReader.Read(points[i]) as IPoint).ToCoordinate2D();
+                //var c = (wktReader.Read(points[i]) as IPoint).ToCoordinate2D();
+                var c = points[i];
 
                 var f = Spatial.Intercept(a, b, c);
                 var p = Spatial.Interpolate(a, b, f);
@@ -116,11 +131,11 @@ namespace Sandwych.MapMatchingKit.Tests.Spatial
         public void TestPathInterception1()
         {
             var wktReader = new WKTReader();
-            var point = "POINT(11.410624 48.144161)";
+            //var point = "POINT(11.410624 48.144161)";
             var line =
                     "LINESTRING(11.4047013 48.1402147,11.4047038 48.1402718,11.4047661 48.1403687,11.4053519 48.141055,11.4054617 48.1411901,11.4062664 48.1421968,11.4064586 48.1424479,11.4066449 48.1427372,11.4067254 48.1429028,11.4067864 48.1430673,11.4068647 48.1433303,11.4069456 48.1436822,11.4070524 48.1440368,11.4071569 48.1443314,11.4072635 48.1445915,11.4073887 48.1448641,11.4075228 48.1450729,11.407806 48.1454843,11.4080135 48.1458112,11.4083012 48.1463167,11.4086211 48.1469061,11.4087461 48.1471386,11.4088719 48.1474078,11.4089422 48.1476014,11.409028 48.1478353,11.409096 48.1480701,11.4091568 48.1483459,11.4094282 48.1498536)";
 
-            var c = (wktReader.Read(point) as IPoint).ToCoordinate2D();
+            var c = new Coordinate2D(11.410624, 48.144161);//(wktReader.Read(point) as IPoint).ToCoordinate2D();
             var ab = wktReader.Read(line) as ILineString;
 
             var f = Spatial.Intercept(ab, c);
@@ -139,10 +154,11 @@ namespace Sandwych.MapMatchingKit.Tests.Spatial
         public void TestPathInterception2()
         {
             var wktReader = new WKTReader();
-            String point = "POINT(11.584009286555187 48.17578656762985)";
+            //String point = "POINT(11.584009286555187 48.17578656762985)";
             String line = "LINESTRING(11.5852021 48.1761996, 11.585284 48.175924, 11.5852937 48.1758945)";
 
-            var c = (wktReader.Read(point) as IPoint).ToCoordinate2D();
+            //var c = (wktReader.Read(point) as IPoint).ToCoordinate2D();
+            var c = new Coordinate2D(11.584009286555187, 48.17578656762985);
             var ab = wktReader.Read(line) as ILineString;
 
             var f = Spatial.Intercept(ab, c);

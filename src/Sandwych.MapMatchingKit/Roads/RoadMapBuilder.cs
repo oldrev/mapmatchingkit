@@ -35,21 +35,21 @@ namespace Sandwych.MapMatchingKit.Roads
 
         public RoadMap Build()
         {
-            return new RoadMap(this.GetAllRoads());
+            return new RoadMap(this.GetAllRoads(), _spatial);
         }
 
         private IEnumerable<Road> GetAllRoads()
         {
-            foreach (var r in _roads.Values)
+            foreach (var roadInfo in _roads.Values)
             {
-                if (r.OneWay)
+                if (roadInfo.OneWay)
                 {
-                    yield return new Road(r, Heading.Forward);
+                    yield return new Road(roadInfo, Heading.Forward);
                 }
                 else
                 {
-                    yield return new Road(r, Heading.Forward);
-                    yield return new Road(r, Heading.Backward);
+                    yield return new Road(roadInfo, Heading.Forward);
+                    yield return new Road(roadInfo, Heading.Backward);
                 }
             }
         }
@@ -58,7 +58,7 @@ namespace Sandwych.MapMatchingKit.Roads
         {
             var map = new Dictionary<long, IList<Road>>();
 
-            foreach (var edge in graph.Edges.Values)
+            foreach (var edge in graph.EdgeMap.Values)
             {
                 if (!map.ContainsKey(edge.Source))
                 {

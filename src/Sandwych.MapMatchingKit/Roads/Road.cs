@@ -9,13 +9,13 @@ namespace Sandwych.MapMatchingKit.Roads
 {
 
     /// <summary>
-    /// Directed road wrapper of {@link BaseRoad} objects in a directed road map ({@link RoadMap}). *
+    /// Directed road wrapper of <see cref="Roads.RoadInfo"/> objects in a directed road map (<see cref="RoadMap"/>).
     /// <para>
-    /// <b>Note:</b> Since {@link Road} objects are directional representations of {@link BaseRoad}
-    /// objects, each {@link BaseRoad} is split into two {@link Road} objects. For that purpose, it uses
-    /// the identifier <i>i</i> of each {@link BaseRoad} to define identifiers of the respective
-    /// {@link Road} objects, where <i>i * 2</i> is the identifier of the forward directed {@link Road}
-    /// and <i>i * 2 + 1</i> of the backward directed {@link Road}.
+    /// <b>Note:</b> Since <see cref="Road"/> objects are directional representations of <see cref="Roads.RoadInfo"/>
+    /// objects, each <see cref="Roads.RoadInfo"/> is split into two <see cref="Road"/> objects. For that purpose, it uses
+    /// the identifier <i>i</i> of each <see cref="Roads.RoadInfo"/> to define identifiers of the respective
+    /// {@link Road} objects, where <i>i * 2</i> is the identifier of the forward directed <see cref="Road"/>
+    /// and <i>i * 2 + 1</i> of the backward directed <see cref="Road"/>.
     /// </para>
     /// </summary>
     public class Road : AbstractGraphEdge<Road>
@@ -31,7 +31,7 @@ namespace Sandwych.MapMatchingKit.Roads
         public Heading Headeing { get; }
 
         /// <summary>
-        /// Gets road's geometry as a {@link Polyline} from the road's source to its target.
+        /// Gets road's geometry as a <see cref="GeoAPI.Geometries.ILineString"/> from the road's source to its target.
         /// </summary>
         public ILineString Geometry { get; }
 

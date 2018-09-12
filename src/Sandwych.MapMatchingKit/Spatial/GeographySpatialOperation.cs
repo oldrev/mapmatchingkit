@@ -43,24 +43,24 @@ namespace Sandwych.MapMatchingKit.Spatial
                 throw new ArgumentOutOfRangeException(nameof(f));
             }
 
-            var a = path.GetPointN(0).ToCoordinate2D();
+            var a = path.GetCoordinateN(0).ToCoordinate2D();
             double d = l * f;
             double s = 0, ds = 0;
 
             if (f < 0 + 1E-10)
             {
-                return this.Azimuth(path.GetPointN(0).ToCoordinate2D(), path.GetPointN(1).ToCoordinate2D(), 0);
+                return this.Azimuth(path.GetCoordinateN(0).ToCoordinate2D(), path.GetCoordinateN(1).ToCoordinate2D(), 0);
             }
 
             if (f > 1 - 1E-10)
             {
-                return this.Azimuth(path.GetPointN(path.NumPoints - 2).ToCoordinate2D(),
-                    path.GetPointN(path.NumPoints - 1).ToCoordinate2D(), f);
+                return this.Azimuth(path.GetCoordinateN(path.NumPoints - 2).ToCoordinate2D(),
+                    path.GetCoordinateN(path.NumPoints - 1).ToCoordinate2D(), f);
             }
 
             for (int i = 1; i < path.NumPoints; ++i)
             {
-                var b = path.GetPointN(i).ToCoordinate2D();
+                var b = path.GetCoordinateN(i).ToCoordinate2D();
                 ds = this.Distance(a, b);
 
                 if ((s + ds) >= d)
@@ -95,18 +95,19 @@ namespace Sandwych.MapMatchingKit.Spatial
         public double Intercept(ILineString p, in Coordinate2D c)
         {
             var d = Double.MaxValue;
-            var a = p.GetPointN(0).ToCoordinate2D();
+            var a = p.GetCoordinateN(0).ToCoordinate2D();
             var s = 0D;
             var sf = 0D;
             var ds = 0D;
 
             for (int i = 1; i < p.NumPoints; ++i)
             {
-                var b = p.GetPointN(i).ToCoordinate2D();
+                var b = p.GetCoordinateN(i).ToCoordinate2D();
 
-                ds = this.Distance(a, b);
+                var interceptTuple = this.InterceptInternal(a, b, c);
+                ds = interceptTuple.Distance;
+                var f_ = interceptTuple.Fraction;
 
-                var f_ = this.Intercept(a, b, c);
                 f_ = (f_ > 1) ? 1 : (f_ < 0) ? 0 : f_;
                 var x = this.Interpolate(a, b, f_);
                 double d_ = this.Distance(c, x);
@@ -123,25 +124,12 @@ namespace Sandwych.MapMatchingKit.Spatial
             return s == 0 ? 0 : sf / s;
         }
 
-        public double Intercept(in Coordinate2D a, in Coordinate2D b, in Coordinate2D c)
-        {
-            if (a.X == b.X && a.Y == b.Y)
-            {
-                return 0;
-            }
-            var inter = new GeodesicInterception(Geodesic.WGS84);
-            var ci = inter.Intercept(a.Y, a.X, b.Y, b.X, c.Y, c.X);
-            var ai = Geodesic.WGS84.Inverse(a.Y, a.X, ci.lat2, ci.lon2);
-            var ab = Geodesic.WGS84.Inverse(a.Y, a.X, b.Y, b.X);
-            return (Math.Abs(ai.azi1 - ab.azi1) < 1) ? ai.s12 / ab.s12 : (-1) * ai.s12 / ab.s12;
-        }
+        public double Intercept(in Coordinate2D a, in Coordinate2D b, in Coordinate2D c) =>
+            this.InterceptInternal(a, b, c).Fraction;
 
-        public Coordinate2D Interpolate(in Coordinate2D a, in Coordinate2D b, double f)
-        {
-            var inv = Geodesic.WGS84.Inverse(a.Y, a.X, b.Y, b.X);
-            var pos = Geodesic.WGS84.Line(inv.lat1, inv.lon1, inv.azi1).Position(inv.s12 * f);
-            return new Coordinate2D(pos.lon2, pos.lat2);
-        }
+        public Coordinate2D Interpolate(in Coordinate2D a, in Coordinate2D b, double f) =>
+            this.InterpolateInternal(a, b, f).Point;
+
 
         public Coordinate2D Interpolate(ILineString path, double f) =>
             this.Interpolate(path, this.Length(path), f);
@@ -153,7 +141,7 @@ namespace Sandwych.MapMatchingKit.Spatial
                 throw new ArgumentOutOfRangeException(nameof(f));
             }
 
-            var p0 = path.GetPointN(0).ToCoordinate2D();
+            var p0 = path.GetCoordinateN(0).ToCoordinate2D();
             var a = p0;
             double d = l * f;
             double s = 0, ds = 0;
@@ -165,12 +153,12 @@ namespace Sandwych.MapMatchingKit.Spatial
 
             if (f > 1 - 1E-10)
             {
-                return path.GetPointN(path.NumPoints - 1).ToCoordinate2D();
+                return path.GetCoordinateN(path.NumPoints - 1).ToCoordinate2D();
             }
 
             for (int i = 1; i < path.NumPoints; ++i)
             {
-                var b = path.GetPointN(i).ToCoordinate2D();
+                var b = path.GetCoordinateN(i).ToCoordinate2D();
                 ds = this.Distance(a, b);
 
                 if ((s + ds) >= d)
@@ -178,25 +166,49 @@ namespace Sandwych.MapMatchingKit.Spatial
                     return this.Interpolate(a, b, (d - s) / ds);
                 }
 
-                s = s + ds;
+                s += ds;
                 a = b;
             }
 
             return Coordinate2D.NaN;
         }
 
+
         public double Length(ILineString line)
         {
             var d = 0D;
             for (var i = 1; i < line.NumPoints; ++i)
             {
-                d += this.Distance(line.GetPointN(i - 1).ToCoordinate2D(), line.GetPointN(i).ToCoordinate2D());
+                d += this.Distance(line.GetCoordinateN(i - 1).ToCoordinate2D(), line.GetCoordinateN(i).ToCoordinate2D());
             }
             return d;
         }
 
+
         public double Length(IMultiLineString line) =>
             line.Geometries.Cast<ILineString>().Sum(x => this.Length(x));
+
+
+        private (Coordinate2D Point, double Distance) InterpolateInternal(in Coordinate2D a, in Coordinate2D b, double f)
+        {
+            var inv = Geodesic.WGS84.Inverse(a.Y, a.X, b.Y, b.X);
+            var pos = Geodesic.WGS84.Line(inv.lat1, inv.lon1, inv.azi1).Position(inv.s12 * f);
+            return (new Coordinate2D(pos.lon2, pos.lat2), inv.s12 * f);
+        }
+
+        private (double Distance, double Fraction) InterceptInternal(in Coordinate2D a, in Coordinate2D b, in Coordinate2D c)
+        {
+            if (a.X == b.X && a.Y == b.Y)
+            {
+                return (0D, 0D);
+            }
+            var inter = new GeodesicInterception(Geodesic.WGS84);
+            var ci = inter.Intercept(a.Y, a.X, b.Y, b.X, c.Y, c.X);
+            var ai = Geodesic.WGS84.Inverse(a.Y, a.X, ci.lat2, ci.lon2);
+            var ab = Geodesic.WGS84.Inverse(a.Y, a.X, b.Y, b.X);
+            var fraction = (Math.Abs(ai.azi1 - ab.azi1) < 1) ? ai.s12 / ab.s12 : (-1) * ai.s12 / ab.s12;
+            return (ab.s12, fraction);
+        }
 
     }
 }

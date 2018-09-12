@@ -11,12 +11,14 @@ using Sandwych.MapMatchingKit.Roads;
 using Sandwych.MapMatchingKit.Topology;
 using Sandwych.MapMatchingKit.Spatial;
 using GeoAPI.Geometries;
+using Sandwych.MapMatchingKit.Topology.PrecomputedDijkstra;
 
 namespace Sandwych.MapMatchingKit.Examples.HelloWorldApp
 {
     class Program
     {
-        private static readonly string s_dataDir = Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), "..", "..", "data"));
+        private static readonly string s_dataDir =
+            Path.GetFullPath(Path.Combine(typeof(Program).Assembly.Location, "../../../../../../", "data"));
 
         static void Main(string[] args)
         {
@@ -28,7 +30,12 @@ namespace Sandwych.MapMatchingKit.Examples.HelloWorldApp
             var map = mapBuilder.AddRoads(roads).Build();
             Console.WriteLine("The road map has been loaded");
 
-            var matcher = new Matcher(map, new DijkstraRouter<Road, RoadPoint>(), Costs.TimePriorityCost, spatial);
+
+            //var router = new PrecomputedDijkstraRouter<Road, RoadPoint>(map, Costs.TimePriorityCost, Costs.DistanceCost, 1000D);
+            var router = new DijkstraRouter<Road, RoadPoint>();
+
+            var matcher = new Matcher<MatcherCandidate, MatcherTransition, MatcherSample>(
+                map, router, Costs.TimePriorityCost, spatial);
             matcher.MaxDistance = 1000; // set maximum searching distance between two GPS points to 1000 meters.
             matcher.MaxRadius = 200.0; // sets maximum radius for candidate selection to 200 meters
 
@@ -42,13 +49,16 @@ namespace Sandwych.MapMatchingKit.Examples.HelloWorldApp
 
 
             Console.WriteLine("Starting Online map-matching...");
-            OnlineMatch(matcher, samples);
+            //Uncomment below line to see how online-matching works
+            //OnlineMatch(matcher, samples);
 
             Console.WriteLine("All done!");
             Console.ReadKey();
         }
 
-        private static void OnlineMatch(Matcher matcher, IReadOnlyList<MatcherSample> samples)
+        private static void OnlineMatch(
+            Matcher<MatcherCandidate, MatcherTransition, MatcherSample> matcher,
+            IReadOnlyList<MatcherSample> samples)
         {
             // Create initial (empty) state memory
             var kstate = new MatcherKState();
@@ -67,7 +77,9 @@ namespace Sandwych.MapMatchingKit.Examples.HelloWorldApp
             }
         }
 
-        private static void OfflineMatch(Matcher matcher, IReadOnlyList<MatcherSample> samples)
+        private static void OfflineMatch(
+            Matcher<MatcherCandidate, MatcherTransition, MatcherSample> matcher,
+            IReadOnlyList<MatcherSample> samples)
         {
             var kstate = new MatcherKState();
 
@@ -87,6 +99,7 @@ namespace Sandwych.MapMatchingKit.Examples.HelloWorldApp
             Console.WriteLine("Results: [count={0}]", candidatesSequence.Count());
             var csvLines = new List<string>();
             csvLines.Add("time,lng,lat,azimuth");
+            int matchedCandidateCount = 0;
             foreach (var cand in candidatesSequence)
             {
                 var roadId = cand.Point.Edge.RoadInfo.Id; // original road id
@@ -98,9 +111,11 @@ namespace Sandwych.MapMatchingKit.Examples.HelloWorldApp
                     var geom = cand.Transition.Route.ToGeometry(); // path geometry(LineString) from last matching candidate
                     //cand.Transition.Route.Edges // Road segments between two GPS position
                 }
+                matchedCandidateCount++;
             }
+            Console.WriteLine("Matched Candidates: {0}, Rate: {1}%", matchedCandidateCount, matchedCandidateCount * 100 / samples.Count());
 
-            var csvFile = Path.Combine(s_dataDir, "samples.output.csv");
+            var csvFile = System.IO.Path.Combine(s_dataDir, "samples.output.csv");
             Console.WriteLine("Writing output file: {0}", csvFile);
             File.WriteAllLines(csvFile, csvLines);
         }
@@ -108,7 +123,7 @@ namespace Sandwych.MapMatchingKit.Examples.HelloWorldApp
 
         private static IEnumerable<MatcherSample> ReadSamples()
         {
-            var json = File.ReadAllText(Path.Combine(s_dataDir, @"samples.geojson"));
+            var json = File.ReadAllText(System.IO.Path.Combine(s_dataDir, @"samples.oneday.geojson"));
             var reader = new GeoJsonReader();
             var fc = reader.Read<FeatureCollection>(json);
             var timeFormat = "yyyy-MM-dd-HH.mm.ss";

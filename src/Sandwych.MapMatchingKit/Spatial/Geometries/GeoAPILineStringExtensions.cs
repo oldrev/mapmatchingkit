@@ -7,10 +7,7 @@ namespace Sandwych.MapMatchingKit.Spatial.Geometries
 {
     public static class GeoAPILineStringExtensions
     {
-        public static Coordinate2D GetCoordinate2DAt(this ILineString line, int n)
-        {
-            var p = line.GetPointN(n);
-            return new Coordinate2D(p.X, p.Y);
-        }
+        public static Coordinate2D GetCoordinate2DAt(this ILineString line, int n) =>
+            line.GetCoordinateN(n).ToCoordinate2D();
     }
 }

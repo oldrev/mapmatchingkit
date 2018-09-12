@@ -10,7 +10,6 @@ using Sandwych.MapMatchingKit.Spatial.Geometries;
 namespace Sandwych.MapMatchingKit.Spatial
 {
 
-#if CARTESIAN_SPATIAL
     public sealed class CartesianSpatialOperation : ISpatialOperation
     {
         private const double TwoPi = Math.PI * 2;
@@ -30,14 +29,14 @@ namespace Sandwych.MapMatchingKit.Spatial
         public double Intercept(ILineString p, in Coordinate2D c)
         {
             var d = Double.MaxValue;
-            var a = p.GetPointN(0).ToCoordinate2D();
+            var a = p.GetCoordinateN(0).ToCoordinate2D();
             var s = 0D;
             var sf = 0D;
             var ds = 0D;
 
             for (int i = 1; i < p.NumPoints; ++i)
             {
-                var b = p.GetPointN(i).ToCoordinate2D();
+                var b = p.GetCoordinateN(i).ToCoordinate2D();
 
                 ds = this.Distance(a, b);
 
@@ -109,7 +108,7 @@ namespace Sandwych.MapMatchingKit.Spatial
             {
                 throw new ArgumentOutOfRangeException(nameof(f));
             }
-            var p0 = path.GetPointN(0).ToCoordinate2D();
+            var p0 = path.GetCoordinateN(0).ToCoordinate2D();
 
             var a = p0;
             double d = l * f;
@@ -122,12 +121,12 @@ namespace Sandwych.MapMatchingKit.Spatial
 
             if (f > 1 - 1E-10)
             {
-                return path.GetPointN(path.NumPoints - 1).ToCoordinate2D();
+                return path.GetCoordinateN(path.NumPoints - 1).ToCoordinate2D();
             }
 
             for (int i = 1; i < path.NumPoints; ++i)
             {
-                var b = path.GetPointN(i).ToCoordinate2D();
+                var b = path.GetCoordinateN(i).ToCoordinate2D();
                 ds = this.Distance(a, b);
 
                 if ((s + ds) >= d)
@@ -152,15 +151,16 @@ namespace Sandwych.MapMatchingKit.Spatial
 
         public Envelope Envelope(in Coordinate2D c, double radius)
         {
-            //c 是圆心，radius 是外接正方形边长的一半
-            var bottomLeft = (x: c.X - radius, y: c.Y - radius);
-            var topRight = (x: c.X + radius, y: c.Y + radius);
-            return new Envelope(bottomLeft.x, topRight.x, bottomLeft.y, topRight.y);
+            var minCorner = (X: c.X - radius, Y: c.Y - radius);
+            var maxCorner = (X: c.X + radius, Y: c.Y + radius);
+            return new Envelope(minCorner.X, maxCorner.X, minCorner.Y, maxCorner.Y);
         }
 
-
+        public Envelope Envelope(ILineString line)
+        {
+            return line.EnvelopeInternal;
+        }
 
     }
 
-#endif
 }
